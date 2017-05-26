@@ -13,7 +13,7 @@ Since Cometary loads your project, parses it and its references, and compiles it
 
 Otherwise, depending on what you need, there is:
 - `Cometary.MSBuild` for non-VS users that use MSBuild anyway.
-- `Cometary.Core` for .NET Core users (via the `dotnet project`) command.
+- `Cometary.Core` for .NET Core users (via the `dotnet cometary`) command.
 
 (Yep, those packages don't exist yet)
 
