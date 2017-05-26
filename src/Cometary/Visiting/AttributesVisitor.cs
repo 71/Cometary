@@ -26,7 +26,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override MethodDeclarationSyntax Visit(MethodInfo method, MethodDeclarationSyntax node)
         {
-            foreach (IMethodVisitor visitor in AttributesVisitor.GetCustomAttributes<IMethodVisitor>(method))
+            foreach (IMethodVisitor visitor in GetCustomAttributes<IMethodVisitor>(method))
             {
                 node = visitor.Visit(method, node);
 
@@ -43,7 +43,7 @@ namespace Cometary.Visiting
             if (type == null)
                 type = node.SyntaxTree.Model().GetDeclaredSymbol(node).Info();
 
-            foreach (ITypeVisitor visitor in AttributesVisitor.GetCustomAttributes<ITypeVisitor>(type))
+            foreach (ITypeVisitor visitor in GetCustomAttributes<ITypeVisitor>(type))
             {
                 node = visitor.Visit(type, node);
 
@@ -57,7 +57,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override PropertyDeclarationSyntax Visit(PropertyInfo property, PropertyDeclarationSyntax node)
         {
-            foreach (IPropertyVisitor visitor in AttributesVisitor.GetCustomAttributes<IPropertyVisitor>(property))
+            foreach (IPropertyVisitor visitor in GetCustomAttributes<IPropertyVisitor>(property))
             {
                 node = visitor.Visit(property, node);
 
@@ -71,7 +71,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override FieldDeclarationSyntax Visit(FieldInfo field, FieldDeclarationSyntax node)
         {
-            foreach (IFieldVisitor visitor in AttributesVisitor.GetCustomAttributes<IFieldVisitor>(field))
+            foreach (IFieldVisitor visitor in GetCustomAttributes<IFieldVisitor>(field))
             {
                 node = visitor.Visit(field, node);
 
@@ -85,7 +85,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override DelegateDeclarationSyntax Visit(TypeInfo type, DelegateDeclarationSyntax node)
         {
-            foreach (IDelegateVisitor visitor in AttributesVisitor.GetCustomAttributes<IDelegateVisitor>(type))
+            foreach (IDelegateVisitor visitor in GetCustomAttributes<IDelegateVisitor>(type))
             {
                 node = visitor.Visit(type, node);
 
@@ -94,6 +94,77 @@ namespace Cometary.Visiting
             }
 
             return node;
+        }
+
+        /// <inheritdoc />
+        public override MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node1)
+        {
+            foreach (IParameterVisitor visitor in parameter.GetCustomAttributes().OfType<IParameterVisitor>())
+            {
+                node1 = visitor.Visit(parameter, syntax, node1);
+
+                if (node1 == null)
+                    return null;
+            }
+
+            return node1;
+        }
+
+        /// <inheritdoc />
+        public override EventDeclarationSyntax Visit(EventInfo @event, EventDeclarationSyntax node)
+        {
+            foreach (IEventVisitor visitor in GetCustomAttributes<IEventVisitor>(@event))
+            {
+                node = visitor.Visit(@event, node);
+
+                if (node == null)
+                    return null;
+            }
+
+            return node;
+        }
+
+        /// <inheritdoc />
+        public override EnumDeclarationSyntax Visit(TypeInfo @enum, EnumDeclarationSyntax node)
+        {
+            foreach (IEnumVisitor visitor in GetCustomAttributes<IEnumVisitor>(@enum))
+            {
+                node = visitor.Visit(@enum, node);
+
+                if (node == null)
+                    return null;
+            }
+
+            return node;
+        }
+
+        /// <inheritdoc />
+        public override InterfaceDeclarationSyntax Visit(TypeInfo @interface, InterfaceDeclarationSyntax node)
+        {
+            foreach (IInterfaceVisitor visitor in GetCustomAttributes<IInterfaceVisitor>(@interface))
+            {
+                node = visitor.Visit(@interface, node);
+
+                if (node == null)
+                    return null;
+            }
+
+            return node;
+        }
+
+        /// <inheritdoc />
+        public override CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation)
+        {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            foreach (IAssemblyVisitor visitor in assembly.GetCustomAttributes().OfType<IAssemblyVisitor>())
+            {
+                CSharpCompilation newCompilation = visitor.Visit(assembly, compilation);
+
+                if (newCompilation != null)
+                    compilation = newCompilation;
+            }
+
+            return compilation;
         }
     }
 }

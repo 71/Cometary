@@ -139,7 +139,7 @@ namespace Cometary.Attributes
         /// Transforms the given <paramref name="parameter"/>, by modifying
         /// its declaration syntax.
         /// </summary>
-        ParameterSyntax Visit(ParameterInfo parameter, ParameterSyntax node);
+        MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node);
     }
 
     /// <summary>

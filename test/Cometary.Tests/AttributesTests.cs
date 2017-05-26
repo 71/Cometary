@@ -22,15 +22,9 @@ namespace Cometary.Tests
                              $"throw new ArgumentNullException(nameof({parameterName}));".Syntax<StatementSyntax>());
 
         /// <inheritdoc />
-        public ParameterSyntax Visit(ParameterInfo parameter, ParameterSyntax node)
+        public MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node)
         {
-            node.DeclaringMethod()
-                .Replace(x =>
-                    x.WithBody(
-                        x.Body.WithStatements(
-                            x.Body.Statements.Insert(0, GetCheckStatement(parameter.Name)))));
-
-            return node;
+            return node.WithBody(node.Body.WithStatements(node.Body.Statements.Insert(0, GetCheckStatement(parameter.Name))));
         }
     }
 

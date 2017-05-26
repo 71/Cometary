@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Cometary.Contracts
 {
     using Attributes;
+    using System.Linq;
 
     /// <summary>
     /// Defines a parameter whose length (for a <see cref="ICollection"/>) or
@@ -38,9 +39,16 @@ namespace Cometary.Contracts
         /// <summary>
         /// Injects a range-check at the beginning of the method body.
         /// </summary>
-        public ParameterSyntax Visit(ParameterInfo parameter, ParameterSyntax node)
+        public MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node)
         {
-            return node;
+            if (parameter.ParameterType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ICollection)))
+            {
+                return node;
+            }
+            else
+            {
+                return node;
+            }
         }
     }
 }

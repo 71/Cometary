@@ -73,7 +73,7 @@ namespace Cometary.Visiting
         public virtual EventDeclarationSyntax Visit(EventInfo @event, EventDeclarationSyntax node) => node;
 
         /// <inheritdoc />
-        public virtual ParameterSyntax Visit(ParameterInfo parameter, ParameterSyntax node) => node;
+        public virtual MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node1) => node1;
 
         /// <inheritdoc />
         public virtual EnumDeclarationSyntax Visit(TypeInfo @enum, EnumDeclarationSyntax node) => node;
@@ -195,14 +195,10 @@ namespace Cometary.Visiting
                             {
                                 // TODO: Make sure parameters haven't changed
                                 ParameterSyntax oldParameter = newMethod.ParameterList.Parameters[paramInfo.Position];
-                                ParameterSyntax newParameter = visitor.Visit(paramInfo, oldParameter);
+                                newMethod = visitor.Visit(paramInfo, oldParameter, newMethod);
 
-                                if (oldParameter != newParameter)
-                                    newMethod = newMethod.WithParameterList(
-                                        newMethod.ParameterList.WithParameters(
-                                            newMethod.ParameterList.Parameters.Replace(oldParameter, newParameter)
-                                        )
-                                    );
+                                if (newMethod == null)
+                                    break;
                             }
                         }
 
