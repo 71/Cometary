@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsRemote>True</IsRemote>
+    </PropertyGroup>
+
+    <Import Project="..\Common.props" />
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <AssemblyName>dotnet-$(Name.ToLower())</AssemblyName>
+        <DefaultNamespace>$(Name).Remote</DefaultNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build" Version="15.1.1012" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="15.1.1012" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.1.1012" />
+    </ItemGroup>
+
+</Project>

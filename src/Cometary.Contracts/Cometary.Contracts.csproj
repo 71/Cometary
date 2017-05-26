@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsExtension>True</IsExtension>
+    </PropertyGroup>
+    
+    <Import Project="..\Common.props" />
+
+    <PropertyGroup>
+        <AssemblyName>$(Name).Contracts</AssemblyName>
+        <DefaultNamespace>$(AssemblyName)</DefaultNamespace>
+    </PropertyGroup>
+
+</Project>

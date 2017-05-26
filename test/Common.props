@@ -1,0 +1,41 @@
+<Project>
+
+    <PropertyGroup>
+
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp1.1</TargetFramework>
+
+        <Name>Cometary</Name>
+        <Version>0.1.0</Version>
+
+        <DefaultNamespace>$(Name).Tests</DefaultNamespace>
+
+        <SourceDir>$(MSBuildThisFileDirectory)..\src\</SourceDir>
+        
+        <IsCommon>False</IsCommon>
+        <IsCommon Condition=" '$(ProjectName)' == '$(Name).Tests' ">True</IsCommon>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="$(SourceDir)$(Name)\$(Name).csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+        <PackageReference Include="Shouldly" Version="2.8.2" />
+        <PackageReference Include="xunit" Version="2.2.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    </ItemGroup>
+
+    <Import Condition="!$(IsCommon)" Project="$(Name).Tests.Shared\$(Name).Tests.Shared.projitems" Label="Shared" />
+
+    <ItemGroup>
+        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="!$(IsCommon)">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Tests\$(Name).Tests.csproj" />
+    </ItemGroup>
+
+</Project>

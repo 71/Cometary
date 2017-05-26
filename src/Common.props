@@ -1,0 +1,52 @@
+<Project>
+    
+    <!-- Common properties -->
+    <PropertyGroup>
+        
+        <Name>Cometary</Name>
+        <Version>0.1.0</Version>
+
+        <Authors>Gregoire GEIS</Authors>
+        <Copyright>Copyright Gregoire GEIS (C) 2017</Copyright>
+        
+        <RepositoryUrl>https://github.com/6A/$(Name)</RepositoryUrl>
+
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+        <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+        <PackageTags>roslyn;meta;metaprogramming;cometary</PackageTags>
+        <PackageVersion>$(Version)</PackageVersion>
+
+        <AssemblyVersion>$(Version)</AssemblyVersion>
+        <ApplicationVersion>$(Version)</ApplicationVersion>
+
+        <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+
+        <PackageTargetFallback>
+            $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
+        </PackageTargetFallback>
+
+    </PropertyGroup>
+
+    <!-- Extension properties -->
+    <PropertyGroup Condition=" '$(IsExtension)' == 'True' ">
+        <TargetFramework>netstandard1.3</TargetFramework>
+    </PropertyGroup>
+
+    <!-- Remote properties -->
+    <PropertyGroup Condition=" '$(IsRemote)' == 'True' ">
+        <TargetFramework>net47</TargetFramework>
+        <GenerateDocumentation>False</GenerateDocumentation>
+    </PropertyGroup>
+    
+    
+    <!-- Dependencies -->
+    <ItemGroup Condition=" '$(ProjectName)' != '$(Name)' ">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name)\$(Name).csproj" />
+    </ItemGroup>
+    
+    <ItemGroup Condition=" '$(IsRemote)' == 'True' And '$(ProjectName)' != '$(Name).Remote' ">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Remote\$(Name).Remote.csproj" />
+    </ItemGroup>
+    
+</Project>
