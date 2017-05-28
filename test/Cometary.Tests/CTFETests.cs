@@ -8,7 +8,7 @@ using Shouldly;
 namespace Cometary.Tests
 {
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    public class MacroTests
+    public class CTFETests
     {
         private static bool True => false;
 

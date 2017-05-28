@@ -2,22 +2,27 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using Cometary.Visiting;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Xunit;
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Cometary.Tests
 {
+    using Shouldly;
+    using Visiting;
+
     /// <summary>
     /// <see cref="AssemblyVisitor"/> that sets all declared
     /// enum flags to the same value.
     /// </summary>
     public sealed class EvilVisitor : AssemblyVisitor
     {
-        public override float Priority => 100.0f;
+        /// <inheritdoc />
+        public override bool RewritesTree => true;
 
+        /// <inheritdoc />
         public override EnumDeclarationSyntax Visit(TypeInfo @enum, EnumDeclarationSyntax node)
         {
             EqualsValueClauseSyntax clause = F.EqualsValueClause(
@@ -30,7 +35,26 @@ namespace Cometary.Tests
         }
     }
 
-    class VisitorTests
+    public enum Numbers
     {
+        Zero  = 0,
+        One   = 1,
+        Two   = 2,
+        Three = 3
+    }
+
+    public class VisitorTests
+    {
+        [Fact]
+        public void AllValuesShouldBeTheSame()
+        {
+            ((int)Numbers.Zero).ShouldBe(0);
+
+            Numbers.One.ShouldBe(Numbers.Zero);
+            Numbers.Two.ShouldBe(Numbers.Zero);
+            Numbers.Three.ShouldBe(Numbers.Zero);
+
+            (Numbers.Three == Numbers.Two).ShouldBe(true);
+        }
     }
 }

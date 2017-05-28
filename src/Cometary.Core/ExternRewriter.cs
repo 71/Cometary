@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Cometary.Rewriting
+namespace Cometary.Core
 {
     /// <summary>
     /// <see cref="CSharpSyntaxRewriter"/> that replaces extern methods

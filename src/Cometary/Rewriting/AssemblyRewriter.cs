@@ -6,47 +6,58 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary.Rewriting
 {
+    using Core;
+
     /// <summary>
     /// <see cref="CSharpSyntaxRewriter"/> that replaces
-    /// nodes modified or removed through <see cref="Meta.Replace{T}"/>,
-    /// and <see cref="Meta.Delete"/>.
+    /// nodes modified or removed through <see cref="MetaExtensions.Replace{T}"/>,
+    /// and <see cref="MetaExtensions.Delete"/>.
     /// </summary>
-    internal sealed class AssemblyRewriter : CSharpSyntaxRewriter
+    internal sealed class AssemblyRewriter : LightAssemblyVisitor
     {
+        /// <inheritdoc />
+        public override bool RewritesTree => false;
+
+        /// <inheritdoc />
+        public override int CompareTo(LightAssemblyVisitor other) => 1;
+
         /// <summary>
-        /// Replaces nodes.
+        /// List of all changes made to the syntax tree currently being visited.
         /// </summary>
+        private List<(SyntaxNode node, Func<SyntaxNode, SyntaxNode> apply)> ChangesList;
+
+        /// <summary>
+        /// Applies changes made through <see cref="MetaExtensions.Replace{T}"/>
+        /// and <see cref="MetaExtensions.Delete"/>.
+        /// </summary>
+        public override CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation)
+        {
+            for (int i = 0; i < compilation.SyntaxTrees.Length; i++)
+            {
+                SyntaxTree syntaxTree = compilation.SyntaxTrees[i];
+
+                if (!MetaExtensions.Changes.TryGetValue(Meta.GetID(syntaxTree), out ChangesList))
+                    continue;
+
+                compilation = compilation.ReplaceSyntaxTree(syntaxTree, 
+                    syntaxTree.WithRootAndOptions(Visit(syntaxTree.GetRoot()), syntaxTree.Options));
+            }
+
+            return compilation;
+        }
+
         public override SyntaxNode Visit(SyntaxNode node)
         {
             if (node == null)
-                return base.Visit(null);
+                return null;
 
-            int projectorIndex = 0;
-            SyntaxNode rewrittenNode = node;
-
-            // We need to change things from bottom to top.
-            // Unfortunately, if something is changed at the top level,
-            // smaller syntax nodes will not be replaced.
-            // So, instead of replacing this node directly, we
-            // first visit its children, and see who wanted to
-            // visit it.
-
-            List<SyntaxNode> changedNodes = Meta.changedNodes;
-            List<Func<SyntaxNode, SyntaxNode>> changedNodesFuncs = Meta.changedNodesFuncs;
-
-            while (projectorIndex < changedNodes.Count)
+            foreach (var change in ChangesList)
             {
-                projectorIndex = changedNodes.FindIndex(projectorIndex,
-                    x => x.FullSpan == node.FullSpan && x.GetType() == node.GetType()
-                );
-
-                if (projectorIndex == -1)
-                    break;
-
-                rewrittenNode = changedNodesFuncs[projectorIndex++](rewrittenNode);
+                if (change.node.RawKind == node.RawKind && change.node.IsEquivalentTo(node))
+                    return change.apply(node);
             }
 
-            return base.Visit(rewrittenNode);
+            return ((CSharpSyntaxNode)node).Accept(this);
         }
     }
 }

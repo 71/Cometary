@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using Cometary.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -55,6 +54,14 @@ namespace Cometary.Extensions
                 .DescendantNodesAndSelf()
                 .OfType<T>()
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Transforms the given syntax tree.
+        /// </summary>
+        public static SyntaxTree VisitSyntaxTree(this CSharpSyntaxRewriter visitor, SyntaxTree tree)
+        {
+            return tree.WithRootAndOptions(visitor.Visit(tree.GetRoot()), tree.Options);
         }
 
         #region Type utils
@@ -160,26 +167,6 @@ namespace Cometary.Extensions
         public static bool IsExtern(this BaseMethodDeclarationSyntax method)
         {
             return method.Modifiers.Any(SyntaxKind.ExternKeyword);
-        }
-
-        /// <summary>
-        /// Returns a new <see cref="MethodDeclarationSyntax"/> with
-        /// a new body, and no <see langword="extern"/> keyword.
-        /// </summary>
-        public static MethodDeclarationSyntax NotExtern(this MethodDeclarationSyntax method, CSharpSyntaxNode body)
-        {
-            method = method.WithModifiers(method.Modifiers.Remove(method.Modifiers.First(x => x.IsKind(SyntaxKind.ExternKeyword))));
-
-            if (body is BlockSyntax block)
-                return method.WithBody(block);
-            if (body is StatementSyntax stmt)
-                return method.WithBody(SyntaxFactory.Block(stmt));
-            if (body is ExpressionSyntax expr)
-                return method.WithExpressionBody(SyntaxFactory.ArrowExpressionClause(expr));
-            if (body is ArrowExpressionClauseSyntax arrow)
-                return method.WithExpressionBody(arrow);
-
-            throw new ArgumentException("Invalid body node.", nameof(body));
         }
     }
 }

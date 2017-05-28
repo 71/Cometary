@@ -80,7 +80,7 @@ namespace Cometary.Attributes
         /// If <see langword="null"/> is returned, the type will be removed.
         /// </para>
         /// </summary>
-        TypeDeclarationSyntax Visit(TypeInfo type, TypeDeclarationSyntax node);
+        ClassDeclarationSyntax Visit(TypeInfo type, ClassDeclarationSyntax node);
     }
 
     /// <summary>

@@ -41,11 +41,15 @@
     
     
     <!-- Dependencies -->
-    <ItemGroup Condition=" '$(ProjectName)' != '$(Name)' ">
+    <ItemGroup Condition=" '$(IsExtension)' == 'True' ">
         <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name)\$(Name).csproj" />
     </ItemGroup>
+
+    <ItemGroup Condition=" '$(IsRemote)' == 'True' ">
+        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Core\$(Name).Core.csproj" />
+    </ItemGroup>
     
-    <ItemGroup Condition=" '$(IsRemote)' == 'True' And '$(ProjectName)' != '$(Name).Remote' ">
+    <ItemGroup Condition=" '$(IsRemote)' == 'True' and '$(ProjectName)' != '$(Name).Remote' ">
         <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Remote\$(Name).Remote.csproj" />
     </ItemGroup>
     

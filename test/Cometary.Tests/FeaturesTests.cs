@@ -1,5 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using System.Reflection;
+using Cometary;
 using Cometary.Attributes;
 using Cometary.Extensions;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,6 +9,8 @@ using Shouldly;
 using Xunit;
 
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
+[assembly: Cometary]
 
 namespace Cometary.Tests
 {
@@ -36,14 +39,40 @@ namespace Cometary.Tests
         [Fact]
         public void ShouldSupportWith()
         {
-            ExpressionSyntax one = F.LiteralExpression(SyntaxKind.NumericLiteralExpression, F.Literal(1));
-            ExpressionSyntax two = F.LiteralExpression(SyntaxKind.NumericLiteralExpression, F.Literal(2));
-            ExpressionSyntax binary = F.BinaryExpression(SyntaxKind.PlusToken, one, one);
+            LiteralExpressionSyntax one = F.LiteralExpression(SyntaxKind.NumericLiteralExpression, F.Literal(1));
+            LiteralExpressionSyntax two = F.LiteralExpression(SyntaxKind.NumericLiteralExpression, F.Literal(2));
+            ExpressionSyntax binary = F.BinaryExpression(SyntaxKind.AddExpression, one, one);
             ExpressionSyntax expr = F.BinaryExpression(SyntaxKind.MultiplyExpression, binary, two);
 
             ExpressionStatementSyntax stmt  = F.ExpressionStatement(expr);
-            ExpressionStatementSyntax mStmt = stmt.With(x => (x.Expression as BinaryExpressionSyntax).Right, x => one);
+            ExpressionStatementSyntax mStmt = stmt.With(x => (x.Expression as BinaryExpressionSyntax)?.Right, x => one);
+
+            (stmt.Expression as BinaryExpressionSyntax)?.Right.ToString().ShouldBe(two.ToString());
+            (mStmt.Expression as BinaryExpressionSyntax)?.Right.ToString().ShouldBe(one.ToString());
         }
         #endregion
+
+        [CTFEFact]
+        public void ShouldHaveGlobalCometaryInstance()
+        {
+            typeof(CometaryAttribute)
+                .GetTypeInfo()
+                .GetDeclaredField("instance")
+                .GetValue(null)
+                .ShouldNotBeNull();
+        }
+
+        // [Fact, CTFE]
+        // Doesn't work, TODO.
+        public static void ShouldEnableCTFEDirective()
+        {
+#if CTFE
+            bool inCTFE = true;
+#else
+            bool inCTFE = false;
+#endif
+
+            Meta.CTFE.ShouldBe(inCTFE);
+        }
     }
 }

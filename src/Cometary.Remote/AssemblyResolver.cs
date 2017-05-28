@@ -1,53 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.CodeAnalysis;
 
 namespace Cometary
 {
     /// <summary>
-    /// 
+    /// Internal assembly resolver that uses Project references for
+    /// assembly resolution.
     /// </summary>
-    public sealed class AssemblyResolver : IDisposable
+    internal sealed class AssemblyResolver : IDisposable
     {
-        private readonly Dictionary<string, Assembly> _loaded = new Dictionary<string, Assembly>();
-        private readonly List<string> _references = new List<string>();
+        private readonly Dictionary<string, Assembly> _loaded   = new Dictionary<string, Assembly>();
+        private readonly Dictionary<string, string> _references = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// 
+        /// Gets or sets the <see cref="Assembly"/> emitted by the compilation.
         /// </summary>
-        public ReadOnlyCollection<string> References { get; }
+        public Assembly EmittedAssembly { get; internal set; }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public Assembly EmittedAssembly { get; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public AssemblyResolver(Assembly emitted)
-        {
-            References = _references.AsReadOnly();
-            EmittedAssembly = emitted;
-        }
-
-        /// <summary>
-        /// 
+        /// Registers the given reference (a full path to a .dll).
         /// </summary>
         public void Register(string @ref)
         {
-            _references.Add(@ref);
+            _references.Add(Path.GetFileNameWithoutExtension(@ref), @ref);
         }
 
         /// <summary>
-        /// 
+        /// Resolves the assembly with the given name by looking up
+        /// all registered references.
         /// </summary>
         public Assembly AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            if (args.Name == EmittedAssembly.FullName)
+            if (args.Name == EmittedAssembly?.FullName)
                 return EmittedAssembly;
 
             return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName == args.Name)
@@ -61,7 +48,7 @@ namespace Cometary
                 name = name.Substring(0, indexOfComma);
 
             if (!_loaded.TryGetValue(name, out Assembly assembly))
-                _loaded[name] = assembly = Assembly.LoadFrom(_references.First(x => x.IndexOf(name, StringComparison.OrdinalIgnoreCase) != -1));
+                _loaded[name] = assembly = Assembly.LoadFrom(_references[name]);
 
             return assembly;
         }
@@ -69,6 +56,8 @@ namespace Cometary
         /// <inheritdoc />
         public void Dispose()
         {
+            _loaded.Clear();
+            _references.Clear();
         }
     }
 }

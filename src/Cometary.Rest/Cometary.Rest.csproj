@@ -11,4 +11,27 @@
         <DefaultNamespace>$(AssemblyName)</DefaultNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Include="HttpMethodAttribute.Derived.tt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="HttpMethodAttribute.Derived.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>HttpMethodAttribute.Derived.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="HttpMethodAttribute.Derived.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>HttpMethodAttribute.Derived.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

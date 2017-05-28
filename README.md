@@ -1,4 +1,6 @@
-# Cometary
+Cometary
+========
+
 Cometary is a C# project that aims at bringing true meta-programming to the C# world. It features [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and other goodies.
 
 ----

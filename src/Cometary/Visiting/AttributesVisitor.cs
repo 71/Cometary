@@ -7,7 +7,6 @@ using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary.Visiting
 {
-    using Internal;
     using Attributes;
 
     /// <summary>
@@ -16,11 +15,11 @@ namespace Cometary.Visiting
     internal sealed class AttributesVisitor : AssemblyVisitor
     {
         /// <inheritdoc />
-        public override float Priority => 500.0f;
+        public override bool RewritesTree => true;
 
         private static IEnumerable<T> GetCustomAttributes<T>(MemberInfo member) where T : class
         {
-            return member.GetCustomAttributes().OfType<T>();
+            return member == null ? Enumerable.Empty<T>() : member.GetCustomAttributes().OfType<T>();
         }
 
         /// <inheritdoc />
@@ -38,11 +37,8 @@ namespace Cometary.Visiting
         }
 
         /// <inheritdoc />
-        public override TypeDeclarationSyntax Visit(TypeInfo type, TypeDeclarationSyntax node)
+        public override ClassDeclarationSyntax Visit(TypeInfo type, ClassDeclarationSyntax node)
         {
-            if (type == null)
-                type = node.SyntaxTree.Model().GetDeclaredSymbol(node).Info();
-
             foreach (ITypeVisitor visitor in GetCustomAttributes<ITypeVisitor>(type))
             {
                 node = visitor.Visit(type, node);

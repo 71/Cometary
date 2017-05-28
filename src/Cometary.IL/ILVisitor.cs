@@ -21,9 +21,6 @@ namespace Cometary
         internal static readonly AssemblyResolver AssemblyResolver = new AssemblyResolver();
         internal static readonly MetadataResolver MetadataResolver = new MetadataResolver(AssemblyResolver);
 
-        /// <inheritdoc />
-        public override float Priority => 100;
-
         /// <summary>
         /// Loads or saves the assembly being processed.
         /// </summary>

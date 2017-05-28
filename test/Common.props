@@ -15,6 +15,10 @@
         <IsCommon>False</IsCommon>
         <IsCommon Condition=" '$(ProjectName)' == '$(Name).Tests' ">True</IsCommon>
 
+        <PackageTargetFallback>
+            $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
+        </PackageTargetFallback>
+
     </PropertyGroup>
 
     <ItemGroup>

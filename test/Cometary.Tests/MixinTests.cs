@@ -9,7 +9,7 @@ namespace Cometary.Tests
         public void ShouldProduceValidExpressions()
         {
             "true".Mixin<bool>().ShouldBeTrue();
-            "1 + 1".Mixin<int>().ShouldBe(2);
+            "(1 + 1)".Mixin<int>().ShouldBe(2);
         }
 
         [Fact]

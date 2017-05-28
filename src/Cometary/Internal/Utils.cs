@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TypeInfo = System.Reflection.TypeInfo;
 
-namespace Cometary.Internal
+namespace Cometary
 {
     /// <summary>
     /// Provides internal static utilities.

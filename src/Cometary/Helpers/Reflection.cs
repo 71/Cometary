@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Reflection;
-using Cometary.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TypeInfo = System.Reflection.TypeInfo;

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,11 +8,12 @@ using Microsoft.CodeAnalysis.Semantics;
 
 namespace Cometary.Rewriting
 {
-    #region Quote
+    using Extensions;
+
     /// <summary>
-    /// Represents a <see langword="void"/> quote, used by templates.
+    /// Represents a <see langword="void"/> quote, used by macros.
     /// </summary>
-    public class Quote
+    public partial class Quote
     {
         /// <summary>
         /// Gets the syntax of the invocation of the template.
@@ -96,17 +97,15 @@ namespace Cometary.Rewriting
         public IBlockStatement BodySymbol { get; }
 
         /// <summary>
-        /// Gets the <see cref="Unquote(SyntaxNode)"/> produced by this
-        /// node.
+        /// Gets or sets the nodes inserted via this <see cref="Quote"/>.
         /// </summary>
-        internal Unquote Result { get; private set; }
-
-        private readonly Quote _ref;
+        internal List<SyntaxNode> InsertedNodes { get; set; }
 
         internal Quote(InvocationExpressionSyntax syntax, IInvocationExpression symbol)
         {
             Syntax = syntax;
             Symbol = symbol;
+            InsertedNodes = new List<SyntaxNode>();
 
             // Check if we're in an anonymous method.
             var anon = syntax.FirstAncestorOrSelf<AnonymousFunctionExpressionSyntax>();
@@ -155,8 +154,6 @@ namespace Cometary.Rewriting
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Yeah, I did it on purpose.")]
         internal Quote(Quote original, int sequence)
         {
-            _ref = original;
-
             Syntax = original.Syntax;
             Symbol = original.Symbol;
             Sequence = sequence;
@@ -183,6 +180,7 @@ namespace Cometary.Rewriting
             }
 
             MethodSymbol = original.MethodSymbol;
+            InsertedNodes = original.InsertedNodes;
         }
 
         /// <summary>
@@ -197,35 +195,95 @@ namespace Cometary.Rewriting
         internal object For(int nth) => new Quote(this, nth);
 
         /// <summary>
-        /// Unquot
+        /// Returns a new identical <see cref="Quote"/>, with an additional
+        /// inserted node.
         /// </summary>
-        public Unquote Unquote(SyntaxNode node)
+        internal Quote Push(SyntaxNode node)
         {
-            if (_ref != null)
-                return _ref.Unquote(node);
+            InsertedNodes.Add(node);
 
-            return Result = new Unquote(node);
+            return this;
         }
 
         /// <summary>
-        /// 
+        /// Adds the given statement to the output.
         /// </summary>
-        public Unquote<T> Unquote<T>(SyntaxNode node)
-        {
-            if (_ref != null)
-                return _ref.Unquote<T>(node);
+        public void Add(StatementSyntax stmt) => Push(stmt);
 
-            return (Result = new Unquote<T>(node)) as Unquote<T>;
+        /// <summary>
+        /// Adds the given expression to the output.
+        /// </summary>
+        public void Add(ExpressionSyntax expr) => Push(expr);
+
+        /// <summary>
+        /// Adds the given code to the output.
+        /// </summary>
+        public void Add(string code) => Push(code.Syntax<StatementSyntax>());
+
+        /// <summary>
+        /// Adds the given statement to the output, and returns <see langword="this"/>.
+        /// </summary>
+        public static Quote operator +(Quote quote, StatementSyntax stmt) => quote.Push(stmt);
+
+        /// <summary>
+        /// Adds the given expression to the output as a statement, and returns <see langword="this"/>.
+        /// </summary>
+        public static Quote operator +(Quote quote, ExpressionSyntax expr) => quote.Push(expr);
+
+        /// <summary>
+        /// Writes the given code to the output, and returns <see langword="this"/>.
+        /// </summary>
+        public static Quote operator +(Quote quote, string code) => quote.Push(code.Syntax<StatementSyntax>());
+
+        /// <summary>
+        /// Returns the given expression as if it were a C# value.
+        /// </summary>
+        public static object operator >(Quote quote, ExpressionSyntax expr)
+        {
+            quote.InsertedNodes.Add(expr);
+
+            return null;
         }
+
+        /// <summary>
+        /// Writes the given code to the output as if it were a C# value.
+        /// </summary>
+        public static object operator >(Quote quote, string code) => quote > code.Syntax<ExpressionSyntax>();
+
+        /// <summary>
+        /// Returns the given expression as if it were a C# value.
+        /// </summary>
+        public static object operator <(Quote quote, ExpressionSyntax expr)
+        {
+            quote.InsertedNodes.Add(expr);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Writes the given code to the output as if it were a C# value.
+        /// </summary>
+        public static object operator <(Quote quote, string code) => quote > code.Syntax<ExpressionSyntax>();
     }
 
     /// <summary>
-    /// Represents a quote, used by templates.
+    /// Represents a quote, used by macros.
     /// </summary>
     public sealed class Quote<T> : Quote
     {
         internal Quote(Quote quote, int nth) : base(quote, nth)
         {
+        }
+
+        /// <summary>
+        /// Returns a new identical <see cref="Quote{T}"/>, with an additional
+        /// inserted node.
+        /// </summary>
+        internal new Quote<T> Push(SyntaxNode node)
+        {
+            InsertedNodes.Add(node);
+
+            return this;
         }
 
         /// <summary>
@@ -235,54 +293,19 @@ namespace Cometary.Rewriting
         {
             throw new InvalidOperationException();
         }
-    }
-    #endregion
-
-    #region Unquote
-    /// <summary>
-    /// Represents an abstract <see langword="void"/>
-    /// return value, used in templates.
-    /// <para>
-    /// If a statement or expression is returned, the invocation
-    /// will be replaced. If a method or method body is given,
-    /// the method itself will be replaced.
-    /// </para>
-    /// </summary>
-    public class Unquote
-    {
-        /// <summary>
-        /// Gets the syntax of the produced value.
-        /// </summary>
-        public SyntaxNode Syntax { get; }
 
         /// <summary>
-        /// Gets whether or not this unquote returns <see langword="void"/>.
+        /// Implicitely converts an expression of type T into a quote.
         /// </summary>
-        public virtual bool IsVoidQuote => true;
+        public static implicit operator T(Quote<T> quote) => default(T);
 
-        internal Unquote(SyntaxNode node)
-        {
-            Syntax = node;
-        }
+        /// <inheritdoc cref="Quote.operator +(Quote,StatementSyntax)" />
+        public static Quote<T> operator +(Quote<T> quote, StatementSyntax stmt) => quote.Push(stmt);
+
+        /// <inheritdoc cref="Quote.operator +(Quote,ExpressionSyntax)" />
+        public static Quote<T> operator +(Quote<T> quote, ExpressionSyntax expr) => quote.Push(expr);
+
+        /// <inheritdoc cref="Quote.operator +(Quote,string)" />
+        public static Quote<T> operator +(Quote<T> quote, string code) => quote + code.Syntax<ExpressionSyntax>();
     }
-
-    /// <summary>
-    /// Represents an abstract value, used during compilation to
-    /// alter the return value of a template.
-    /// </summary>
-    public sealed class Unquote<T> : Unquote
-    {
-        /// <inheritdoc />
-        public override bool IsVoidQuote => false;
-
-        internal Unquote(SyntaxNode node) : base(node)
-        {
-        }
-
-        /// <summary>
-        /// Gets the compile-time value of the <paramref name="unquote"/>.
-        /// </summary>
-        public static implicit operator T(Unquote<T> unquote) => default(T);
-    }
-    #endregion
 }

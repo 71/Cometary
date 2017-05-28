@@ -11,7 +11,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Gets the <see cref="IOperation"/> associated with the given <see cref="SyntaxNode"/>.
         /// </summary>
-        public static IOperation Operation(this SyntaxNode node) => node.SyntaxTree.Model().GetOperation(node);
+        public static IOperation Operation(this SyntaxNode node) => node.SyntaxTree.Model()?.GetOperation(node);
 
         /// <summary>
         /// Gets the <see cref="IOperation"/> associated with the given <see cref="SyntaxNode"/>.
@@ -21,7 +21,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Gets the <see cref="ISymbol"/> associated with the given declaration <see cref="SyntaxNode"/>.
         /// </summary>
-        public static ISymbol Symbol(this SyntaxNode declaration) => declaration.SyntaxTree.Model().GetDeclaredSymbol(declaration);
+        public static ISymbol Symbol(this SyntaxNode declaration) => declaration.SyntaxTree.Model()?.GetDeclaredSymbol(declaration);
 
         /// <summary>
         /// Gets the <see cref="ISymbol"/> associated with the given declaration <see cref="SyntaxNode"/>.
@@ -33,21 +33,21 @@ namespace Cometary.Extensions
 
         public static IMethodSymbol Symbol(this MethodDeclarationSyntax method)
             => method.DeclaringType()
-                     .Symbol()
+                     .Symbol()?
                      .GetMembers(method.Identifier.Text)
                      .OfType<IMethodSymbol>()
                      .FirstOrDefault();
 
         public static IFieldSymbol Symbol(this FieldDeclarationSyntax field)
             => field.DeclaringType()
-                    .Symbol()
+                    .Symbol()?
                     .GetMembers(field.Identifier().Text)
                     .OfType<IFieldSymbol>()
                     .FirstOrDefault();
 
         public static IPropertySymbol Symbol(this PropertyDeclarationSyntax property)
             => property.DeclaringType()
-                       .Symbol()
+                       .Symbol()?
                        .GetMembers(property.Identifier.Text)
                        .OfType<IPropertySymbol>()
                        .FirstOrDefault();
