@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C88213E4-4
 	ProjectSection(SolutionItems) = preProject
 		docs\DEBUGGING.md = docs\DEBUGGING.md
 		docs\EXTENSIONS.md = docs\EXTENSIONS.md
-		README.md = README.md
+		docs\README.md = docs\README.md
 		docs\REMOTES.md = docs\REMOTES.md
 	EndProjectSection
 EndProject

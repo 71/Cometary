@@ -20,7 +20,7 @@ namespace Cometary.Core
             = F.ArrowExpressionClause(
                 F.ThrowExpression(
                     F.ObjectCreationExpression(
-                        F.ParseTypeName(nameof(InvalidOperationException)),
+                        F.ParseTypeName(typeof(InvalidOperationException).FullName),
                         F.ArgumentList(
                             F.SeparatedList(new[] {
                                 F.Argument(

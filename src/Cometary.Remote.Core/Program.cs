@@ -27,14 +27,15 @@ namespace Cometary
             if (args.Length == 0)
             {
 #if DEBUG
-                args = new[] { @"..\..\test\Cometary.Tests\Cometary.Tests.csproj" };
+                args = new[] { @"..\..\test\Cometary.Tests\Cometary.Tests.csproj", "--syntax" };
 #else
                 DisplayHelp();
                 return 1;
 #endif
             }
 
-            bool willBeDebugging = false;
+            bool willBeDebugging = false,
+                 willOutputSyntax = false;
             string projectFile = null;
 
             // Args parsing
@@ -45,6 +46,10 @@ namespace Cometary
                 if (arg == "-d" || arg == "--debug")
                 {
                     willBeDebugging = true;
+                }
+                else if (arg == "-s" || arg == "--syntax")
+                {
+                    willOutputSyntax = true;
                 }
                 else if (arg[0] == '-')
                 {
@@ -89,6 +94,9 @@ namespace Cometary
                     processor.WarningLogged += WarningLogged;
 
                     await processor.ProcessAsync();
+
+                    if (willOutputSyntax)
+                        await processor.OutputChangedSyntaxTreesAsync();
                 }
 
                 return 0;

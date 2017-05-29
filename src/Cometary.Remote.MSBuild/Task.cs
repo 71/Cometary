@@ -27,6 +27,11 @@ namespace Cometary
         public bool IsDebugging { get; set; }
 
         /// <summary>
+        /// Gets or sets whether or not the produced syntax should be output.
+        /// </summary>
+        public bool OutputSyntax { get; set; }
+
+        /// <summary>
         /// Synchronously execute this task.
         /// </summary>
         public override bool Execute() => ExecuteAsync(Processor.CreateAsync(BuildEngine.ProjectFileOfTaskNode, cts.Token)).Result;
@@ -53,6 +58,9 @@ namespace Cometary
                     processor.WarningLogged += this.WarningLogged;
 
                     await processor.ProcessAsync(cts.Token);
+
+                    if (OutputSyntax)
+                        await processor.OutputChangedSyntaxTreesAsync(null, cts.Token);
                 }
 
                 return true;

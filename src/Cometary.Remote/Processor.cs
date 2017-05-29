@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
@@ -54,6 +52,11 @@ namespace Cometary
             get => Meta.Compilation;
             set => Meta.Compilation = value;
         }
+
+        /// <summary>
+        /// Gets the compilation first gotten by this processor.
+        /// </summary>
+        public CSharpCompilation OriginalCompilation { get; }
 
         /// <summary>
         /// Gets the <see cref="AppDomain"/> in which code will run.
@@ -106,15 +109,18 @@ namespace Cometary
         #endregion
 
         #region Initialization, Destruction
-        private Processor(Workspace workspace)
+        private Processor(Workspace workspace, CSharpCompilation compilation)
         {
             Workspace = workspace;
+            Resolver  = new AssemblyResolver();
+
+            OriginalCompilation = compilation;
+            Compilation = compilation;
 
             AssemblyStream = new MemoryStream();
             SymbolsStream  = new MemoryStream();
 
             ExecutionDomain = AppDomain.CurrentDomain;
-            Resolver = new AssemblyResolver();
         }
 
         /// <summary>
@@ -122,18 +128,19 @@ namespace Cometary
         /// </summary>
         public static async Task<Processor> CreateAsync(Workspace workspace, Project project, CancellationToken token = default(CancellationToken))
         {
-            Processor processor = new Processor(workspace)
+            project = project.WithParseOptions(
+                project.ParseOptions.WithFeatures(
+                    project.ParseOptions.Features.Concat(new[] { new KeyValuePair<string, string>(nameof(IOperation), "True") })
+                )
+            );
+
+            CSharpCompilation compilation = await project.GetCompilationAsync(token) as CSharpCompilation;
+
+            Processor processor = new Processor(workspace, compilation)
             {
                 Project = project
             };
 
-            processor.Project = processor.Project.WithParseOptions(
-                processor.Project.ParseOptions.WithFeatures(
-                    processor.Project.ParseOptions.Features.Concat(new[] { new KeyValuePair<string, string>(nameof(IOperation), "True") })
-                )
-            );
-
-            processor.Compilation = await processor.Project.GetCompilationAsync(token) as CSharpCompilation;
             processor.LoadReferences();
 
             // Set up environment
@@ -457,5 +464,43 @@ namespace Cometary
                 Compilation = visitor.Visit(assembly, Compilation);
         }
 #endregion
+
+        /// <summary>
+        /// Outputs the changed syntax trees.
+        /// </summary>
+        public async Task OutputChangedSyntaxTreesAsync(string basePath = null, CancellationToken token = default(CancellationToken))
+        {
+            string projectDir = Path.GetDirectoryName(Project.FilePath);
+
+            Debug.Assert(projectDir != null);
+
+            if (basePath == null)
+            {
+                basePath = Path.Combine(projectDir, "obj", "cometary-syntax");
+
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+            }
+            else if (!Directory.Exists(basePath))
+                throw new DirectoryNotFoundException("Output directory not found.");
+
+            foreach (SyntaxTree syntaxTree in Compilation.SyntaxTrees)
+            {
+                string relPath = syntaxTree.FilePath;
+
+                if (!relPath.StartsWith(projectDir, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                relPath = Path.Combine(basePath, relPath.Substring(projectDir.Length + 1));
+
+                using (FileStream fs = File.OpenWrite(relPath))
+                using (TextWriter writer = new StreamWriter(fs, syntaxTree.Encoding))
+                {
+                    SourceText text = await syntaxTree.GetTextAsync(token);
+
+                    text.Write(writer, token);
+                }
+            }
+        }
     }
 }

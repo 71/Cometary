@@ -32,10 +32,14 @@ namespace Cometary
 
             Meta.EnsureCTFE();
 
+            int id = Meta.GetID(syntaxTree);
+
+            if (models.TryGetValue(id, out SemanticModel model))
+                return model;
+
             try
             {
-                return models.TryGetValue(Meta.GetID(syntaxTree), out SemanticModel model) ? model
-                     : models[Meta.GetID(syntaxTree)] = Meta.Compilation.GetSemanticModel(syntaxTree, true);
+                return models[id] = Meta.Compilation.GetSemanticModel(syntaxTree, true);
             }
             catch
             {
