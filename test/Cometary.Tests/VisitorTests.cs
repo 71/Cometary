@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
@@ -11,7 +8,6 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Cometary.Tests
 {
     using Shouldly;
-    using Visiting;
 
     /// <summary>
     /// <see cref="AssemblyVisitor"/> that sets all declared

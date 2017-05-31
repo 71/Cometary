@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Cometary.Extensions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Shouldly;
@@ -11,7 +10,7 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Cometary.Tests
 {
-    using Rewriting;
+    using Extensions;
 
     [SuppressMessage("ReSharper", "RedundantAssignment")]
     public sealed class MacrosTests
@@ -26,6 +25,7 @@ namespace Cometary.Tests
         /// the call to this method.
         /// </summary>
         [SuppressMessage("ReSharper", "PossibleNullReferenceException", Justification = "Value set by compiler.")]
+        [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
         public static void IncrementAllDeclaredVariables(Quote quote = null)
         {
             IEnumerable<StatementSyntax> statements =
@@ -42,7 +42,7 @@ namespace Cometary.Tests
         }
 
         /// <summary>
-        /// Loops the specified number of times.
+        /// Loops the specified number of times, and executes the next block of code.
         /// </summary>
         public static void Loop(int count, Quote quote = null, StatementSyntax block = null)
         {
@@ -51,7 +51,7 @@ namespace Cometary.Tests
                 .WithStatement(block);
         }
 
-        [Fact]
+        [Fact, SuppressMessage("ReSharper", "ConvertToConstant.Local")]
         public void ShouldModifyBody()
         {
             int x = 0;
@@ -77,7 +77,7 @@ namespace Cometary.Tests
         [Fact]
         public void ShouldSupportBlockStmts()
         {
-            // First try: with blocks
+            // First try: with block
             int loopCount = 0;
 
             Loop(10);
@@ -87,9 +87,9 @@ namespace Cometary.Tests
 
             loopCount.ShouldBe(10);
 
-            // Second try: with statements
+            // Second try: with statement
             Loop(10);
-            loopCount++;
+                loopCount++;
 
             loopCount.ShouldBe(20);
         }

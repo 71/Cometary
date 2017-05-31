@@ -9,7 +9,7 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Cometary.Contracts
 {
-    using Rewriting;
+    using Visiting;
     using Extensions;
 
     /// <summary>

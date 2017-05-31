@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ITypeSymbol = Microsoft.CodeAnalysis.ITypeSymbol;
 
 namespace Cometary.Extensions
 {
@@ -28,9 +26,14 @@ namespace Cometary.Extensions
         /// </summary>
         public static TSymbol Symbol<TSymbol>(this SyntaxNode declaration) where TSymbol : class, ISymbol => declaration.Symbol() as TSymbol;
 
-
+        /// <summary>
+        /// Gets the <see cref="ITypeSymbol"/> associated with the given <see cref="TypeDeclarationSyntax"/>.
+        /// </summary>
         public static ITypeSymbol Symbol(this TypeDeclarationSyntax type) => type.Symbol<ITypeSymbol>();
 
+        /// <summary>
+        /// Gets the <see cref="IMethodSymbol"/> associated with the given <see cref="MethodDeclarationSyntax"/>.
+        /// </summary>
         public static IMethodSymbol Symbol(this MethodDeclarationSyntax method)
             => method.DeclaringType()
                      .Symbol()?
@@ -38,6 +41,9 @@ namespace Cometary.Extensions
                      .OfType<IMethodSymbol>()
                      .FirstOrDefault();
 
+        /// <summary>
+        /// Gets the <see cref="IFieldSymbol"/> associated with the given <see cref="FieldDeclarationSyntax"/>.
+        /// </summary>
         public static IFieldSymbol Symbol(this FieldDeclarationSyntax field)
             => field.DeclaringType()
                     .Symbol()?
@@ -45,6 +51,9 @@ namespace Cometary.Extensions
                     .OfType<IFieldSymbol>()
                     .FirstOrDefault();
 
+        /// <summary>
+        /// Gets the <see cref="IPropertySymbol"/> associated with the given <see cref="PropertyDeclarationSyntax"/>.
+        /// </summary>
         public static IPropertySymbol Symbol(this PropertyDeclarationSyntax property)
             => property.DeclaringType()
                        .Symbol()?
@@ -52,6 +61,9 @@ namespace Cometary.Extensions
                        .OfType<IPropertySymbol>()
                        .FirstOrDefault();
 
+        /// <summary>
+        /// Gets the <see cref="IParameterSymbol"/> associated with the given <see cref="ParameterSyntax"/>.
+        /// </summary>
         public static IParameterSymbol Symbol(this ParameterSyntax parameter)
         {
             MethodDeclarationSyntax method = parameter.DeclaringMethod();

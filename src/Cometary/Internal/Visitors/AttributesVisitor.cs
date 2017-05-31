@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TypeInfo = System.Reflection.TypeInfo;
 
-namespace Cometary.Visiting
+namespace Cometary
 {
     using Attributes;
 

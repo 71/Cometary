@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Cometary.Rewriting
+namespace Cometary
 {
     using Core;
 
@@ -13,7 +13,7 @@ namespace Cometary.Rewriting
     /// nodes modified or removed through <see cref="MetaExtensions.Replace{T}"/>,
     /// and <see cref="MetaExtensions.Delete"/>.
     /// </summary>
-    internal sealed class AssemblyRewriter : LightAssemblyVisitor
+    internal sealed class ReplacedAndRemovedVisitor : LightAssemblyVisitor
     {
         /// <inheritdoc />
         public override bool RewritesTree => false;

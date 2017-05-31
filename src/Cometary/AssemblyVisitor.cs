@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using TypeInfo = System.Reflection.TypeInfo;
 
-namespace Cometary.Visiting
+namespace Cometary
 {
     using Core;
     using Attributes;
@@ -45,13 +45,28 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public virtual InterfaceDeclarationSyntax Visit(TypeInfo @interface, InterfaceDeclarationSyntax node) => node;
 
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitEventDeclaration(EventDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitFieldDeclaration(FieldDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
         public sealed override SyntaxNode VisitInterfaceDeclaration(InterfaceDeclarationSyntax node) => Visit(node.Info(), node);
-        public sealed override SyntaxNode VisitDelegateDeclaration(DelegateDeclarationSyntax node) => Visit(node.Symbol<ITypeSymbol>()?.Info(), node);
-        public sealed override SyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node) => Visit(node.Symbol<ITypeSymbol>()?.Info(), node);
+
+        /// <inheritdoc />
+        public sealed override SyntaxNode VisitDelegateDeclaration(DelegateDeclarationSyntax node) => Visit(node.Info(), node);
+
+        /// <inheritdoc />
+        public sealed override SyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node) => Visit(node.Info(), node);
     }
 }

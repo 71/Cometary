@@ -50,6 +50,19 @@ namespace Cometary.Tests
             (stmt.Expression as BinaryExpressionSyntax)?.Right.ToString().ShouldBe(two.ToString());
             (mStmt.Expression as BinaryExpressionSyntax)?.Right.ToString().ShouldBe(one.ToString());
         }
+
+        //[Fact]
+        //public void ShouldSupportDeepWith()
+        //{
+        //    ExpressionStatementSyntax exprStmt = "2 * 3;".Syntax<ExpressionStatementSyntax>();
+
+        //    exprStmt.DeepWith(
+
+        //        (exprStmt.Expression as BinaryExpressionSyntax)?.Left,
+        //        left => F.LiteralExpression(SyntaxKind.NumericLiteralExpression, F.Literal(1))
+
+        //    ).ToString().ShouldBe("1 * 3;");
+        //}
         #endregion
 
         [CTFEFact]

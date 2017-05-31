@@ -1,13 +1,9 @@
-﻿using System.Linq;
-using System.Reflection;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Reflection;
 using Shouldly;
 using Xunit;
 
 namespace Cometary.Tests
 {
-    using Extensions;
-    using Rewriting;
     using Attributes;
 
     public class HasBeenProcessedTests
@@ -21,9 +17,7 @@ namespace Cometary.Tests
 
         public static void ProcessBody(Quote quote = null)
         {
-            quote.Unquote(
-                "hasBeenProcessed = true".Syntax<StatementSyntax>()
-            );
+            quote += "hasBeenProcessed = true";
         }
 
         [Fact]

@@ -6,15 +6,17 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Semantics;
 
-namespace Cometary.Rewriting
+namespace Cometary
 {
     using Extensions;
 
     /// <summary>
-    /// Represents a <see langword="void"/> quote, used by macros.
+    /// Represents a <see langword="void"/> quote, used by macros
+    /// to insert code dynamically in a method body.
     /// </summary>
     public partial class Quote
     {
+        #region Properties
         /// <summary>
         /// Gets the syntax of the invocation of the template.
         /// </summary>
@@ -100,7 +102,9 @@ namespace Cometary.Rewriting
         /// Gets or sets the nodes inserted via this <see cref="Quote"/>.
         /// </summary>
         internal List<SyntaxNode> InsertedNodes { get; set; }
+        #endregion
 
+        #region Constructors
         internal Quote(InvocationExpressionSyntax syntax, IInvocationExpression symbol)
         {
             Syntax = syntax;
@@ -182,7 +186,9 @@ namespace Cometary.Rewriting
             MethodSymbol = original.MethodSymbol;
             InsertedNodes = original.InsertedNodes;
         }
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Clones the current quote to another <see cref="Quote{T}"/>
         /// of the given target type.
@@ -219,7 +225,9 @@ namespace Cometary.Rewriting
         /// Adds the given code to the output.
         /// </summary>
         public void Add(string code) => Push(code.Syntax<StatementSyntax>());
+        #endregion
 
+        #region Operators
         /// <summary>
         /// Adds the given statement to the output, and returns <see langword="this"/>.
         /// </summary>
@@ -264,10 +272,78 @@ namespace Cometary.Rewriting
         /// Writes the given code to the output as if it were a C# value.
         /// </summary>
         public static object operator <(Quote quote, string code) => quote > code.Syntax<ExpressionSyntax>();
+        #endregion
+
+        #region Mixin
+        /// <summary>
+        /// Inserts the given <see cref="string"/> in the syntax tree, as if it
+        /// were an actual statement.
+        /// </summary>
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public static void Mixin(string code, Quote quote = null)
+        {
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            Meta.EnsureCTFE();
+
+            quote.Add(SyntaxFactory.ParseStatement(code).WithSemicolon());
+        }
+
+        /// <summary>
+        /// Inserts the given <see cref="string"/> in the syntax tree, as if it
+        /// were an actual expression.
+        /// </summary>
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public static T Mixin<T>(string code, Quote quote = null)
+        {
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            Meta.EnsureCTFE();
+
+            quote.Add(SyntaxFactory.ParseExpression(code));
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Inserts the given <paramref name="node"/> in the syntax tree, as if it
+        /// were an actual statement.
+        /// </summary>
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public static void Mixin(StatementSyntax node, Quote quote = null)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            Meta.EnsureCTFE();
+
+            quote.Add(node);
+        }
+
+        /// <summary>
+        /// Inserts the given <paramref name="node"/> in the syntax tree, as if it
+        /// were an actual expression.
+        /// </summary>
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public static T Mixin<T>(ExpressionSyntax node, Quote quote = null)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+
+            Meta.EnsureCTFE();
+
+            quote.Add(node);
+
+            return default(T);
+        }
+        #endregion
     }
 
     /// <summary>
-    /// Represents a quote, used by macros.
+    /// Represents a quote, used by macros, used by macros
+    /// to insert code dynamically in a method body.
     /// </summary>
     public sealed class Quote<T> : Quote
     {

@@ -51,5 +51,25 @@ namespace Cometary
         {
             return to.GetTypeInfo().IsAssignableFrom(from.GetTypeInfo());
         }
+
+        internal static T[] EnumerateAll<T>(this Enum @enum) where T : struct
+        {
+            Array array = Enum.GetValues(@enum.GetType());
+            T[] result = new T[array.Length];
+
+            for (int i = 0; i < array.Length; i++)
+                result[i] = (T)array.GetValue(i);
+
+            return result;
+        }
+
+        internal static IEnumerable<T> Enumerate<T>(this Enum @enum) where T : struct
+        {
+            foreach (object obj in Enum.GetValues(@enum.GetType()))
+            {
+                if (@enum.HasFlag((Enum)obj))
+                    yield return (T)obj;
+            }
+        }
     }
 }

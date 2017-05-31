@@ -3,6 +3,8 @@ using Xunit;
 
 namespace Cometary.Tests
 {
+    using Extensions;
+
     public class MixinTests
     {
         [Fact]

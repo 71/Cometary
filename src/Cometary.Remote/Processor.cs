@@ -14,16 +14,16 @@ using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
 
-[assembly: InternalsVisibleTo("Cometary.Remote.Core")]
-[assembly: InternalsVisibleTo("Cometary.Remote.MSBuild")]
-[assembly: InternalsVisibleTo("Cometary.Remote.VisualStudio")]
+[assembly: InternalsVisibleTo("Cometary.Remote.Core, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+[assembly: InternalsVisibleTo("Cometary.Remote.MSBuild, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+[assembly: InternalsVisibleTo("Cometary.Remote.VisualStudio, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
 
 namespace Cometary
 {
     using Core;
 
     /// <summary>
-    /// Represents the Voltaire processor.
+    /// Represents the Cometary processor.
     /// </summary>
     public sealed class Processor : IDisposable
     {
@@ -89,6 +89,11 @@ namespace Cometary
         /// Gets the <see cref="AssemblyResolver"/> used for assembly resolution.
         /// </summary>
         private AssemblyResolver Resolver { get; }
+
+        /// <summary>
+        /// Gets a list of referenced assemblies that have been loaded.
+        /// </summary>
+        private List<Assembly> LoadedReferencedAssemblies { get; }
         #endregion
 
         #region Events
@@ -113,6 +118,7 @@ namespace Cometary
         {
             Workspace = workspace;
             Resolver  = new AssemblyResolver();
+            LoadedReferencedAssemblies = new List<Assembly>();
 
             OriginalCompilation = compilation;
             Compilation = compilation;
@@ -121,6 +127,7 @@ namespace Cometary
             SymbolsStream  = new MemoryStream();
 
             ExecutionDomain = AppDomain.CurrentDomain;
+            Dispatcher = new CoreDispatcher();
         }
 
         /// <summary>
@@ -236,22 +243,36 @@ namespace Cometary
             Log("Loading emitted assembly.");
 
             Assembly assembly = Resolver.EmittedAssembly = LoadAssembly();
+            List<LightAssemblyVisitor> visitors = new List<LightAssemblyVisitor>();
 
-            foreach (var _ in assembly.GetCustomAttributes())
+            foreach (var attr in assembly.GetCustomAttributes())
             {
                 // Doing this little loop forces all attributes to be created,
                 // and thus to globally register themselves, should they want to do so.
                 // See: CometaryAttribute.cs
+                Type attrType = attr.GetType();
+
+                if (LoadedReferencedAssemblies.Contains(attrType.Assembly))
+                    continue;
+
+                LoadedReferencedAssemblies.Add(attrType.Assembly);
+                LoadVisitorsAndDispatcher(visitors, attrType.Assembly);
             }
 
             Log("Successfully loaded emitted assembly.");
 
             // Load visitors, and let 'em visit the streams
-            foreach (AssemblyName refAssembly in assembly.GetReferencedAssemblies())
+            foreach (AssemblyName refAssemblyName in assembly.GetReferencedAssemblies())
             {
+                if (LoadedReferencedAssemblies.Any(x => x.GetName() == refAssemblyName))
+                    continue;
+
                 try
                 {
-                    Assembly.Load(refAssembly);
+                    Assembly refAssembly = Assembly.Load(refAssemblyName);
+
+                    LoadVisitorsAndDispatcher(visitors, refAssembly);
+                    LoadedReferencedAssemblies.Add(refAssembly);
                 }
                 catch
                 {
@@ -259,9 +280,18 @@ namespace Cometary
                 }
             }
 
-            LoadVisitorsAndDispatcher();
+            LoadVisitorsAndDispatcher(visitors, assembly);
 
-            foreach (LightAssemblyVisitor visitor in Visitors)
+            if (visitors.Count == 0)
+            {
+                Log("No visitor was loaded, cancelling.");
+                return;
+            }
+
+            visitors.Sort();
+            Visitors = visitors.AsReadOnly();
+
+            foreach (LightAssemblyVisitor visitor in visitors)
                 visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Loaded);
 
 
@@ -277,7 +307,7 @@ namespace Cometary
                 throw new Exception("Unknown error encountered whilst compiling for the second time.");
 
             // Visit streams again
-            foreach (LightAssemblyVisitor visitor in Visitors)
+            foreach (LightAssemblyVisitor visitor in visitors)
                 visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Visited);
 
             Log("Saving to output file...");
@@ -308,15 +338,21 @@ namespace Cometary
 
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
+                SyntaxNode node = diagnostic.Location.SourceTree.GetRoot().FindNode(diagnostic.Location.SourceSpan);
+
                 switch (diagnostic.Severity)
                 {
                     case DiagnosticSeverity.Error:
-                        exceptions.Add(new ProcessingException(diagnostic.Location.SourceSpan, diagnostic.GetMessage()));
+                        exceptions.Add(node == null
+                            ? new ProcessingException(diagnostic.Location.SourceSpan, diagnostic.GetMessage())
+                            : new ProcessingException(node, diagnostic.GetMessage()));
                         break;
                     case DiagnosticSeverity.Warning:
                     case DiagnosticSeverity.Info:
                         (diagnostic.Severity == DiagnosticSeverity.Warning ? WarningLogged : MessageLogged)?.Invoke(
-                            this, new ProcessingMessage(diagnostic.GetMessage(), diagnostic.Location.SourceSpan)
+                            this, node == null
+                            ? new ProcessingMessage(diagnostic.GetMessage(), diagnostic.Location.SourceSpan)
+                            : new ProcessingMessage(diagnostic.GetMessage(), node)
                         );
                         break;
                 }
@@ -370,20 +406,24 @@ namespace Cometary
         /// </summary>
         private static Type[] GetTypesInAssembly(Assembly assembly) => assembly.GetTypes();
 
+        private IEnumerable<Assembly> GetLoadedAssemblies(Assembly assembly)
+        {
+            return ExecutionDomain.GetAssemblies().Concat(LoadedReferencedAssemblies).Concat(new[] { assembly });
+        }
+
         /// <summary>
         /// Finds and loads all visitors declared by this assembly,
         /// and all referenced assemblies.
         /// </summary>
-        private void LoadVisitorsAndDispatcher()
+        private void LoadVisitorsAndDispatcher(List<LightAssemblyVisitor> visitors, Assembly assembly)
         {
             // Find visitors
-            List<LightAssemblyVisitor> builder = new List<LightAssemblyVisitor>(1);
             Type lavType = typeof(LightAssemblyVisitor);
             Type dispatcherType = typeof(IDispatcher);
 
             void LoadDispatcher(IDispatcher dispatcher, Type type)
             {
-                if (Dispatcher == null || dispatcher.ShouldOverride(Dispatcher))
+                if (dispatcher.ShouldOverride(Dispatcher))
                     Dispatcher = dispatcher;
 
                 Log($"Loaded dispatcher {type.FullName}.");
@@ -391,7 +431,7 @@ namespace Cometary
 
             try
             {
-                foreach (Type type in ExecutionDomain.GetAssemblies().SelectMany(GetTypesInAssembly))
+                foreach (Type type in GetTypesInAssembly(assembly))
                 {
                     if (type.IsAbstract)
                         continue;
@@ -402,7 +442,7 @@ namespace Cometary
                         {
                             LightAssemblyVisitor visitor = Activator.CreateInstance(type) as LightAssemblyVisitor;
 
-                            builder.Add(visitor);
+                            visitors.Add(visitor);
 
                             // ReSharper disable once SuspiciousTypeConversion.Global
                             if (visitor is IDispatcher dispatcher)
@@ -435,10 +475,6 @@ namespace Cometary
                 WarningLogged?.Invoke(this,
                     new ProcessingMessage($"Could not load some types from {e.LoaderExceptions.OfType<BadImageFormatException>().FirstOrDefault()?.FileName ?? "an unknown assembly"}, continuing..."));
             }
-
-            builder.Sort();
-
-            Visitors = builder.AsReadOnly();
         }
 
         /// <summary>
@@ -493,7 +529,10 @@ namespace Cometary
 
                 relPath = Path.Combine(basePath, relPath.Substring(projectDir.Length + 1));
 
-                using (FileStream fs = File.OpenWrite(relPath))
+                // Make sure dir exists
+                Directory.CreateDirectory(Path.GetDirectoryName(relPath));
+
+                using (FileStream fs = File.Open(relPath, FileMode.Create, FileAccess.Write))
                 using (TextWriter writer = new StreamWriter(fs, syntaxTree.Encoding))
                 {
                     SourceText text = await syntaxTree.GetTextAsync(token);

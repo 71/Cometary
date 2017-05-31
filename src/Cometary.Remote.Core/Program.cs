@@ -27,7 +27,7 @@ namespace Cometary
             if (args.Length == 0)
             {
 #if DEBUG
-                args = new[] { @"..\..\test\Cometary.Tests\Cometary.Tests.csproj", "--syntax" };
+                args = new[] { @"..\Cometary\Cometary.csproj", "--syntax" };
 #else
                 DisplayHelp();
                 return 1;

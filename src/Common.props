@@ -21,10 +21,15 @@
         <ApplicationVersion>$(Version)</ApplicationVersion>
 
         <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+        <DocumentationFile Condition=" '$(Configuration)' == 'Release' ">bin\Release\$(TargetFramework)\$(ProjectName).xml</DocumentationFile>
 
         <PackageTargetFallback>
             $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
         </PackageTargetFallback>
+
+        <SignAssembly>True</SignAssembly>
+        <DelaySign>False</DelaySign>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
 
     </PropertyGroup>
 

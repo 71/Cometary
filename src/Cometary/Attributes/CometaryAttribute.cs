@@ -30,6 +30,8 @@ namespace Cometary
         public CometaryAttribute()
         {
             instance = this;
+
+            Meta.LogDebug("Initialized Cometary attribute.");
         }
     }
 }

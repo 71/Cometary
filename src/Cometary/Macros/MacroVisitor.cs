@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -8,16 +9,15 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Semantics;
 
-namespace Cometary.Rewriting
+namespace Cometary
 {
     using Core;
     using Extensions;
-    using Visiting;
 
     /// <summary>
     /// <see cref="CSharpSyntaxRewriter"/> that transforms macro calls.
     /// </summary>
-    internal sealed class MacroRewriter : LightAssemblyVisitor
+    internal sealed class MacroVisitor : LightAssemblyVisitor
     {
         private readonly Stack<SyntaxList<StatementSyntax>> ModificationsStack = new Stack<SyntaxList<StatementSyntax>>();
         private readonly Stack<int> DeletionsCountStack = new Stack<int>();
@@ -136,26 +136,54 @@ namespace Cometary.Rewriting
             Quote quote = new Quote(node, invocation);
             bool tookNextStmt = false;
 
+            // Make sure the macro must be reduced, and not executed in another mixin
+            if (quote.MethodSymbol.Parameters.Any(IsQuoteParameter))
+            {
+                // We're being invoked from another mixin,
+                // return things normally
+                return base.VisitInvocationExpression(node);
+            }
+
             for (int i = 0; i < parameters.Length; i++)
             {
                 // Find all parameters
                 IParameterSymbol parameter = parameters[i];
                 INamedTypeSymbol parameterType = parameter.Type as INamedTypeSymbol;
 
+                // Edge case: A macro may call other macros, with
+                // an already existing quote. If that happens, we don't
+                // need to replace this call, and just let it go.
+                bool IsRecall() => invocation.GetArgumentMatchingParameter(parameter)?.Value is IParameterReferenceExpression paramRef &&
+                                   IsQuoteParameter(paramRef.Parameter);
+
                 switch (parameterType?.MetadataName)
                 {
                     case nameof(Quote):
+                        if (IsRecall())
+                            return base.VisitInvocationExpression(node);
+
                         arguments[i] = quote.For(i);
                         break;
                     case nameof(Quote) + "`1":
+                        if (IsRecall())
+                            return base.VisitInvocationExpression(node);
+
                         arguments[i] = quote.For(i, parameterType.TypeArguments[0].Info().AsType());
                         break;
                     case nameof(BlockSyntax):
+                        if (!parameter.HasExplicitDefaultValue)
+                            // That's not a block, but an actual parameter!
+                            goto default;
+
                         arguments[i] = block?.Statements.ElementAtOrDefault(indexInBlock + 1) as BlockSyntax
                                     ?? throw new ProcessingException(node, $"A call to {invocation.TargetMethod} must be followed by a block statement.");
                         tookNextStmt = true;
                         break;
                     case nameof(StatementSyntax):
+                        if (!parameter.HasExplicitDefaultValue)
+                            // That's not a block, but an actual parameter!
+                            goto default;
+
                         arguments[i] = block?.Statements.ElementAtOrDefault(indexInBlock + 1)
                                     ?? throw new ProcessingException(node, $"A call to {invocation.TargetMethod} must be followed by a statement.");
                         tookNextStmt = true;
@@ -187,7 +215,7 @@ namespace Cometary.Rewriting
 
                 for (int i = 0; i < pis.Length; i++)
                 {
-                    if (pis[i].ParameterType.Name != parameters[i].Type.Name)
+                    if (!pis[i].ParameterType.IsGenericParameter && pis[i].ParameterType.Name != parameters[i].Type.Name)
                         return false;
                 }
 

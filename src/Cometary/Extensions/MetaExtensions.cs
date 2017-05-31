@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
-    using Rewriting;
     using Extensions;
 
     /// <summary>
@@ -77,40 +76,6 @@ namespace Cometary
                 throw new ArgumentNullException(nameof(node));
 
             node.Parent.Replace(x => x.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia));
-        }
-        #endregion
-
-        #region Mixin
-        /// <summary>
-        /// Inserts the given <see cref="string"/> in the syntax tree, as if it
-        /// were an actual statement.
-        /// </summary>
-        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        public static void Mixin(this string str, Quote quote = null)
-        {
-            if (str == null)
-                throw new ArgumentNullException(nameof(str));
-
-            Meta.EnsureCTFE();
-
-            quote.Add(SyntaxFactory.ParseStatement(str).WithSemicolon());
-        }
-
-        /// <summary>
-        /// Inserts the given <see cref="string"/> in the syntax tree, as if it
-        /// were an actual expression.
-        /// </summary>
-        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        public static T Mixin<T>(this string str, Quote quote = null)
-        {
-            if (str == null)
-                throw new ArgumentNullException(nameof(str));
-
-            Meta.EnsureCTFE();
-
-            quote.Add(SyntaxFactory.ParseExpression(str));
-
-            return default(T);
         }
         #endregion
 

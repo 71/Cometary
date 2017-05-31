@@ -133,5 +133,45 @@ namespace Cometary.Extensions
                     return null;
             }
         }
+
+        internal static SwitchStatementSyntax MemberSwitch(ExpressionSyntax memberExpr, Func<ExpressionSyntax, ExpressionSyntax> expr)
+        {
+            return $@"
+switch ({memberExpr})
+{{
+    case PropertyDeclarationSyntax prop:
+        return {expr(SyntaxFactory.IdentifierName("prop"))};
+    case FieldDeclarationSyntax field:
+        return {expr(SyntaxFactory.IdentifierName("field"))};
+    case TypeDeclarationSyntax type:
+        return {expr(SyntaxFactory.IdentifierName("type"))};
+    case DelegateDeclarationSyntax del:
+        return {expr(SyntaxFactory.IdentifierName("del"))};
+    case EnumDeclarationSyntax @enum:
+        return {expr(SyntaxFactory.IdentifierName("@enum"))};
+    case EnumMemberDeclarationSyntax enumMember:
+        return {expr(SyntaxFactory.IdentifierName("enumMember"))};
+    case MethodDeclarationSyntax method:
+        return {expr(SyntaxFactory.IdentifierName("method"))};
+    case EventFieldDeclarationSyntax eventfld:
+        return {expr(SyntaxFactory.IdentifierName("eventfld"))};
+    case EventDeclarationSyntax @event:
+        return {expr(SyntaxFactory.IdentifierName("@event"))};
+    case ConstructorDeclarationSyntax ctor:
+        return {expr(SyntaxFactory.IdentifierName("ctor"))};
+    case DestructorDeclarationSyntax dtor:
+        return {expr(SyntaxFactory.IdentifierName("dtor"))};
+    case IndexerDeclarationSyntax index:
+        return {expr(SyntaxFactory.IdentifierName("index"))};
+    case OperatorDeclarationSyntax op:
+        return {expr(SyntaxFactory.IdentifierName("op"))};
+    case ConversionOperatorDeclarationSyntax convOp:
+        return {expr(SyntaxFactory.IdentifierName("convOp"))};
+    case IncompleteMemberSyntax incomplete:
+        return {expr(SyntaxFactory.IdentifierName("incomplete"))};
+    default:
+        throw new InvalidException(""The given argument was not a member."", nameof(member));
+}}".Syntax<SwitchStatementSyntax>();
+        }
     }
 }

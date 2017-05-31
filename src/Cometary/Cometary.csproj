@@ -15,7 +15,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Rewriting\Quote.tt">
+      <None Update="Extensions\SyntaxExtensions.Fluent.g.tt">
+        <Generator>TextTemplatingFileGenerator</Generator>
+        <LastGenOutput>SyntaxExtensions.Fluent.g.cs</LastGenOutput>
+      </None>
+      <None Update="Macros\Quote.tt">
         <Generator>TextTemplatingFileGenerator</Generator>
         <LastGenOutput>Quote.g.cs</LastGenOutput>
         <DependentUpon>Quote.cs</DependentUpon>
@@ -27,7 +31,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Rewriting\Quote.g.cs">
+      <Compile Update="Extensions\SyntaxExtensions.Fluent.g.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>SyntaxExtensions.Fluent.g.tt</DependentUpon>
+      </Compile>
+      <Compile Update="Macros\Quote.g.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Quote.tt</DependentUpon>
