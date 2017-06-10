@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <IsRemote>True</IsRemote>
+    </PropertyGroup>
+
     <Import Project="..\Common.props" />
 
     <PropertyGroup>
-        <TargetFramework>net46</TargetFramework>
         <RootNamespace>$(Name).Remote</RootNamespace>
     </PropertyGroup>
 
@@ -12,7 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.2.0" />
+        <PackageReference Include="System.Runtime.Loader" Version="4.3.0" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
     </ItemGroup>
 
 </Project>

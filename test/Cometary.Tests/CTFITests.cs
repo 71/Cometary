@@ -1,18 +1,19 @@
 using System.Diagnostics.CodeAnalysis;
-using Cometary.Attributes;
-using Cometary.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using Shouldly;
 
 namespace Cometary.Tests
 {
+    using Attributes;
+    using Extensions;
+
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    public class CTFETests
+    public class CTFITests
     {
         private static bool True => false;
 
-        [CTFE]
+        [CTFI]
         private static void ModifyProperty(TypeDeclarationSyntax type)
         {
             type.GetProperty(nameof(True))

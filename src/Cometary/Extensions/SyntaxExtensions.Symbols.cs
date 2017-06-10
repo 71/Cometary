@@ -1,6 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary.Extensions
 {
@@ -70,6 +74,56 @@ namespace Cometary.Extensions
             int index = method.ParameterList.Parameters.IndexOf(parameter);
 
             return method.Symbol().Parameters[index];
+        }
+
+        /// <summary>
+        /// Gets the <see cref="MethodInfo"/> associated with the given <see cref="IMethodSymbol"/>.
+        /// </summary>
+        public static MethodInfo Info(this IMethodSymbol method)
+        {
+            // Holy shit, to support local methods, we have to construct a map of
+            // all generic parameters. Fuck.
+            TypeInfo declaringType = method.ContainingType.Info();
+            var parameters = method.Parameters;
+
+            IEnumerable<MethodInfo> possibleMethods;
+
+            if (method.ContainingSymbol is IMethodSymbol declaringMethod)
+            {
+                string prefix = $"<{declaringMethod.Name}>";
+                possibleMethods = declaringType.DeclaredMethods.Where(x => x.Name.StartsWith(prefix) && x.Name.Contains(method.MetadataName));
+            }
+            else
+            {
+                possibleMethods = declaringType.GetDeclaredMethods(method.MetadataName);
+            }
+
+            MethodInfo result = possibleMethods.First(IsTargetMethod);
+
+            if (result.IsGenericMethod)
+                result = result.MakeGenericMethod(method.TypeArguments.Select(x => x.Info().AsType()).ToArray());
+
+            return result;
+
+            // Finds a matching method.
+            bool IsTargetMethod(MethodInfo info)
+            {
+                if (info.IsStatic != method.IsStatic)
+                    return false;
+
+                ParameterInfo[] pis = info.GetParameters();
+
+                if (pis.Length != parameters.Length)
+                    return false;
+
+                for (int i = 0; i < pis.Length; i++)
+                {
+                    if (!pis[i].ParameterType.IsGenericParameter && pis[i].ParameterType.Name != parameters[i].Type.Name)
+                        return false;
+                }
+
+                return true;
+            }
         }
     }
 }

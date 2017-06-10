@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,11 +16,16 @@ namespace Cometary
     /// </summary>
     public static class Meta
     {
-        internal static Action<object, string, SyntaxNode> LogWarningInternal;
-        internal static Action<object, string, SyntaxNode> LogMessageInternal;
-        internal static Action<object, string, SyntaxNode> LogDebugInternal;
-        internal static Func<object> GetWorkspace;
-        internal static Func<object> GetProject;
+        internal static Action<object, object, string, SyntaxNode> LogWarningCore;
+        internal static Action<object, object, string, SyntaxNode> LogMessageCore;
+        internal static Action<object, object, string, SyntaxNode> LogDebugCore;
+        internal static Func<object, object> WorkspaceCore;
+        internal static Func<object, object> ProjectCore;
+        internal static Func<object, CSharpCompilation> CompilationCore;
+
+        internal static Func<Assembly> GetCallingAssemblyCore;
+        internal static Func<int> GetAssemblyIDCore;
+        internal static Func<object> GetProcessorCore;
 
         /// <summary>
         /// Gets the workspace associated with the current compilation.
@@ -28,7 +34,15 @@ namespace Cometary
         /// This property returns an <see cref="object"/> to avoid forcing users
         /// to reference <c>Microsoft.CodeAnalysis.Workspaces</c>.
         /// </remarks>
-        public static object Workspace => GetWorkspace();
+        public static object Workspace
+        {
+            get
+            {
+                EnsureCTFE();
+
+                return WorkspaceCore(GetProcessorCore());
+            }
+        }
 
         /// <summary>
         /// Gets the project associated with the current compilation.
@@ -37,8 +51,54 @@ namespace Cometary
         /// This property returns an <see cref="object"/> to avoid forcing users
         /// to reference <c>Microsoft.CodeAnalysis.Workspaces</c>.
         /// </remarks>
-        public static object Project => GetProject();
+        public static object Project
+        {
+            get
+            {
+                EnsureCTFE();
 
+                return ProjectCore(GetProcessorCore());
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="CSharpCompilation"/> associated with the currently running program.
+        /// </summary>
+        public static CSharpCompilation Compilation
+        {
+            get
+            {
+                EnsureCTFE();
+
+                return CompilationCore(GetProcessorCore());
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Assembly"/> being processed.
+        /// </summary>
+        public static Assembly TargetAssembly
+        {
+            get
+            {
+                EnsureCTFE();
+
+                return GetCallingAssemblyCore();
+            }
+        }
+
+        /// <summary>
+        /// Gets the unique ID associated with the assembly to process.
+        /// </summary>
+        public static int ID
+        {
+            get
+            {
+                EnsureCTFE();
+
+                return GetAssemblyIDCore();
+            }
+        }
 
         private static readonly Dictionary<SyntaxTree, int> TreesIDs = new Dictionary<SyntaxTree, int>();
 
@@ -50,11 +110,6 @@ namespace Cometary
             if (!CTFE)
                 throw new InvalidOperationException("This operation can only be performed during compilation.");
         }
-
-        /// <summary>
-        /// Gets the <see cref="CSharpCompilation"/> associated with the currently running program.
-        /// </summary>
-        public static CSharpCompilation Compilation { get; internal set; }
 
         /// <summary>
         /// Gets whether or not the running assembly is being compiled.
@@ -83,18 +138,18 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Gets the syntax tree associated with the given <paramref name="ID"/>.
+        /// Gets the syntax tree associated with the given <paramref name="id"/>.
         /// </summary>
-        public static SyntaxTree GetTree(int ID)
+        public static SyntaxTree GetTree(int id)
         {
-            if (ID < 0)
-                throw new ArgumentOutOfRangeException(nameof(ID));
-            if (ID < Compilation.SyntaxTrees.Length)
-                return Compilation.SyntaxTrees[ID];
+            if (id < 0)
+                throw new ArgumentOutOfRangeException(nameof(id));
+            if (id < Compilation.SyntaxTrees.Length)
+                return Compilation.SyntaxTrees[id];
 
             foreach (var kvp in TreesIDs)
             {
-                if (kvp.Value == ID)
+                if (kvp.Value == id)
                     return kvp.Key;
             }
 
@@ -102,6 +157,7 @@ namespace Cometary
         }
 
         #region Logging
+
         /// <summary>
         /// Logs a message to the build process.
         /// </summary>
@@ -109,7 +165,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogMessageInternal(null, message, node);
+            LogMessageCore(GetProcessorCore(), null, message, node);
         }
 
         /// <summary>
@@ -119,7 +175,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogWarningInternal(null, warning, node);
+            LogDebugCore(GetProcessorCore(), null, warning, node);
         }
 
         /// <summary>
@@ -133,7 +189,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogDebugInternal(null, message, node);
+            LogDebugCore(GetProcessorCore(), null, message, node);
         }
 
         /// <summary>
@@ -143,7 +199,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogMessageInternal(sender, message, node);
+            LogMessageCore(GetProcessorCore(), sender, message, node);
         }
 
         /// <summary>
@@ -153,7 +209,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogWarningInternal(sender, warning, node);
+            LogWarningCore(GetProcessorCore(), sender, warning, node);
         }
 
         /// <summary>
@@ -167,7 +223,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogDebugInternal(sender, message, node);
+            LogDebugCore(GetProcessorCore(), sender, message, node);
         }
 
         /// <summary>
@@ -177,7 +233,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogMessageInternal(null, message, null);
+            LogMessageCore(GetProcessorCore(), null, message, null);
         }
 
         /// <summary>
@@ -187,7 +243,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogWarningInternal(null, warning, null);
+            LogWarningCore(GetProcessorCore(), null, warning, null);
         }
 
         /// <summary>
@@ -201,7 +257,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogDebugInternal(null, message, null);
+            LogDebugCore(GetProcessorCore(), null, message, null);
         }
 
         /// <summary>
@@ -211,7 +267,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogMessageInternal(sender, message, null);
+            LogMessageCore(GetProcessorCore(), sender, message, null);
         }
 
         /// <summary>
@@ -221,7 +277,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogWarningInternal(sender, warning, null);
+            LogWarningCore(GetProcessorCore(), sender, warning, null);
         }
 
         /// <summary>
@@ -235,7 +291,7 @@ namespace Cometary
         {
             EnsureCTFE();
 
-            LogDebugInternal(sender, message, null);
+            LogDebugCore(GetProcessorCore(), sender, message, null);
         }
         #endregion
     }

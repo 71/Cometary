@@ -1,10 +1,4 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="CometaryCommand.cs" company="Company">
-//     Copyright (c) Company.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -42,14 +36,14 @@ namespace Cometary.VSIX
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly CometaryCommandPackage package;
+        private readonly CometaryPackage package;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CometaryCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private CometaryCommand(CometaryCommandPackage package)
+        private CometaryCommand(CometaryPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
 
@@ -71,7 +65,7 @@ namespace Cometary.VSIX
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(CometaryCommandPackage package)
+        public static void Initialize(CometaryPackage package)
         {
             Instance = new CometaryCommand(package);
         }
@@ -85,15 +79,13 @@ namespace Cometary.VSIX
         /// <param name="e">Event args.</param>
         private async void MenuItemCallback(object sender, EventArgs e)
         {
-            MenuCommand cmd = sender as MenuCommand;
-
-            if (cmd == null)
+            if (!(sender is MenuCommand cmd))
                 return;
 
-            if (!IsSingleProjectItemSelection(out IVsHierarchy hierarchy, out uint itemid))
+            if (!TryGetSelectedProject(out IVsHierarchy hierarchy, out uint itemid) || !(hierarchy is IVsProject project))
                 return;
 
-            ((IVsProject)hierarchy).GetMkDocument(itemid, out string docPath);
+            project.GetMkDocument(itemid, out string docPath);
 
             if (docPath == null)
                 return;
@@ -107,17 +99,19 @@ namespace Cometary.VSIX
             await Processor.ProcessAsync();
         }
 
-        public static bool IsSingleProjectItemSelection(out IVsHierarchy hierarchy, out uint itemid)
+        /// <summary>
+        /// Attempts to get the currently selected project.
+        /// </summary>
+        private static bool TryGetSelectedProject(out IVsHierarchy hierarchy, out uint itemid)
         {
             hierarchy = null;
             itemid = VSConstants.VSITEMID_NIL;
 
             var monitorSelection = Package.GetGlobalService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
             var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+
             if (monitorSelection == null || solution == null)
-            {
                 return false;
-            }
 
             IntPtr selectionContainerPtr = IntPtr.Zero;
             IntPtr hierarchyPtr = IntPtr.Zero;
@@ -128,24 +122,21 @@ namespace Cometary.VSIX
                     out IVsMultiItemSelect multiItemSelect, out selectionContainerPtr);
 
                 if (ErrorHandler.Failed(hr) || hierarchyPtr == IntPtr.Zero || itemid == VSConstants.VSITEMID_NIL)
-                {
                     // there is no selection
                     return false;
-                }
 
                 // multiple items are selected
-                if (multiItemSelect != null) return false;
+                if (multiItemSelect != null)
+                    return false;
 
                 // there is a hierarchy root node selected, thus it is not a single item inside a project
-                var obj = Marshal.GetObjectForIUnknown(hierarchyPtr);
                 hierarchy = Marshal.GetObjectForIUnknown(hierarchyPtr) as IVsHierarchy;
 
-                if (hierarchy == null) return false;
+                if (hierarchy == null)
+                    return false;
 
                 if (ErrorHandler.Failed(solution.GetGuidOfProject(hierarchy, out Guid _)))
-                {
                     return false; // hierarchy is not a project inside the Solution if it does not have a ProjectID Guid
-                }
 
                 // if we got this far then there is a single project item selected
                 return true;
@@ -153,14 +144,10 @@ namespace Cometary.VSIX
             finally
             {
                 if (selectionContainerPtr != IntPtr.Zero)
-                {
                     Marshal.Release(selectionContainerPtr);
-                }
 
                 if (hierarchyPtr != IntPtr.Zero)
-                {
                     Marshal.Release(hierarchyPtr);
-                }
             }
         }
     }

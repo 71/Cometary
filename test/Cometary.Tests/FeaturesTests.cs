@@ -1,8 +1,5 @@
 ﻿using System.Linq;
 using System.Reflection;
-using Cometary;
-using Cometary.Attributes;
-using Cometary.Extensions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Shouldly;
@@ -10,16 +7,19 @@ using Xunit;
 
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-[assembly: Cometary]
+[assembly: Cometary.Cometary]
 
 namespace Cometary.Tests
 {
+    using Attributes;
+    using Extensions;
+
     public class FeaturesTests
     {
         #region Extern support
         public extern void DontThrow();
 
-        [CTFE]
+        [CTFI]
         public static void ModifyMethod(TypeDeclarationSyntax type)
         {
             type.GetMethod(nameof(DontThrow))
@@ -65,14 +65,28 @@ namespace Cometary.Tests
         //}
         #endregion
 
-        [CTFEFact]
+        [CTFIFact]
         public void ShouldHaveGlobalCometaryInstance()
         {
+            // Note: we're using the field here to make sure
+            // the property doesn't lazy-initializes itself.
             typeof(CometaryAttribute)
                 .GetTypeInfo()
-                .GetDeclaredField("instance")
+                .GetDeclaredField(nameof(CometaryAttribute.Instance).ToLower())
                 .GetValue(null)
                 .ShouldNotBeNull();
+        }
+
+        [CTFIFact]
+        public void ShouldFindAssembly()
+        {
+            Meta.TargetAssembly.ShouldNotBeNull();
+        }
+
+        [CTFIFact]
+        public void FluentExtensionsShouldWork(MethodDeclarationSyntax method)
+        {
+            method.GetModifiers().ShouldBe(Modifiers.Public);
         }
 
         // [Fact, CTFE]

@@ -45,6 +45,16 @@ namespace Cometary.Core
         public virtual bool RewritesTree => false;
 
         /// <summary>
+        /// Gets whether or not this visitor can update syntax trees incrementally,
+        /// in which case it cannot have side effects on other syntax trees.
+        /// <para>
+        /// If set to <see langword="true"/>, only the modified syntax trees will be modified by
+        /// this visitor when updating.
+        /// </para>
+        /// </summary>
+        public virtual bool SupportsIncrementalUpdate => true;
+
+        /// <summary>
         /// Transforms the specified compilation.
         /// <para>
         /// This method is invoked after the original <see cref="SyntaxTree"/> transformation.

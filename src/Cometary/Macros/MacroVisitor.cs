@@ -104,6 +104,30 @@ namespace Cometary
         }
 
         /// <summary>
+        /// Ensures quotes get returned immediately.
+        /// </summary>
+        public override SyntaxNode VisitReturnStatement(ReturnStatementSyntax node)
+        {
+            if (node.Expression is InvocationExpressionSyntax invocation)
+            {
+                SyntaxNode newInvocation = VisitInvocationExpression(invocation);
+
+                switch (newInvocation)
+                {
+                    case ExpressionSyntax expr:
+                        return node.WithExpression(expr);
+                    case StatementSyntax stmt:
+                        return stmt.WithSemicolon();
+
+                    default:
+                        throw new ProcessingException(newInvocation, "Invalid syntax node returned.");
+                }
+            }
+
+            return base.VisitReturnStatement(node);
+        }
+
+        /// <summary>
         /// Calls macros.
         /// </summary>
         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
@@ -202,36 +226,8 @@ namespace Cometary
             // Help find valid method
             IMethodSymbol target = invocation.TargetMethod;
 
-            bool IsTargetMethod(MethodInfo method)
-            {
-                if (method.IsStatic != target.IsStatic
-                    || method.IsGenericMethod != target.IsGenericMethod)
-                    return false;
-
-                ParameterInfo[] pis = method.GetParameters();
-
-                if (pis.Length != parameters.Length)
-                    return false;
-
-                for (int i = 0; i < pis.Length; i++)
-                {
-                    if (!pis[i].ParameterType.IsGenericParameter && pis[i].ParameterType.Name != parameters[i].Type.Name)
-                        return false;
-                }
-
-                return true;
-            }
-
             // Invoke method!
-            MethodInfo targetMethod = target.ContainingType
-                .Info()
-                .GetDeclaredMethods(target.MetadataName)
-                .FirstOrDefault(IsTargetMethod);
-
-            if (targetMethod.IsGenericMethod)
-                targetMethod = targetMethod.MakeGenericMethod(target.TypeArguments.Select(x => x.Info().AsType()).ToArray());
-
-            targetMethod.Invoke(null, arguments);
+            target.Info().Invoke(null, arguments);
 
             // Replace body of calling method
             List<SyntaxNode> insertedNodes = quote.InsertedNodes;
@@ -253,18 +249,11 @@ namespace Cometary
             SyntaxNode ReturnLastNode(SyntaxNode returnNode)
             {
                 if (returnNode is ExpressionSyntax)
-                    // No need to worry more than that
                     return returnNode;
-
-                if (returnNode is StatementSyntax exstmt)
-                {
-                    ExpressionSyntax returnExpr = exstmt.Expression();
-
-                    if (returnExpr != null)
-                        return returnExpr;
-
-                    return exstmt;
-                }
+                if (returnNode is ExpressionStatementSyntax exstmt)
+                    return exstmt.Expression;
+                if (returnNode is StatementSyntax stmt)
+                    return stmt;
 
                 throw new ProcessingException(returnNode, "Please report this.");
             }

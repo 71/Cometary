@@ -56,7 +56,7 @@
         <Parent guid="guidCometaryCommandPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke CometaryCommand</ButtonText>
+          <ButtonText>Process using Cometary</ButtonText>
         </Strings>
       </Button>
         

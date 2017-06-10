@@ -1,22 +1,14 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="CometaryCommandPackage.cs" company="Company">
-//     Copyright (c) Company.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-using System;
-using System.ComponentModel.Design;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.Win32;
+
+using Project = Microsoft.CodeAnalysis.Project;
 
 namespace Cometary.VSIX
 {
@@ -41,7 +33,7 @@ namespace Cometary.VSIX
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(PackageGuidString)]
-    public sealed class CometaryCommandPackage : Package
+    public sealed class CometaryPackage : Package
     {
         /// <summary>
         /// CometaryCommandPackage GUID string.
@@ -49,22 +41,19 @@ namespace Cometary.VSIX
         public const string PackageGuidString = "8fad0f9b-a3b2-433e-81f2-525d2d9de9d2";
 
         /// <summary>
+        /// Gets the static instance of the Cometary package.
+        /// </summary>
+        public static CometaryPackage Instance { get; private set; }
+
+        /// <summary>
         /// Gets the <see cref="VisualStudioWorkspace"/> of the current solution.
         /// </summary>
         public VisualStudioWorkspace Workspace { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CometaryCommand"/> class.
+        /// Gets the processors of the current solution.
         /// </summary>
-        public CometaryCommandPackage()
-        {
-            // Inside this method you can place any initialization code that does not require
-            // any Visual Studio service because at this point the package object is created but
-            // not sited yet inside Visual Studio environment. The place to do all the other
-            // initialization is the Initialize method.
-        }
-
-        #region Package Members
+        public Dictionary<ProjectId, Processor> Processors { get; } = new Dictionary<ProjectId, Processor>();
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -75,11 +64,60 @@ namespace Cometary.VSIX
             if (GetGlobalService(typeof(SComponentModel)) is IComponentModel componentModel)
                 Workspace = componentModel.GetService<VisualStudioWorkspace>();
 
+            Workspace.WorkspaceChanged += WorkspaceChanged;
+
             CometaryCommand.Initialize(this);
 
             base.Initialize();
         }
 
-        #endregion
+        /// <summary>
+        /// Disposes of all processors.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (Processor processor in Processors.Values)
+                    processor.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Keeps track of changed workspaces.
+        /// </summary>
+        private async void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
+        {
+            switch (e.Kind)
+            {
+                case WorkspaceChangeKind.SolutionChanged:
+                case WorkspaceChangeKind.SolutionRemoved:
+                case WorkspaceChangeKind.SolutionCleared:
+                case WorkspaceChangeKind.SolutionReloaded:
+                    Processors.Clear();
+                    break;
+                case WorkspaceChangeKind.ProjectRemoved:
+                    Processors.Remove(e.ProjectId);
+                    break;
+            }
+
+            if (e.ProjectId == null)
+                return;
+
+            Project proj = e.NewSolution.GetProject(e.ProjectId);
+
+            if (e.Kind == WorkspaceChangeKind.ProjectAdded)
+            {
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                if (GetGlobalService(typeof(SVsSolution)) is IVsSolution solution &&
+                    solution.GetProjectOfGuid(proj.Id.Id, out IVsHierarchy hierarchy) == VSConstants.S_OK &&
+                    hierarchy is IVsBuildPropertyStorage storage)
+                    storage.SetPropertyValue("HasCometaryExtension", null, (uint)_PersistStorageType.PST_USER_FILE, "True");
+            }
+
+            Processors[e.ProjectId] = await Processor.CreateAsync(sender as Workspace, proj);
+        }
     }
 }

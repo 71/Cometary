@@ -39,7 +39,7 @@ namespace Cometary.Tests
             }
         }
 
-        [CTFE(KeepMethod = true)]
+        [CTFI(KeepMethod = true)]
         public static void CreateTests()
         {
             IMethodSymbol method = Meta.Compilation

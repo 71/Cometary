@@ -42,6 +42,7 @@
     <PropertyGroup Condition=" '$(IsRemote)' == 'True' ">
         <TargetFramework>net47</TargetFramework>
         <GenerateDocumentation>False</GenerateDocumentation>
+        <DefaultNamespace>$(Name).Remote</DefaultNamespace>
     </PropertyGroup>
     
     

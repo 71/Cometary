@@ -8,7 +8,7 @@ namespace Cometary.Tests
 
     public class HasBeenProcessedTests
     {
-        [CTFE]
+        [CTFI]
         public static void CreateTests(TypeInfo type)
         {
             Testing.DefinedTests = type.GetDeclaredMethods(nameof(ShouldHaveBeenProcessed));

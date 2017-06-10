@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Cometary.Attributes
 {
     /// <summary>
-    /// Indicates that the marked method will be called
+    /// Indicates that the marked method will be invoked
     /// during compilation.
     /// <para>
     /// The following parameters can be defined:
@@ -13,12 +13,16 @@ namespace Cometary.Attributes
     /// <see cref="MethodInfo"/> and <see cref="TypeInfo"/>.
     /// </para>
     /// </summary>
+    /// <remarks>CTFE stands for Compile-Time Function Invocation.</remarks>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class CTFEAttribute : Attribute, IMethodVisitor
+    public sealed class CTFIAttribute : Attribute, IMethodVisitor
     {
         /// <summary>
-        /// Gets or sets whether or not the CTFE method should
-        /// be kept after compilation.
+        /// If <see langword="false"/>, the marked method will be removed
+        /// from the compiled <see cref="Assembly"/>.
+        /// <para>
+        /// Default: <see langword="false"/>.
+        /// </para>
         /// </summary>
         public bool KeepMethod { get; set; }
 

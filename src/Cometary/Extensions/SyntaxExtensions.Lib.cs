@@ -149,8 +149,6 @@ switch ({memberExpr})
         return {expr(SyntaxFactory.IdentifierName("del"))};
     case EnumDeclarationSyntax @enum:
         return {expr(SyntaxFactory.IdentifierName("@enum"))};
-    case EnumMemberDeclarationSyntax enumMember:
-        return {expr(SyntaxFactory.IdentifierName("enumMember"))};
     case MethodDeclarationSyntax method:
         return {expr(SyntaxFactory.IdentifierName("method"))};
     case EventFieldDeclarationSyntax eventfld:
@@ -170,7 +168,7 @@ switch ({memberExpr})
     case IncompleteMemberSyntax incomplete:
         return {expr(SyntaxFactory.IdentifierName("incomplete"))};
     default:
-        throw new InvalidException(""The given argument was not a member."", nameof(member));
+        throw new ArgumentException(""The given argument was not a member."", ""{memberExpr}"");
 }}".Syntax<SwitchStatementSyntax>();
         }
     }

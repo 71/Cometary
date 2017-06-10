@@ -2,66 +2,50 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
-
-[assembly: InternalsVisibleTo("Cometary.Remote.Core, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
-[assembly: InternalsVisibleTo("Cometary.Remote.MSBuild, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
-[assembly: InternalsVisibleTo("Cometary.Remote.VisualStudio, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
 {
     using Core;
 
     /// <summary>
-    /// Represents the Cometary processor.
+    /// Object that compiles an <see cref="Assembly"/>, and lets it
+    /// edit itself before compiling it again.
     /// </summary>
+    [SuppressMessage("ReSharper", "InvocationIsSkipped")]
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "()}")]
     public sealed class Processor : IDisposable
     {
-        [Conditional("DEBUG"), DebuggerStepThrough]
-        private void Log(string msg)
-        {
-            DebugMessageLogged?.Invoke(this, new ProcessingMessage(msg, sender: "Processor"));
-        }
+        private bool _hasBeenProcessed;
+        private bool _hasBeenEmitted;
 
-        #region Properties
-        /// <summary>
-        /// Gets the workspace for this processor.
-        /// </summary>
-        public Workspace Workspace { get; }
+        private bool _trackedChanges;
+        private Dictionary<SyntaxTree, TextChange[]> _changes;
+
+        private string GetDebuggerDisplay() => $"Processor for '{Compilation.AssemblyName}'{(_hasBeenEmitted ? "" : " (Not yet emitted)")}";
 
         /// <summary>
-        /// Gets the project for this processor.
+        /// Gets the <see cref="CSharpCompilation"/> generated
+        /// by this <see cref="Processor"/>.
         /// </summary>
-        public Project Project { get; private set; }
+        public CSharpCompilation Compilation { get; private set; }
 
         /// <summary>
-        /// Gets the current compilation.
+        /// Gets the <see cref="Microsoft.CodeAnalysis.Project"/> processed
+        /// by this <see cref="Processor"/>.
         /// </summary>
-        public CSharpCompilation Compilation
-        {
-            get => Meta.Compilation;
-            set => Meta.Compilation = value;
-        }
-
-        /// <summary>
-        /// Gets the compilation first gotten by this processor.
-        /// </summary>
-        public CSharpCompilation OriginalCompilation { get; }
-
-        /// <summary>
-        /// Gets the <see cref="AppDomain"/> in which code will run.
-        /// </summary>
-        public AppDomain ExecutionDomain { get; }
+        public Project Project { get; }
 
         /// <summary>
         /// Gets the <see cref="Stream"/> in which the compiled assembly
@@ -76,6 +60,35 @@ namespace Cometary
         public MemoryStream SymbolsStream { get; }
 
         /// <summary>
+        /// Gets the unique ID of the <see cref="Processor"/>, also associated
+        /// to the emitted <see cref="Assembly"/>.
+        /// </summary>
+        public int ID { get; }
+
+        /// <summary>
+        /// Gets or sets whether or not changes
+        /// should be tracked by the processor.
+        /// </summary>
+        public bool TrackChanges { get; set; }
+
+#if NET_CORE
+        /// <summary>
+        /// 
+        /// </summary>
+        internal CometaryAssemblyLoadContext Context { get; } 
+#else
+        /// <summary>
+        /// 
+        /// </summary>
+        internal AssemblyResolver Resolver { get; }
+#endif
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal ProcessorHost Host { get; }
+
+        /// <summary>
         /// Gets the visitors loaded by the processor.
         /// </summary>
         public ReadOnlyCollection<LightAssemblyVisitor> Visitors { get; private set; }
@@ -84,17 +97,6 @@ namespace Cometary
         /// Gets the <see cref="IDispatcher"/> used for the process.
         /// </summary>
         public IDispatcher Dispatcher { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="AssemblyResolver"/> used for assembly resolution.
-        /// </summary>
-        private AssemblyResolver Resolver { get; }
-
-        /// <summary>
-        /// Gets a list of referenced assemblies that have been loaded.
-        /// </summary>
-        private List<Assembly> LoadedReferencedAssemblies { get; }
-        #endregion
 
         #region Events
         /// <summary>
@@ -111,230 +113,185 @@ namespace Cometary
         /// Event invoked when a debug message is logged.
         /// </summary>
         public event EventHandler<ProcessingMessage> DebugMessageLogged;
+
+        internal void OnMessageLogged(ProcessingMessage msg) => MessageLogged?.Invoke(this, msg);
+
+        internal void OnWarningLogged(ProcessingMessage msg) => WarningLogged?.Invoke(this, msg);
+
+        internal void OnDebugMessageLogged(ProcessingMessage msg) => DebugMessageLogged?.Invoke(this, msg);
         #endregion
 
-        #region Initialization, Destruction
-        private Processor(Workspace workspace, CSharpCompilation compilation)
+        internal Processor(int id, ProcessorHost host, Project project)
         {
-            Workspace = workspace;
-            Resolver  = new AssemblyResolver();
-            LoadedReferencedAssemblies = new List<Assembly>();
+#if NET_CORE
+            Context    = new CometaryAssemblyLoadContext();
+#else
+            Resolver   = new AssemblyResolver();
+#endif
+            Dispatcher = new CoreDispatcher();
 
-            OriginalCompilation = compilation;
-            Compilation = compilation;
+            Host = host;
+            ID   = id;
+
+            Project = project;
+
+            if (!project.ParseOptions.Features.ContainsKey(nameof(IOperation)))
+            {
+                Project = project.WithParseOptions(
+                    project.ParseOptions.WithFeatures(
+                        project.ParseOptions.Features.Concat(new[] { new KeyValuePair<string, string>(nameof(IOperation), "True") })
+                    )
+                );
+            }
 
             AssemblyStream = new MemoryStream();
             SymbolsStream  = new MemoryStream();
-
-            ExecutionDomain = AppDomain.CurrentDomain;
-            Dispatcher = new CoreDispatcher();
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="Processor"/>, given its workspace and project.
-        /// </summary>
-        public static async Task<Processor> CreateAsync(Workspace workspace, Project project, CancellationToken token = default(CancellationToken))
-        {
-            project = project.WithParseOptions(
-                project.ParseOptions.WithFeatures(
-                    project.ParseOptions.Features.Concat(new[] { new KeyValuePair<string, string>(nameof(IOperation), "True") })
-                )
-            );
-
-            CSharpCompilation compilation = await project.GetCompilationAsync(token) as CSharpCompilation;
-
-            Processor processor = new Processor(workspace, compilation)
-            {
-                Project = project
-            };
-
-            processor.LoadReferences();
-
-            // Set up environment
-            Meta.Compilation = processor.Compilation;
-            Meta.CTFE = true;
-            Meta.GetWorkspace = () => workspace;
-            Meta.GetProject = () => project;
-
-            Meta.LogDebugInternal =
-                (sender, msg, node) => processor.DebugMessageLogged?.Invoke(sender ?? "Unknown", new ProcessingMessage(msg, node, sender?.ToString()));
-            Meta.LogMessageInternal =
-                (sender, msg, node) => processor.MessageLogged?.Invoke(sender ?? "Unknown", new ProcessingMessage(msg, node, sender?.ToString()));
-            Meta.LogWarningInternal =
-                (sender, msg, node) => processor.WarningLogged?.Invoke(sender ?? "Unknown", new ProcessingMessage(msg, node, sender?.ToString()));
-
-            processor.Log("Environment ready.");
-
-            return processor;
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="Processor"/> given its project file.
-        /// </summary>
-        public static async Task<Processor> CreateAsync(string projectFile, CancellationToken token = default(CancellationToken))
-        {
-            MSBuildWorkspace workspace = MSBuildWorkspace.Create();
-            Project project = await workspace.OpenProjectAsync(projectFile, token);
-
-            return await CreateAsync(workspace, project, token);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="Processor"/> associated with a single source.
-        /// </summary>
-        public static async Task<Processor> CreateAsync(SourceText source, CancellationToken token = default(CancellationToken))
-        {
-            AdhocWorkspace workspace = new AdhocWorkspace();
-            Project project = workspace.AddProject("Temp", "C#")
-                                       .AddDocument("default.cs", source)
-                                       .Project;
-
-            return await CreateAsync(workspace, project, token);
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            Workspace.Dispose();
+#if NET_CORE
+            Context.Dispose();
+#else
+            Resolver.Dispose();
+#endif
             AssemblyStream.Dispose();
             SymbolsStream.Dispose();
-            Resolver.Dispose();
-
-            if (Visitors == null)
-                return;
-
-            foreach (IDisposable disposableVisitor in Visitors.OfType<IDisposable>())
-                disposableVisitor.Dispose();
         }
-        #endregion
 
-        #region Processing
         /// <summary>
-        /// Processes the target project.
+        /// Loads the emitted assembly in memory.
         /// </summary>
-        /// <exception cref="ProcessingException">Invalid syntax.</exception>
-        /// <exception cref="Exception">Unknown error.</exception>
-        /// <exception cref="AggregateException">Multiple issues.</exception>
-        public async Task ProcessAsync(CancellationToken token = default(CancellationToken))
+        private Assembly LoadAssembly()
         {
-            // Take care of extern methods
-            ExternRewriter externRewriter = new ExternRewriter();
-            CSharpCompilation noExternCompilation = Compilation;
+#if NET_CORE
+            return Context.LoadFromStream(AssemblyStream, SymbolsStream);
+#else
+            return Assembly.Load(AssemblyStream.GetBuffer(), SymbolsStream.GetBuffer());
+#endif
+        }
 
-            for (int i = 0; i < Compilation.SyntaxTrees.Length; i++)
+        /// <summary>
+        /// Loads all references for later.
+        /// </summary>
+        private void LoadReferences(Solution solution, Compilation compilation)
+        {
+            void Register(string file)
             {
-                CSharpSyntaxTree tree = (CSharpSyntaxTree)Compilation.SyntaxTrees[i];
-
-                noExternCompilation = noExternCompilation.ReplaceSyntaxTree(
-                    tree, tree.WithRootAndOptions(externRewriter.Visit(tree.GetRoot()), tree.Options)
-                );
+#if NET_CORE
+                Context.Register(file);
+#else
+                Resolver.Register(file);
+#endif
             }
 
-            // Compile to stream
-            bool succeeded = await Compile(noExternCompilation, token);
-
-            if (!succeeded)
-                throw new Exception("Unknown error encountered whilst compiling for the first time.");
-
-            // Use special resolver context
-            ExecutionDomain.AssemblyResolve += Resolver.AssemblyResolve;
-
-            // Retrieve assembly from stream
-            Log("Loading emitted assembly.");
-
-            Assembly assembly = Resolver.EmittedAssembly = LoadAssembly();
-            List<LightAssemblyVisitor> visitors = new List<LightAssemblyVisitor>();
-
-            foreach (var attr in assembly.GetCustomAttributes())
+            foreach (var @ref in compilation.References)
             {
-                // Doing this little loop forces all attributes to be created,
-                // and thus to globally register themselves, should they want to do so.
-                // See: CometaryAttribute.cs
-                Type attrType = attr.GetType();
+                string display = @ref.Display;
 
-                if (LoadedReferencedAssemblies.Contains(attrType.Assembly))
+                if (Host.SharedReferences.Contains(display))
                     continue;
 
-                LoadedReferencedAssemblies.Add(attrType.Assembly);
-                LoadVisitorsAndDispatcher(visitors, attrType.Assembly);
-            }
-
-            Log("Successfully loaded emitted assembly.");
-
-            // Load visitors, and let 'em visit the streams
-            foreach (AssemblyName refAssemblyName in assembly.GetReferencedAssemblies())
-            {
-                if (LoadedReferencedAssemblies.Any(x => x.GetName() == refAssemblyName))
-                    continue;
-
-                try
+                if (@ref is PortableExecutableReference peRef)
                 {
-                    Assembly refAssembly = Assembly.Load(refAssemblyName);
-
-                    LoadVisitorsAndDispatcher(visitors, refAssembly);
-                    LoadedReferencedAssemblies.Add(refAssembly);
+                    Register(peRef.FilePath);
+                    Host.SharedReferences.Add(display);
                 }
-                catch
+                else if (@ref is CompilationReference cRef)
                 {
-                    // Whatever.
+                    Project project = solution?.GetProject(cRef.Compilation.Assembly);
+
+                    if (project != null)
+                    {
+                        Register(project.OutputFilePath);
+                        Host.SharedReferences.Add(display);
+                    }
                 }
             }
+        }
 
-            LoadVisitorsAndDispatcher(visitors, assembly);
+        /// <summary>
+        /// Static methods are faster, duh.
+        /// </summary>
+        private static IEnumerable<TypeInfo> GetTypesInAssembly(Assembly assembly) => assembly.GetTypes().Select(IntrospectionExtensions.GetTypeInfo);
 
-            if (visitors.Count == 0)
+        /// <summary>
+        /// Finds and loads all visitors declared by this assembly,
+        /// and all referenced assemblies.
+        /// </summary>
+        private void LoadVisitorsAndDispatcher(ICollection<LightAssemblyVisitor> visitors, Assembly assembly)
+        {
+            // Find visitors
+            TypeInfo lavType = typeof(LightAssemblyVisitor).GetTypeInfo();
+            Type dispatcherType = typeof(IDispatcher);
+
+            void LoadDispatcher(IDispatcher dispatcher, TypeInfo type)
             {
-                Log("No visitor was loaded, cancelling.");
-                return;
+                if (dispatcher.ShouldOverride(Dispatcher))
+                    Dispatcher = dispatcher;
+
+                Host.Log($"Loaded dispatcher {type.FullName}.");
             }
 
-            visitors.Sort();
-            Visitors = visitors.AsReadOnly();
+            try
+            {
+                foreach (TypeInfo type in GetTypesInAssembly(assembly))
+                {
+                    if (type.IsAbstract)
+                        continue;
 
-            foreach (LightAssemblyVisitor visitor in visitors)
-                visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Loaded);
+                    if (lavType.IsAssignableFrom(type))
+                    {
+                        try
+                        {
+                            LightAssemblyVisitor visitor = Activator.CreateInstance(type.AsType()) as LightAssemblyVisitor;
 
+                            visitors.Add(visitor);
 
-            // Process assembly
-            Log("Processing assembly...");
+                            // ReSharper disable once SuspiciousTypeConversion.Global
+                            if (visitor is IDispatcher dispatcher)
+                                LoadDispatcher(dispatcher, type);
 
-            ProcessAssembly(assembly);
-
-            // Re-compile assembly
-            succeeded = await Compile(Compilation, token);
-
-            if (!succeeded)
-                throw new Exception("Unknown error encountered whilst compiling for the second time.");
-
-            // Visit streams again
-            foreach (LightAssemblyVisitor visitor in visitors)
-                visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Visited);
-
-            Log("Saving to output file...");
-
-            // Save to file
-            AssemblyStream.Position = 0;
-            SymbolsStream.Position = 0;
-
-            using (FileStream assemblyFile = File.Open(Project.OutputFilePath, FileMode.Create, FileAccess.ReadWrite))
-                await AssemblyStream.CopyToAsync(assemblyFile);
-
-            using (FileStream symbolsFile = File.Open(Path.ChangeExtension(Project.OutputFilePath, ".pdb"), FileMode.Create, FileAccess.ReadWrite))
-                await SymbolsStream.CopyToAsync(symbolsFile);
-
-            ExecutionDomain.AssemblyResolve -= Resolver.AssemblyResolve;
+                            Host.Log($"Loaded visitor {type.FullName}.");
+                        }
+                        catch
+                        {
+                            // Alright, skipping this one
+                            Host.Log($"Could not load visitor {type.FullName}.");
+                        }
+                    }
+                    else if (type.GetInterfaces().Contains(dispatcherType))
+                    {
+                        try
+                        {
+                            LoadDispatcher(Activator.CreateInstance(type.AsType()) as IDispatcher, type);
+                        }
+                        catch
+                        {
+                            // Ditto.
+                            Host.Log($"Could not load dispatcher {type.FullName}.");
+                        }
+                    }
+                }
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                WarningLogged?.Invoke(this,
+                    new ProcessingMessage($"Could not load some types from {e.LoaderExceptions.OfType<BadImageFormatException>().FirstOrDefault()?.FileName ?? "an unknown assembly"}, continuing..."));
+            }
         }
 
         /// <summary>
         /// Emits the compilation to the assembly stream, and the symbols stream.
         /// </summary>
-        private async Task<bool> Compile(Compilation compilation, CancellationToken token)
+        private async Task<bool> EmitToMemoryAsync(Compilation compilation, CancellationToken token)
         {
             AssemblyStream.SetLength(0);
             SymbolsStream.SetLength(0);
 
             List<ProcessingException> exceptions = new List<ProcessingException>();
-            EmitResult result = await Task.Run(() => compilation.Emit(AssemblyStream, SymbolsStream, cancellationToken: token), token);
+            EmitResult result = await Task.Factory.StartNew(() => compilation.Emit(AssemblyStream, SymbolsStream, cancellationToken: token), token);
 
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
@@ -361,6 +318,7 @@ namespace Cometary
             switch (exceptions.Count)
             {
                 case 0:
+                    _hasBeenEmitted = true;
                     return result.Success;
                 case 1:
                     throw exceptions[0];
@@ -370,143 +328,228 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Loads the emitted assembly in memory.
+        /// Initializes this processor.
         /// </summary>
-        private Assembly LoadAssembly()
+        internal async Task<CSharpCompilation> InitializeAsync(CancellationToken token = default(CancellationToken))
         {
-            byte[] assemblyBytes = AssemblyStream.GetBuffer();
-            byte[] symbolsBytes  = SymbolsStream.GetBuffer();
+            if (Compilation != null)
+                return Compilation;
 
-            return Assembly.Load(assemblyBytes, symbolsBytes);
+            Compilation = await Project.GetCompilationAsync(token) as CSharpCompilation;
+
+            LoadReferences(Project.Solution, Compilation);
+
+            return Compilation;
         }
 
         /// <summary>
-        /// Loads all references for later.
+        /// Processes the target project.
         /// </summary>
-        private void LoadReferences()
+        /// <exception cref="ProcessingException">Invalid syntax.</exception>
+        /// <exception cref="Exception">Unknown error.</exception>
+        /// <exception cref="AggregateException">Multiple issues.</exception>
+        public async Task ProcessAsync(CancellationToken token = default(CancellationToken))
         {
-            foreach (var @ref in Compilation.References)
+            _hasBeenProcessed = _hasBeenEmitted = false;
+
+            bool trackChanges = TrackChanges;
+            var changes = trackChanges ? new Dictionary<SyntaxTree, TextChange[]>() : null;
+
+            // Take care of extern methods
+            PreprocessingRewriter ppRewriter = new PreprocessingRewriter(ID);
+
+            CSharpCompilation compilation = Compilation ?? await InitializeAsync(token);
+            CSharpCompilation preprocessedCompilation = compilation;
+
+            Debug.Assert(compilation != null);
+
+            // ReSharper disable once PossibleNullReferenceException
+            for (int i = 0; i < compilation.SyntaxTrees.Length; i++)
             {
-                if (@ref is PortableExecutableReference peRef)
+                CSharpSyntaxTree tree = (CSharpSyntaxTree)compilation.SyntaxTrees[i];
+
+                // ReSharper disable once PossibleNullReferenceException
+                preprocessedCompilation = preprocessedCompilation.ReplaceSyntaxTree(
+                    tree, tree.WithRootAndOptions(ppRewriter.Visit(tree.GetRoot()), tree.Options)
+                );
+            }
+
+            // Compile to stream
+            bool succeeded = await EmitToMemoryAsync(preprocessedCompilation, token);
+
+            if (!succeeded)
+                throw new Exception("Unknown error encountered whilst compiling for the first time.");
+
+            // Retrieve assembly from stream
+            Host.Log("Loading emitted assembly.");
+
+#if NET_CORE
+            Assembly assembly = Context.EmittedAssembly = LoadAssembly();
+#else
+            Assembly assembly = Resolver.EmittedAssembly = LoadAssembly();
+#endif
+            Host.EmittedAssemblies.Add(assembly, this);
+            Meta.GetProcessorCore = () => this;
+
+            List<LightAssemblyVisitor> visitors = new List<LightAssemblyVisitor>();
+
+            foreach (var attr in assembly.GetCustomAttributes())
+            {
+                // Doing this little loop forces all attributes to be created,
+                // and thus to globally register themselves, should they want to do so.
+                // See: CometaryAttribute.cs
+                Type attrType = attr.GetType();
+                Assembly attrAssembly = attrType.GetTypeInfo().Assembly;
+
+                if (Host.SharedAssemblies.ContainsKey(attrAssembly.GetName()))
+                    continue;
+
+                Host.SharedAssemblies.Add(attrAssembly.GetName(), attrAssembly);
+                LoadVisitorsAndDispatcher(visitors, attrAssembly);
+            }
+
+            Host.Log("Successfully loaded emitted assembly.");
+
+            // Load visitors, and let 'em visit the streams
+            foreach (AssemblyName refAssemblyName in assembly.GetReferencedAssemblies())
+            {
+                if (Host.SharedAssemblies.ContainsKey(refAssemblyName))
+                    continue;
+
+                try
                 {
-                    Resolver.Register(peRef.FilePath);
+                    Assembly refAssembly = Assembly.Load(refAssemblyName);
+
+                    LoadVisitorsAndDispatcher(visitors, refAssembly);
+                    Host.SharedAssemblies.Add(refAssemblyName, refAssembly);
                 }
-                else if (@ref is CompilationReference cRef)
+                catch
                 {
-                    Project project = Project.Solution?.GetProject(cRef.Compilation.Assembly);
-
-                    if (project != null)
-                        Resolver.Register(project.OutputFilePath);
+                    // Whatever.
                 }
             }
-        }
 
-        /// <summary>
-        /// Static methods are faster, duh.
-        /// </summary>
-        private static Type[] GetTypesInAssembly(Assembly assembly) => assembly.GetTypes();
+            LoadVisitorsAndDispatcher(visitors, assembly);
 
-        private IEnumerable<Assembly> GetLoadedAssemblies(Assembly assembly)
-        {
-            return ExecutionDomain.GetAssemblies().Concat(LoadedReferencedAssemblies).Concat(new[] { assembly });
-        }
-
-        /// <summary>
-        /// Finds and loads all visitors declared by this assembly,
-        /// and all referenced assemblies.
-        /// </summary>
-        private void LoadVisitorsAndDispatcher(List<LightAssemblyVisitor> visitors, Assembly assembly)
-        {
-            // Find visitors
-            Type lavType = typeof(LightAssemblyVisitor);
-            Type dispatcherType = typeof(IDispatcher);
-
-            void LoadDispatcher(IDispatcher dispatcher, Type type)
+            if (visitors.Count == 0)
             {
-                if (dispatcher.ShouldOverride(Dispatcher))
-                    Dispatcher = dispatcher;
-
-                Log($"Loaded dispatcher {type.FullName}.");
+                Host.Log("No visitor was loaded, cancelling.");
+                return;
             }
 
-            try
-            {
-                foreach (Type type in GetTypesInAssembly(assembly))
-                {
-                    if (type.IsAbstract)
-                        continue;
+            visitors.Sort();
+            Visitors = visitors.AsReadOnly();
 
-                    if (lavType.IsAssignableFrom(type))
-                    {
-                        try
-                        {
-                            LightAssemblyVisitor visitor = Activator.CreateInstance(type) as LightAssemblyVisitor;
+            foreach (LightAssemblyVisitor visitor in visitors)
+                visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Loaded);
 
-                            visitors.Add(visitor);
 
-                            // ReSharper disable once SuspiciousTypeConversion.Global
-                            if (visitor is IDispatcher dispatcher)
-                                LoadDispatcher(dispatcher, type);
+            // Process assembly
+            Host.Log("Processing assembly...");
 
-                            Log($"Loaded visitor {type.FullName}.");
-                        }
-                        catch
-                        {
-                            // Alright, skipping this one
-                            Log($"Could not load visitor {type.FullName}.");
-                        }
-                    }
-                    else if (type.GetInterfaces().Contains(dispatcherType))
-                    {
-                        try
-                        {
-                            LoadDispatcher(Activator.CreateInstance(type) as IDispatcher, type);
-                        }
-                        catch
-                        {
-                            // Ditto.
-                            Log($"Could not load dispatcher {type.FullName}.");
-                        }
-                    }
-                }
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                WarningLogged?.Invoke(this,
-                    new ProcessingMessage($"Could not load some types from {e.LoaderExceptions.OfType<BadImageFormatException>().FirstOrDefault()?.FileName ?? "an unknown assembly"}, continuing..."));
-            }
-        }
-
-        /// <summary>
-        /// Processes an assembly.
-        /// </summary>
-        private void ProcessAssembly(Assembly assembly)
-        {
-            // Execute visitors
-            int length = Compilation.SyntaxTrees.Length;
+            int length = compilation.SyntaxTrees.Length;
 
             for (int i = 0; i < length; i++)
             {
-                SyntaxTree syntaxTree = Compilation.SyntaxTrees[i];
+                SyntaxTree syntaxTree = compilation.SyntaxTrees[i];
 
-                Compilation = Compilation.ReplaceSyntaxTree(
+                compilation = compilation.ReplaceSyntaxTree(
                     syntaxTree, Dispatcher.Dispatch(syntaxTree as CSharpSyntaxTree, Visitors)
                 );
 
-                Log($"Processed {i + 1} of {length} syntax tree{(length > 1 ? "s" : "")}.");
+                if (trackChanges)
+                    changes[syntaxTree] = compilation.SyntaxTrees[i].GetChanges(syntaxTree).ToArray();
+
+                Host.Log($"Processed {i + 1} of {length} syntax tree{(length > 1 ? "s" : "")}.");
             }
 
             foreach (LightAssemblyVisitor visitor in Visitors)
-                Compilation = visitor.Visit(assembly, Compilation);
+                compilation = visitor.Visit(assembly, compilation);
+
+            Host.EmittedAssemblies.Remove(assembly);
+
+            // Re-compile assembly
+            succeeded = await EmitToMemoryAsync(compilation, token);
+
+            if (!succeeded)
+                throw new Exception("Unknown error encountered whilst compiling for the second time.");
+
+            // Visit streams again
+            foreach (LightAssemblyVisitor visitor in visitors)
+                visitor.Visit(AssemblyStream, SymbolsStream, LightAssemblyVisitor.CompilationState.Visited);
+
+            Host.Log("Saving to output file...");
+
+            _hasBeenProcessed = _hasBeenEmitted = true;
+
+            // ReSharper disable once AssignmentInConditionalExpression
+            if (_trackedChanges = trackChanges)
+                _changes = changes;
+
+            Compilation = compilation;
         }
-#endregion
 
         /// <summary>
-        /// Outputs the changed syntax trees.
+        /// Writes the processed assembly to the output file.
         /// </summary>
-        public async Task OutputChangedSyntaxTreesAsync(string basePath = null, CancellationToken token = default(CancellationToken))
+        /// <param name="outputFilePath">
+        /// The path to the file in which the assembly will be written.
+        /// If <see langword="null"/>, the file will be written to the default
+        /// <see cref="Microsoft.CodeAnalysis.Project.OutputFilePath"/>.
+        /// </param>
+        /// <param name="symbolsFilePath">
+        /// The path of the file in which the debugging symbols of the assembly will be written.
+        /// If <see langword="null"/>, the file will have the same path as the <paramref name="outputFilePath"/>,
+        /// but with the <c>.pdb</c> extension.
+        /// </param>
+        /// <param name="writeSymbols">
+        /// Whether the debugging symbols should be written to a file.
+        /// </param>
+        /// <param name="token"></param>
+        public async Task WriteAssemblyAsync(string outputFilePath = null, string symbolsFilePath = null, bool writeSymbols = true, CancellationToken token = default(CancellationToken))
         {
-            string projectDir = Path.GetDirectoryName(Project.FilePath);
+            if (!_hasBeenProcessed)
+                await ProcessAsync(token);
+
+            if (outputFilePath == null)
+                outputFilePath = Project.OutputFilePath;
+            if (symbolsFilePath == null)
+                symbolsFilePath = Path.ChangeExtension(outputFilePath, ".pdb");
+
+            AssemblyStream.Position = 0;
+            SymbolsStream.Position = 0;
+
+            using (FileStream assemblyFile = File.Open(outputFilePath, FileMode.Create, FileAccess.ReadWrite))
+                await AssemblyStream.CopyToAsync(assemblyFile);
+
+            if (!writeSymbols)
+                return;
+
+            using (FileStream symbolsFile = File.Open(symbolsFilePath, FileMode.Create, FileAccess.ReadWrite))
+                await SymbolsStream.CopyToAsync(symbolsFile);
+        }
+
+        /// <summary>
+        /// Returns the changes that occured during the process.
+        /// </summary>
+        public ILookup<SyntaxTree, TextChange> GetChanges()
+        {
+            if (!_trackedChanges)
+                throw new InvalidOperationException("Changes weren't tracked.");
+
+            return (from pair in _changes
+                    from ch in pair.Value
+                    select new KeyValuePair<SyntaxTree, TextChange>(pair.Key, ch))
+                    .ToLookup(ch => ch.Key, ch => ch.Value);
+        }
+
+        /// <summary>
+        /// Outputs the new syntax trees to new files, respecting their original path.
+        /// </summary>
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "Bug in R# ignores Debug.Assert.")]
+        public async Task OutputChangedSyntaxTreesAsync(Project project, string basePath = null, CancellationToken token = default(CancellationToken))
+        {
+            string projectDir = Path.GetDirectoryName(project.FilePath);
 
             Debug.Assert(projectDir != null);
 
@@ -535,7 +578,9 @@ namespace Cometary
                 using (FileStream fs = File.Open(relPath, FileMode.Create, FileAccess.Write))
                 using (TextWriter writer = new StreamWriter(fs, syntaxTree.Encoding))
                 {
-                    SourceText text = await syntaxTree.GetTextAsync(token);
+                    SourceText text = Formatter
+                        .Format(await syntaxTree.GetRootAsync(token), Host.Workspace, null, token)
+                        .GetText(syntaxTree.Encoding);
 
                     text.Write(writer, token);
                 }

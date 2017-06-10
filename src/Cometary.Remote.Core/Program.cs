@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.MSBuild;
 using TextSpan = Microsoft.CodeAnalysis.Text.TextSpan;
 
 namespace Cometary
@@ -34,9 +35,10 @@ namespace Cometary
 #endif
             }
 
-            bool willBeDebugging = false,
+            bool willBeDebugging  = false,
                  willOutputSyntax = false;
-            string projectFile = null;
+            string projectFile = null,
+                   outputFile  = null;
 
             // Args parsing
             for (int i = 0; i < args.Length; ++i)
@@ -50,6 +52,16 @@ namespace Cometary
                 else if (arg == "-s" || arg == "--syntax")
                 {
                     willOutputSyntax = true;
+                }
+                else if (arg == "-o" || arg == "--output")
+                {
+                    if (args.Length - 1 == i)
+                    {
+                        Console.Error.WriteLine("[-] Missing argument value: output.");
+                        return 1;
+                    }
+
+                    outputFile = args[++i];
                 }
                 else if (arg[0] == '-')
                 {
@@ -87,16 +99,24 @@ namespace Cometary
 
             try
             {
-                using (Processor processor = await Processor.CreateAsync(projectFile))
+                using (MSBuildWorkspace workspace = MSBuildWorkspace.Create())
+                using (ProcessorHost host = ProcessorHost.GetHost(workspace))
                 {
-                    processor.DebugMessageLogged += DebugMessageLogged;
-                    processor.MessageLogged += MessageLogged;
-                    processor.WarningLogged += WarningLogged;
+                    host.DebugMessageLogged += DebugMessageLogged;
+                    host.MessageLogged += MessageLogged;
+                    host.WarningLogged += WarningLogged;
 
-                    await processor.ProcessAsync();
+                    Project project = await workspace.OpenProjectAsync(projectFile);
 
-                    if (willOutputSyntax)
-                        await processor.OutputChangedSyntaxTreesAsync();
+                    using (Processor processor = await host.GetProcessorAsync(project))
+                    {
+                        processor.TrackChanges = true;
+
+                        await processor.WriteAssemblyAsync(outputFile);
+
+                        if (willOutputSyntax)
+                            await processor.OutputChangedSyntaxTreesAsync(project);
+                    }
                 }
 
                 return 0;

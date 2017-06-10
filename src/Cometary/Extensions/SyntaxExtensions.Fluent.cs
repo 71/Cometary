@@ -96,9 +96,6 @@ namespace Cometary.Extensions
 
             // TODO: Fix this
             return (quote > quote.Syntax) as T;
-            ExpressionSyntax result = MakeInvocationExpression(selfArg, nodeArg, null);
-
-            return (quote > result) as T;
         }
 
         /// <inheritdoc cref="DeepWith{T, TProp}(T, TProp, TProp, Quote)" />
@@ -210,7 +207,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Gets the <see cref="SyntaxKind"/> corresponding to the given modifiers.
         /// </summary>
-        public static Modifiers ModiferForSyntaxKind(SyntaxKind kind)
+        public static Modifiers ModifierForSyntaxKind(SyntaxKind kind)
         {
             switch (kind)
             {
@@ -242,14 +239,17 @@ namespace Cometary.Extensions
         /// <summary>
         /// Adds the given <paramref name="modifiers"/> to the given <paramref name="member"/>.
         /// </summary>
-        public static T AddModifiers<T>(this T member, Modifiers modifiers, Quote quote = null) where T : MemberDeclarationSyntax
+        public static T AddModifiers<T>(this T member, Modifiers modifiers) where T : MemberDeclarationSyntax
         {
-            Quote.Mixin(
-                MemberSwitch(F.IdentifierName(nameof(member)), x =>
+            void MakeBody(Quote quote = null)
+            {
+                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
                     $"{x}.AddModifiers(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray())"
                     .Syntax<ExpressionSyntax>()
-                ), quote
-            );
+                );
+            }
+
+            MakeBody();
 
             return default(T);
         }
@@ -257,14 +257,17 @@ namespace Cometary.Extensions
         /// <summary>
         /// Removes the given <paramref name="modifiers"/> to the given <paramref name="member"/>.
         /// </summary>
-        public static T RemoveModifiers<T>(this T member, Modifiers modifiers, Quote quote = null) where T : MemberDeclarationSyntax
+        public static T RemoveModifiers<T>(this T member, Modifiers modifiers) where T : MemberDeclarationSyntax
         {
-            Quote.Mixin(
-                MemberSwitch(F.IdentifierName(nameof(member)), x =>
+            void MakeBody(Quote quote = null)
+            {
+                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
                     $"{x}.WithModifiers(member.Modifiers.Remove(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray()))"
                     .Syntax<ExpressionSyntax>()
-                ), quote
-            );
+                );
+            }
+
+            MakeBody();
 
             return default(T);
         }
@@ -272,14 +275,17 @@ namespace Cometary.Extensions
         /// <summary>
         /// Adds the given <paramref name="modifiers"/> to the given <paramref name="member"/>.
         /// </summary>
-        public static T WithModifiers<T>(this T member, Modifiers modifiers, Quote quote = null) where T : MemberDeclarationSyntax
+        public static T WithModifiers<T>(this T member, Modifiers modifiers) where T : MemberDeclarationSyntax
         {
-            Quote.Mixin(
-                MemberSwitch(F.IdentifierName(nameof(member)), x =>
+            void MakeBody(Quote quote = null)
+            {
+                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
                     $"{x}.WithModifiers(F.TokenList(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x)))))"
                     .Syntax<ExpressionSyntax>()
-                ), quote
-            );
+                );
+            }
+
+            MakeBody();
 
             return default(T);
         }
@@ -287,14 +293,17 @@ namespace Cometary.Extensions
         /// <summary>
         /// Gets the modifiers of the given <paramref name="member"/> as a <see cref="Modifiers"/> <see langword="enum"/>.
         /// </summary>
-        public static Modifiers GetModifiers(this MemberDeclarationSyntax member, Quote quote = null)
+        public static Modifiers GetModifiers(this MemberDeclarationSyntax member)
         {
-            Quote.Mixin(
-                MemberSwitch(F.IdentifierName(nameof(member)), x => 
+            void MakeBody(Quote quote = null)
+            {
+                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
                     $"{x}.Modifiers.Aggregate(Modifiers.None, (modifiers, tok) => modifiers | ModifierForSyntaxKind(tok.Kind()))"
                     .Syntax<ExpressionSyntax>()
-                ), quote
-            );
+                );
+            }
+
+            MakeBody();
 
             return default(Modifiers);
         }
