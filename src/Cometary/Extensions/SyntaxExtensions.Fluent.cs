@@ -243,8 +243,8 @@ namespace Cometary.Extensions
         {
             void MakeBody(Quote quote = null)
             {
-                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
-                    $"{x}.AddModifiers(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray())"
+                quote += MemberSwitch($"({nameof(MemberDeclarationSyntax)}){nameof(member)}".Syntax<ExpressionSyntax>(), x =>
+                    $"(T)(object){x}.AddModifiers(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray())"
                     .Syntax<ExpressionSyntax>()
                 );
             }
@@ -261,8 +261,8 @@ namespace Cometary.Extensions
         {
             void MakeBody(Quote quote = null)
             {
-                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
-                    $"{x}.WithModifiers(member.Modifiers.Remove(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray()))"
+                quote += MemberSwitch($"({nameof(MemberDeclarationSyntax)}){nameof(member)}".Syntax<ExpressionSyntax>(), x =>
+                    $"(T)(object){x}.WithModifiers({x}.Modifiers.Remove(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x))).ToArray()))"
                     .Syntax<ExpressionSyntax>()
                 );
             }
@@ -279,8 +279,8 @@ namespace Cometary.Extensions
         {
             void MakeBody(Quote quote = null)
             {
-                quote += MemberSwitch(F.IdentifierName(nameof(member)), x =>
-                    $"{x}.WithModifiers(F.TokenList(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x)))))"
+                quote += MemberSwitch($"({nameof(MemberDeclarationSyntax)}){nameof(member)}".Syntax<ExpressionSyntax>(), x =>
+                    $"(T)(object){x}.WithModifiers(F.TokenList(modifiers.EnumerateAll<Modifiers>().Select(x => F.Token(SyntaxKindForModifier(x)))))"
                     .Syntax<ExpressionSyntax>()
                 );
             }

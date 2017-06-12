@@ -1,6 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using EnvDTE;
+using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -12,6 +15,14 @@ using Project = Microsoft.CodeAnalysis.Project;
 
 namespace Cometary.VSIX
 {
+    /* See:
+     * - https://github.com/Microsoft/VSSDK-Extensibility-Samples/tree/master/ErrorList
+     * - https://github.com/Microsoft/VSSDK-Extensibility-Samples/tree/master/Code_Sweep
+     *   which is exactly what I wanna do.
+     * 
+     * 
+     */
+
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.
     /// </summary>
@@ -35,6 +46,11 @@ namespace Cometary.VSIX
     [Guid(PackageGuidString)]
     public sealed class CometaryPackage : Package
     {
+        private BuildEvents buildEvents;
+        private Projects projects;
+
+        private readonly Dictionary<ProjectElement, string> modifiedElements = new Dictionary<ProjectElement, string>();
+
         /// <summary>
         /// CometaryCommandPackage GUID string.
         /// </summary>
@@ -51,9 +67,9 @@ namespace Cometary.VSIX
         public VisualStudioWorkspace Workspace { get; private set; }
 
         /// <summary>
-        /// Gets the processors of the current solution.
+        /// Gets the processor host of the current VS instance.
         /// </summary>
-        public Dictionary<ProjectId, Processor> Processors { get; } = new Dictionary<ProjectId, Processor>();
+        public ProcessorHost Host { get; private set; }
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -62,13 +78,55 @@ namespace Cometary.VSIX
         protected override void Initialize()
         {
             if (GetGlobalService(typeof(SComponentModel)) is IComponentModel componentModel)
+            {
                 Workspace = componentModel.GetService<VisualStudioWorkspace>();
+                Host = ProcessorHost.GetHost(Workspace);
+            }
+
+            if (GetGlobalService(typeof(SDTE)) is DTE dte)
+            {
+                buildEvents = dte.Events.BuildEvents;
+                buildEvents.OnBuildBegin += OnBuildBegin;
+                buildEvents.OnBuildDone  += OnBuildDone;
+
+                projects = dte.Solution.Projects;
+            }
 
             Workspace.WorkspaceChanged += WorkspaceChanged;
 
             CometaryCommand.Initialize(this);
 
             base.Initialize();
+        }
+
+        private void OnBuildBegin(vsBuildScope Scope, vsBuildAction Action)
+        {
+            foreach (EnvDTE.Project envProject in projects)
+            {
+                var project = ProjectCollection.GlobalProjectCollection
+                    .GetLoadedProjects(envProject.FileName)
+                    .FirstOrDefault();
+
+                var task = project?.Xml.Targets
+                    .FirstOrDefault(x => x.Name == nameof(Cometary));
+
+                if (task == null)
+                    continue;
+
+                modifiedElements.Add(task, task.Condition);
+
+                task.Condition = "False";
+            }
+        }
+
+        private void OnBuildDone(vsBuildScope Scope, vsBuildAction Action)
+        {
+            foreach (var pair in modifiedElements)
+            {
+                pair.Key.Condition = pair.Value;
+            }
+
+            modifiedElements.Clear();
         }
 
         /// <summary>
@@ -78,8 +136,7 @@ namespace Cometary.VSIX
         {
             if (disposing)
             {
-                foreach (Processor processor in Processors.Values)
-                    processor.Dispose();
+                Host.Dispose();
             }
 
             base.Dispose(disposing);
@@ -96,10 +153,8 @@ namespace Cometary.VSIX
                 case WorkspaceChangeKind.SolutionRemoved:
                 case WorkspaceChangeKind.SolutionCleared:
                 case WorkspaceChangeKind.SolutionReloaded:
-                    Processors.Clear();
-                    break;
-                case WorkspaceChangeKind.ProjectRemoved:
-                    Processors.Remove(e.ProjectId);
+                    Host.Dispose();
+                    Host = ProcessorHost.GetHost(Workspace);
                     break;
             }
 
@@ -117,7 +172,7 @@ namespace Cometary.VSIX
                     storage.SetPropertyValue("HasCometaryExtension", null, (uint)_PersistStorageType.PST_USER_FILE, "True");
             }
 
-            Processors[e.ProjectId] = await Processor.CreateAsync(sender as Workspace, proj);
+            await Host.GetProcessorAsync(proj);
         }
     }
 }

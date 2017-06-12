@@ -285,7 +285,7 @@ namespace Cometary
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            Meta.EnsureCTFE();
+            Meta.EnsureCompiling();
 
             quote.Add(SyntaxFactory.ParseStatement(code).WithSemicolon());
         }
@@ -300,7 +300,7 @@ namespace Cometary
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            Meta.EnsureCTFE();
+            Meta.EnsureCompiling();
 
             quote.Add(SyntaxFactory.ParseExpression(code));
 
@@ -317,7 +317,7 @@ namespace Cometary
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
-            Meta.EnsureCTFE();
+            Meta.EnsureCompiling();
 
             quote.Add(node);
         }
@@ -332,7 +332,7 @@ namespace Cometary
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
-            Meta.EnsureCTFE();
+            Meta.EnsureCompiling();
 
             quote.Add(node);
 

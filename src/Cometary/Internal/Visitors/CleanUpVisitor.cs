@@ -31,6 +31,24 @@ namespace Cometary
             return node;
         }
 
+        /// <inheritdoc />
+        public override SyntaxNode VisitLocalFunctionStatement(LocalFunctionStatementSyntax node)
+        {
+            if (node.ParameterList.Parameters.Any(x => x.Type is SimpleNameSyntax name && name.Identifier.Text == nameof(Quote)))
+                return null;
+
+            return base.VisitLocalFunctionStatement(node);
+        }
+
+        /// <inheritdoc />
+        public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
+        {
+            if (node.ParameterList.Parameters.Any(x => x.Type is SimpleNameSyntax name && name.Identifier.Text == nameof(Quote)))
+                return null;
+
+            return base.VisitMethodDeclaration(node);
+        }
+
         /// <summary>
         /// Removes Cometary from the referenced assemblies.
         /// </summary>

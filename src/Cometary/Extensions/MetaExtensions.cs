@@ -29,7 +29,7 @@ namespace Cometary
             if (syntaxTree == null)
                 throw new ArgumentNullException(nameof(syntaxTree));
 
-            Meta.EnsureCTFE();
+            Meta.EnsureCompiling();
 
             int id = Meta.GetID(syntaxTree);
 

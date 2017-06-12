@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +29,11 @@ namespace Cometary
         /// Gets or sets whether or not the produced syntax should be output.
         /// </summary>
         public bool OutputSyntax { get; set; }
+
+        /// <summary>
+        /// Gets or sets the host used by Visual Studio.
+        /// </summary>
+        public ProcessorHost Host { get; set; }
 
         /// <summary>
         /// Synchronously execute this task.

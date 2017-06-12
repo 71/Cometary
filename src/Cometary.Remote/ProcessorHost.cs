@@ -144,7 +144,7 @@ namespace Cometary
                     return host;
 
                 // First host that's created; initialize the environment.
-                Meta.CTFE = true;
+                Meta.Compiling = true;
 
                 Meta.GetCallingAssemblyCore = () => GetProcessor().Resolver.EmittedAssembly;
                 Meta.GetAssemblyIDCore      = () => GetProcessor().ID;

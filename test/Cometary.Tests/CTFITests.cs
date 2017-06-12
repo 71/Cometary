@@ -29,9 +29,9 @@ namespace Cometary.Tests
         }
 
         [Fact]
-        public void CtfeShouldNotBeTrue()
+        public void CompilingShouldNotBeTrue()
         {
-            Meta.CTFE.ShouldBeFalse();
+            Meta.Compiling.ShouldBeFalse();
         }
     }
 }

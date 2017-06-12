@@ -164,7 +164,7 @@ namespace Cometary
         /// </summary>
         public static void Emit(string il)
         {
-            if (!Meta.CTFE)
+            if (!Meta.Compiling)
                 throw new InvalidOperationException("Cannot emit IL code during runtime.");
 
             EmittedInstructions.AddRange(new ILParser(il));

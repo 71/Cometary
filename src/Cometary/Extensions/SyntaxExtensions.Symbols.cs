@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
@@ -101,7 +103,7 @@ namespace Cometary.Extensions
             MethodInfo result = possibleMethods.First(IsTargetMethod);
 
             if (result.IsGenericMethod)
-                result = result.MakeGenericMethod(method.TypeArguments.Select(x => x.Info().AsType()).ToArray());
+                result = result.MakeGenericMethod(ConstructGenericMethodArguments());
 
             return result;
 
@@ -123,6 +125,64 @@ namespace Cometary.Extensions
                 }
 
                 return true;
+            }
+
+            Type[] ConstructGenericMethodArguments()
+            {
+                Type[] typeArgs = result.GetGenericArguments();
+
+                for (int i = 0; i < typeArgs.Length; i++)
+                {
+                    Type typeArg = typeArgs[i];
+
+                    if (!typeArg.IsGenericParameter)
+                        continue;
+
+                    typeArgs[i] = FindMatchingType(typeArg, method) ?? typeArg.GetTypeInfo().BaseType ?? typeof(object);
+                }
+
+                return typeArgs;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static Type FindMatchingType(Type genericType, ISymbol ctx)
+        {
+            if (!genericType.IsGenericParameter)
+                return genericType;
+
+            string name = genericType.Name;
+
+            for(;;)
+            {
+                ImmutableArray<ITypeParameterSymbol> typeParameters;
+                ImmutableArray<ITypeSymbol> typeArguments;
+
+                if (ctx is IMethodSymbol method)
+                {
+                    typeParameters = method.TypeParameters;
+                    typeArguments  = method.TypeArguments;
+                }
+                else if (ctx is INamedTypeSymbol type)
+                {
+                    typeParameters = type.TypeParameters;
+                    typeArguments  = type.TypeArguments;
+                }
+
+                for (int i = 0; i < typeParameters.Length; i++)
+                {
+                    ITypeParameterSymbol typeParameter = typeParameters[i];
+
+                    if (typeParameter.Name == name)
+                        return typeArguments[i].Info()?.AsType();
+                }
+
+                ctx = ctx.ContainingSymbol;
+
+                if (ctx == null)
+                    return null;
             }
         }
     }

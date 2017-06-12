@@ -143,8 +143,12 @@ switch ({memberExpr})
         return {expr(SyntaxFactory.IdentifierName("prop"))};
     case FieldDeclarationSyntax field:
         return {expr(SyntaxFactory.IdentifierName("field"))};
-    case TypeDeclarationSyntax type:
-        return {expr(SyntaxFactory.IdentifierName("type"))};
+    case ClassDeclarationSyntax @class:
+        return {expr(SyntaxFactory.IdentifierName("@class"))};
+    case StructDeclarationSyntax @struct:
+        return {expr(SyntaxFactory.IdentifierName("@struct"))};
+    case InterfaceDeclarationSyntax @interface:
+        return {expr(SyntaxFactory.IdentifierName("@interface"))};
     case DelegateDeclarationSyntax del:
         return {expr(SyntaxFactory.IdentifierName("del"))};
     case EnumDeclarationSyntax @enum:

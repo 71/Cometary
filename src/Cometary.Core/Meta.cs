@@ -38,7 +38,7 @@ namespace Cometary
         {
             get
             {
-                EnsureCTFE();
+                EnsureCompiling();
 
                 return WorkspaceCore(GetProcessorCore());
             }
@@ -55,7 +55,7 @@ namespace Cometary
         {
             get
             {
-                EnsureCTFE();
+                EnsureCompiling();
 
                 return ProjectCore(GetProcessorCore());
             }
@@ -68,7 +68,7 @@ namespace Cometary
         {
             get
             {
-                EnsureCTFE();
+                EnsureCompiling();
 
                 return CompilationCore(GetProcessorCore());
             }
@@ -81,7 +81,7 @@ namespace Cometary
         {
             get
             {
-                EnsureCTFE();
+                EnsureCompiling();
 
                 return GetCallingAssemblyCore();
             }
@@ -94,7 +94,7 @@ namespace Cometary
         {
             get
             {
-                EnsureCTFE();
+                EnsureCompiling();
 
                 return GetAssemblyIDCore();
             }
@@ -105,16 +105,16 @@ namespace Cometary
         /// <summary>
         /// Ensures that the program is being compiled.
         /// </summary>
-        internal static void EnsureCTFE()
+        internal static void EnsureCompiling()
         {
-            if (!CTFE)
+            if (!Compiling)
                 throw new InvalidOperationException("This operation can only be performed during compilation.");
         }
 
         /// <summary>
         /// Gets whether or not the running assembly is being compiled.
         /// </summary>
-        public static bool CTFE { get; internal set; }
+        public static bool Compiling { get; internal set; }
 
         /// <summary>
         /// Gets a unique ID related to the given syntax tree.
@@ -163,7 +163,7 @@ namespace Cometary
         /// </summary>
         public static void LogMessage(string message, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogMessageCore(GetProcessorCore(), null, message, node);
         }
@@ -173,7 +173,7 @@ namespace Cometary
         /// </summary>
         public static void LogWarning(string warning, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogDebugCore(GetProcessorCore(), null, warning, node);
         }
@@ -187,7 +187,7 @@ namespace Cometary
         [Conditional("DEBUG")]
         public static void LogDebug(string message, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogDebugCore(GetProcessorCore(), null, message, node);
         }
@@ -197,7 +197,7 @@ namespace Cometary
         /// </summary>
         public static void LogMessage(object sender, string message, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogMessageCore(GetProcessorCore(), sender, message, node);
         }
@@ -207,7 +207,7 @@ namespace Cometary
         /// </summary>
         public static void LogWarning(object sender, string warning, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogWarningCore(GetProcessorCore(), sender, warning, node);
         }
@@ -221,7 +221,7 @@ namespace Cometary
         [Conditional("DEBUG")]
         public static void LogDebug(object sender, string message, SyntaxNode node)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogDebugCore(GetProcessorCore(), sender, message, node);
         }
@@ -231,7 +231,7 @@ namespace Cometary
         /// </summary>
         public static void LogMessage(string message)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogMessageCore(GetProcessorCore(), null, message, null);
         }
@@ -241,7 +241,7 @@ namespace Cometary
         /// </summary>
         public static void LogWarning(string warning)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogWarningCore(GetProcessorCore(), null, warning, null);
         }
@@ -255,7 +255,7 @@ namespace Cometary
         [Conditional("DEBUG")]
         public static void LogDebug(string message)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogDebugCore(GetProcessorCore(), null, message, null);
         }
@@ -265,7 +265,7 @@ namespace Cometary
         /// </summary>
         public static void LogMessage(object sender, string message)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogMessageCore(GetProcessorCore(), sender, message, null);
         }
@@ -275,7 +275,7 @@ namespace Cometary
         /// </summary>
         public static void LogWarning(object sender, string warning)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogWarningCore(GetProcessorCore(), sender, warning, null);
         }
@@ -289,7 +289,7 @@ namespace Cometary
         [Conditional("DEBUG")]
         public static void LogDebug(object sender, string message)
         {
-            EnsureCTFE();
+            EnsureCompiling();
 
             LogDebugCore(GetProcessorCore(), sender, message, null);
         }

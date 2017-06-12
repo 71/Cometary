@@ -1,10 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
 
     <Import Project="..\Common.props" />
 
     <PropertyGroup>
         <TargetFramework>netstandard1.3</TargetFramework>
     </PropertyGroup>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
     <ItemGroup>
         <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
@@ -42,5 +45,14 @@
         <DependentUpon>Quote.tt</DependentUpon>
       </Compile>
     </ItemGroup>
+
+    <PropertyGroup>
+      <RemoteName>$(Name).Remote.Core</RemoteName>
+      <RemotePath>..\$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
+    </PropertyGroup>
+    
+    <Target Name="Cometary" AfterTargets="Build">
+      <Exec Command="$(RemotePath) &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
+    </Target>
 
 </Project>

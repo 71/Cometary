@@ -88,18 +88,5 @@ namespace Cometary.Tests
         {
             method.GetModifiers().ShouldBe(Modifiers.Public);
         }
-
-        // [Fact, CTFE]
-        // Doesn't work, TODO.
-        public static void ShouldEnableCTFEDirective()
-        {
-#if CTFE
-            bool inCTFE = true;
-#else
-            bool inCTFE = false;
-#endif
-
-            Meta.CTFE.ShouldBe(inCTFE);
-        }
     }
 }
