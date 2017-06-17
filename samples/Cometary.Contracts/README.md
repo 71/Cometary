@@ -1,7 +1,7 @@
 # Cometary.Contracts
 Adds a few contracts to methods, as attributes. The contracts inject code in the body of the method directly.
 
-#### Example
+### Examples
 ```csharp
 [return: NotNull]
 public void GetTypeName(Type type)

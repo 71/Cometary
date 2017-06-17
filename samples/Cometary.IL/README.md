@@ -3,7 +3,7 @@ Uses [Mono.Cecil](https://github.com/jbevain/cecil) to further edit the produced
 This sort of low-level access provides the ability to add IL code directly into methods,
 thanks to the `IL` class.
 
-#### Example
+### Example
 ```csharp
 public string Greet()
 {
