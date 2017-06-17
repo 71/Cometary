@@ -1,7 +1,5 @@
-# Extensions
-A few libraries have been built using Cometary, mostly as samples.  
-However, they can be useful in real-world scenarios, which is why they are
-published on NuGet, and called *Extensions*.
+# Samples
+The following libraries have been built using Cometary, and serve both as samples, and simple real-life examples of libraries that can use the power of Cometary.
 
 ## Contracts
 Adds a few contracts to methods, as attributes. The contracts inject code in the body
@@ -24,7 +22,7 @@ public void DontAcceptNull([NotNull] string str)
 gets compiled to
 
 ```csharp
-public void DontReturnNull(Type type)
+public void GetTypeName(Type type)
 {
 	return type?.Name ?? throw new ArgumentNullException("return value");
 }
@@ -36,6 +34,23 @@ public void DontAcceptNull(string str)
 
 	DoSomething(str);
 }
+```
+
+Additionally, some static methods are available in the `Requires` class, and help debugging bugs by specifying the expression that caused the error, its source file, line and character numbers.
+
+```csharp
+// Before:
+Requires.NotNull(user.FirstName);
+
+// After:
+if (user.FirtName == null)
+    throw new AssertionException("Expected expression to not be null",
+                                 "user.FirstName", "file.cs", 1, 0);
+                                 
+// Other available methods:
+Requires.Null(null);
+Requires.True(1 == 1);
+Requires.False(1 == 2);
 ```
 
 ## IL
@@ -65,20 +80,4 @@ gets compiled to
 	ldnull
 	ret
 }
-```
-
-## Rest
-[Refit](https://github.com/paulcbetts/refit)-inspired HTTP client.
-
-#### Example
-```csharp
-[Get("https://github.com")]
-public extern Task<HttpResponseMessage> GetGithub();
-```
-
-gets compiled to
-
-```csharp
-public Task<HttpResponseMessage> GetGithub()
-	=> new HttpClient().SendAsync(new HttpRequestMessage(new HttpMethod("Get"), "https://github.com"));
 ```
