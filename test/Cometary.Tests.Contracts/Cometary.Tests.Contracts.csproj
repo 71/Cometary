@@ -1,15 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
-  <Import Project="..\Common.props" />
 
-  <PropertyGroup>    
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+  <PropertyGroup>
+    <IsSample>True</IsSample>
   </PropertyGroup>
 
+  <Import Project="..\Common.props" />
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.11" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.11" />
+    <ProjectReference Include="$(SamplesDirectory)$(Name).Contracts\$(Name).Contracts.csproj" />
   </ItemGroup>
 
 </Project>

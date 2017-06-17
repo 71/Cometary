@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <SourceDirectory>$(MSBuildThisFileDirectory)..\src\</SourceDirectory>
+  </PropertyGroup>
+
+  <Import Project="$(SourceDirectory)Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="$(SourceDirectory)$(Name)\$(Name).csproj" />
+  </ItemGroup>
+    
+</Project>

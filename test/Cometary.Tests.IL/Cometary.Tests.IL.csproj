@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
-  <Import Project="..\Common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <IsSample>True</IsSample>
   </PropertyGroup>
 
+  <Import Project="..\Common.props" />
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <ProjectReference Include="$(SamplesDirectory)$(Name).IL\$(Name).IL.csproj" />
   </ItemGroup>
 
 </Project>

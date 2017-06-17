@@ -9,7 +9,7 @@
         <RemoteName>$(Name).Remote.MSBuild</RemoteName>
     </PropertyGroup>
 
-    <UsingTask AssemblyFile="$(SourceDir)$(RemoteName)\bin\$(Configuration)\net47\$(RemoteName).dll" TaskName="Cometary.CometaryTask" />
+    <UsingTask AssemblyFile="$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\$(RemoteName).dll" TaskName="Cometary.CometaryTask" />
 
     <Target Name="Processing" Inputs="@(IntermediateAssembly->'%(FullPath)')" Outputs="@(IntermediateAssembly->'%(FullPath)')" AfterTargets="Compile">
         <Cometary.CometaryTask IsDebugging="False" />

@@ -7,7 +7,7 @@
 
     <PropertyGroup>
         <RemoteName>$(Name).Remote.Core</RemoteName>
-        <RemotePath>$(SourceDir)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
+        <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
     </PropertyGroup>
     
     <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">

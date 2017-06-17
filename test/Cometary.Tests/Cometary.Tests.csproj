@@ -1,25 +1,25 @@
 ﻿<Project>
 
-    <PropertyGroup>
-        <ProjectName>Cometary.Tests</ProjectName>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsCommon>True</IsCommon>
+  </PropertyGroup>
 
-    <Import Project="..\Common.props" />
+  <Import Project="..\Common.props" />
 
-    <PropertyGroup>
-        <TargetFramework>netcoreapp1.1</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
 
-    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
-    <PropertyGroup>
-        <RemoteName>$(Name).Remote.Core</RemoteName>
-        <RemotePath>$(SourceDir)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
-    </PropertyGroup>
-    
-    <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
-        <Exec Command="$(RemotePath) &quot;$(ProjectPath)&quot; -d" ConsoleToMSBuild="True" />
-    </Target>
+  <PropertyGroup>
+    <RemoteName>$(Name).Remote.Core</RemoteName>
+    <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
+  </PropertyGroup>
+
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
+    <Exec Command="$(RemotePath) &quot;$(ProjectPath)&quot; -d" ConsoleToMSBuild="True" />
+  </Target>
 
 </Project>

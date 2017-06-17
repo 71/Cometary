@@ -9,7 +9,7 @@
         <RemoteName>$(Name).Remote.VisualStudio</RemoteName>
     </PropertyGroup>
 
-    <UsingTask AssemblyFile="$(SourceDir)$(RemoteName)\bin\$(Configuration)\net47\$(RemoteName).dll" TaskName="Cometary.VSCometaryTask" />
+    <UsingTask AssemblyFile="$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\$(RemoteName).dll" TaskName="Cometary.VSCometaryTask" />
 
     <Target Name="Processing" Inputs="@(IntermediateAssembly->'%(FullPath)')" Outputs="@(IntermediateAssembly->'%(FullPath)')" AfterTargets="Compile">
         <Cometary.VSCometaryTask IsDebugging="False" />

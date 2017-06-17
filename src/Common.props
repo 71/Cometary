@@ -33,24 +33,15 @@
 
     </PropertyGroup>
 
-    <!-- Extension properties -->
-    <PropertyGroup Condition=" '$(IsExtension)' == 'True' ">
-        <TargetFramework>netstandard1.3</TargetFramework>
-    </PropertyGroup>
-
     <!-- Remote properties -->
     <PropertyGroup Condition=" '$(IsRemote)' == 'True' ">
         <TargetFramework>net47</TargetFramework>
         <GenerateDocumentation>False</GenerateDocumentation>
-        <DefaultNamespace>$(Name).Remote</DefaultNamespace>
+        <RootNamespace>$(Name).Remote</RootNamespace>
     </PropertyGroup>
     
     
     <!-- Dependencies -->
-    <ItemGroup Condition=" '$(IsExtension)' == 'True' ">
-        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name)\$(Name).csproj" />
-    </ItemGroup>
-
     <ItemGroup Condition=" '$(IsRemote)' == 'True' ">
         <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Core\$(Name).Core.csproj" />
     </ItemGroup>
