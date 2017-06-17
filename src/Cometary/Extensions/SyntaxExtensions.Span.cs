@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Cometary.Extensions
 {
@@ -9,7 +10,7 @@ namespace Cometary.Extensions
 
     partial class SyntaxExtensions
     {
-        private const string PositionBackingFieldName = "";
+        private const string PositionBackingFieldName  = "<Position>k__BackingField";
         private const string FullWidthBackingFieldName = "_fullWidth";
 
         private static Func<SyntaxNode, object> GetGreenNodeCore;
@@ -73,6 +74,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Returns a copy of the given <paramref name="node"/>, with a new <paramref name="position"/>.
         /// </summary>
+        [CopyTo("WithStart")]
         public static T WithPosition<T>(this T node, int position) where T : SyntaxNode
         {
             T copy = GetMemberwiseClone(node);
@@ -101,8 +103,26 @@ namespace Cometary.Extensions
         }
 
         /// <summary>
+        /// Returns a copy of the given <paramref name="node"/>, with a new full <paramref name="span"/>.
+        /// </summary>
+        public static T WithSpan<T>(this T node, TextSpan span) where T : SyntaxNode
+        {
+            return node.WithPosition(span.Start).WithWidth(span.Length);
+        }
+
+        /// <summary>
+        /// Returns a copy of the given <paramref name="node"/>, with a span copied from the <paramref name="other"/> node.
+        /// </summary>
+        public static T WithSpan<T>(this T node, SyntaxNode other) where T : SyntaxNode
+        {
+            return node.WithSpan(other.FullSpan);
+        }
+
+
+        /// <summary>
         /// Returns a copy of the given <paramref name="token"/>, with a new <paramref name="position"/>.
         /// </summary>
+        [CopyTo("WithStart")]
         public static SyntaxToken WithPosition(this SyntaxToken token, int position)
         {
             SyntaxToken copy = token;
@@ -128,6 +148,22 @@ namespace Cometary.Extensions
             greenNode.GetType().GetRuntimeField(FullWidthBackingFieldName).SetValue(greenNode, fullWidth);
 
             return copy;
+        }
+
+        /// <summary>
+        /// Returns a copy of the given <paramref name="token"/>, with a new full <paramref name="span"/>.
+        /// </summary>
+        public static SyntaxToken WithSpan(this SyntaxToken token, TextSpan span)
+        {
+            return token.WithPosition(span.Start).WithWidth(span.Length);
+        }
+
+        /// <summary>
+        /// Returns a copy of the given <paramref name="token"/>, with a span copied from the <paramref name="other"/> token.
+        /// </summary>
+        public static SyntaxToken WithSpan(this SyntaxToken token, SyntaxToken other)
+        {
+            return token.WithSpan(other.FullSpan);
         }
     }
 }
