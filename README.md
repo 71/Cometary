@@ -145,3 +145,8 @@ It works, as long as you stick to the [.NET Core version](src/Cometary.Remote.Co
 Whatever uses MSBuild will fail because of these issues:
  - https://github.com/dotnet/corefx/issues/19548
  - https://github.com/Microsoft/msbuild/issues/1309
+
+# Building
+The following components are required to build Cometary:
+- [Visual Studio 2017](https://www.visualstudio.com/)
+- [Scry](https://github.com/6A/Scry)
