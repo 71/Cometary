@@ -3,11 +3,8 @@ Cometary
 
 Cometary is a C# project that aims at bringing true meta-programming to the C# world. It features [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and other goodies.
 
-----
-
-**Note**: Even though all the tests are passing, this project is still in early development, and *extremely* unstable. Proceed with caution.
-
-----
+> **Note**  
+> Even though all the tests are passing, this project is still in early development, and *extremely* unstable. Proceed with caution.
 
 # Installation
 Cometary can be installed in different ways, depending on your setup.  
@@ -20,9 +17,8 @@ Otherwise, depending on what you need, there is:
 (Yep, those packages don't exist yet)
 
 ### Compatibility
-Cometary is available for `.NET Standard` 1.3 and up. The remote (executable or MSBuild task that takes care of the modifications) is available on .NET Framework 4.7.
-
-----
+Cometary is available for `.NET Standard` 1.3 and up. The hosts are available starting at .NET Framework 4.7.  
+Support for Linux and macOS is planned, but not yet ready.
 
 # Features
 
@@ -75,10 +71,10 @@ bool b = Mixin<bool>("true");
 // After
 bool b = true;
 ```
-Check out the [Tests](test/Cometary.Tests/TemplateTests.cs) for a better example.
+Check out the [Tests](./test/Cometary.Tests/TemplateTests.cs) for a better example.
 
 ## Visitor attributes
-Any attribute can now implement a few [interfaces](src/Voltaire/Attributes/Interfaces.cs) to interact with the marked members during compilation.
+Any attribute can now implement a few [interfaces](./src/Cometary.Rewriting/Attributes/Interfaces.cs) to interact with the marked members during compilation.
 
 #### Example
 ```csharp
@@ -140,13 +136,40 @@ public sealed class EvilVisitor : AssemblyVisitor
 
 
 # Current state
-It works, as long as you stick to the [.NET Core version](src/Cometary.Remote.Core).
+It works, as long as you stick to the [.NET Core version](src/Cometary.Hosting.Core).
 
 Whatever uses MSBuild will fail because of these issues:
  - https://github.com/dotnet/corefx/issues/19548
  - https://github.com/Microsoft/msbuild/issues/1309
 
+# Documentation
+- [Getting started](./docs/README.md)
+- [Debugging](./docs/DEBUGGING.md)
+- [Samples](./docs/SAMPLES.md)
+- [Hosts](./docs/HOSTS.md)
+- [Internals](./docs/INTERNALS.md)
+
+# Components
+All components have individual READMEs, which can be found in the following directories.
+
+### Miscellaneous
+- [Cometary](./src/Cometary) (NuGet metapackage)
+- [Cometary.Common](./src/Cometary.Common) (Core package)
+- [Cometary.VSIX](./src/Cometary.VSIX) (Visual Studio extension)
+
+### Libraries
+- [Cometary.Generation](./src/Cometary.Generation)
+- [Cometary.Rewriting](./src/Cometary.Rewriting)
+- [Cometary.Scripting](./src/Cometary.Scripting)
+- [Cometary.Symbols](./src/Cometary.Symbols)
+
+### Hosts
+- [Cometary.Hosting](./src/Cometary.Hosting)
+- [Cometary.Hosting.Core](./src/Cometary.Hosting.Core)
+- [Cometary.Hosting.MSBuild](./src/Cometary.Hosting.MSBuild)
+- [Cometary.Hosting.VisualStudio](./src/Cometary.Hosting.VisualStudio)
+
 # Building
-The following components are required to build Cometary:
+The following components are currently required to build Cometary:
 - [Visual Studio 2017](https://www.visualstudio.com/)
 - [Scry](https://github.com/6A/Scry)
