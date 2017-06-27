@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
 
     /// <summary>
     /// <see cref="LightAssemblyVisitor"/> that adds members to a <see cref="TypeDeclarationSyntax"/>.

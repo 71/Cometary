@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Semantics;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
     using Extensions;
 
     /// <summary>

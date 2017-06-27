@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
 
     /// <summary>
     /// Represents a host that delegates <see cref="Project"/> processing

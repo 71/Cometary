@@ -6,7 +6,7 @@ using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
     using Attributes;
     using Extensions;
 

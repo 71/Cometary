@@ -17,7 +17,7 @@ using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
 
     /// <summary>
     /// Object that compiles an <see cref="Assembly"/>, and lets it

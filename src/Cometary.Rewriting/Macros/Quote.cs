@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Semantics;
 namespace Cometary
 {
     using Extensions;
+    using System.Linq;
 
     /// <summary>
     /// Represents a <see langword="void"/> quote, used by macros
@@ -16,6 +17,21 @@ namespace Cometary
     /// </summary>
     public partial class Quote
     {
+        #region CleanUp registration
+        static Quote()
+        {
+            CleanUp.ShouldDelete += ShouldDelete;
+
+            bool IsQuoteParameter(ParameterSyntax parameter)
+                => parameter.Type is SimpleNameSyntax name && name.Identifier.Text == nameof(Quote)
+                || parameter.Type is GenericNameSyntax gen && gen.Identifier.Text == nameof(Quote);
+
+            bool ShouldDelete(SyntaxNode node)
+                => node is LocalFunctionStatementSyntax fun && fun.ParameterList.Parameters.Any(IsQuoteParameter)
+                || node is MethodDeclarationSyntax method && method.ParameterList.Parameters.Any(IsQuoteParameter);
+        }
+        #endregion
+
         #region Properties
         /// <summary>
         /// Gets the syntax of the invocation of the template.

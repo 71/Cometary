@@ -4,32 +4,14 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Cometary.Core
+namespace Cometary.Common
 {
-    /// <summary>
-    /// Defines a class used to dispatch a syntax tree
-    /// to its visitors.
-    /// </summary>
-    public interface IDispatcher
-    {
-        /// <summary>
-        /// Dispatches the given visitors on the given syntax tree.
-        /// </summary>
-        CSharpSyntaxTree Dispatch(CSharpSyntaxTree syntaxTree, ReadOnlyCollection<LightAssemblyVisitor> visitors);
-
-        /// <summary>
-        /// Returns whether or not this dispatcher should override
-        /// the given <paramref name="dispatcher"/> as the default one.
-        /// </summary>
-        bool ShouldOverride(IDispatcher dispatcher);
-    }
-
     /// <summary>
     /// Dispatcher that visits all nodes in a <see cref="SyntaxTree"/>
     /// by running every given <see cref="LightAssemblyVisitor"/>
     /// on every node, one by one.
     /// </summary>
-    internal sealed class CoreDispatcher : IDispatcher
+    internal sealed class DefaultDispatcher : IDispatcher
     {
         /// <summary>
         /// <see cref="CSharpSyntaxRewriter"/> that dispatches all

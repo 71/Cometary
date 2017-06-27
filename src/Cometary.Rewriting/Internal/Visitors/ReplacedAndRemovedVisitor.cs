@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
-    using Core;
+    using Common;
 
     /// <summary>
     /// <see cref="CSharpSyntaxRewriter"/> that replaces

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Cometary.Symbols
 {
-    using Core;
+    using Common;
 
     /// <summary>
     /// 

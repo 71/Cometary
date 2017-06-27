@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Cometary.Core
+namespace Cometary.Common
 {
     /// <summary>
     /// Lightweight assembly visitor that gets called on certain events.
@@ -56,7 +56,7 @@ namespace Cometary.Core
         /// <summary>
         /// Transforms the specified compilation.
         /// <para>
-        /// This method is invoked after the original <see cref="SyntaxTree"/> transformation.
+        /// This method is invoked after the original <see cref="CSharpSyntaxTree"/> transformation.
         /// </para>
         /// </summary>
         public virtual CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation) => compilation;
