@@ -134,14 +134,6 @@ public sealed class EvilVisitor : AssemblyVisitor
 - **`Compilation` editing**: Yup, any `AssemblyVisitor` can also modify the `Compilation` object of the assembly by overriding the `CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation)` method.
 - **Short `With` syntax**: Cometary provides an utility method named `With` that gives you the ability to edit a deeper part of your tree easily. Here's an example: `return method.With(x => (x.Body.Statements.First(IsValid) as ExpressionStatementSyntax).Expression, oldNode => newNode)`.
 
-
-# Current state
-It works, as long as you stick to the [.NET Core version](src/Cometary.Hosting.Core).
-
-Whatever uses MSBuild will fail because of these issues:
- - https://github.com/dotnet/corefx/issues/19548
- - https://github.com/Microsoft/msbuild/issues/1309
-
 # Documentation
 - [Getting started](./docs/README.md)
 - [Debugging](./docs/DEBUGGING.md)
@@ -152,7 +144,6 @@ Whatever uses MSBuild will fail because of these issues:
 # Components
 All components have individual READMEs, which can be found in the following directories.
 
-### Miscellaneous
 - [Cometary](./src/Cometary) (NuGet metapackage)
 - [Cometary.Common](./src/Cometary.Common) (Core package)
 - [Cometary.VSIX](./src/Cometary.VSIX) (Visual Studio extension)
@@ -168,6 +159,13 @@ All components have individual READMEs, which can be found in the following dire
 - [Cometary.Hosting.Core](./src/Cometary.Hosting.Core)
 - [Cometary.Hosting.MSBuild](./src/Cometary.Hosting.MSBuild)
 - [Cometary.Hosting.VisualStudio](./src/Cometary.Hosting.VisualStudio)
+
+# Current state
+It works, as long as you stick to the [.NET Core version](src/Cometary.Hosting.Core).
+
+Whatever uses MSBuild will fail because of these issues:
+ - https://github.com/dotnet/corefx/issues/19548
+ - https://github.com/Microsoft/msbuild/issues/1309
 
 # Building
 The following components are currently required to build Cometary:
