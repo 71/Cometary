@@ -6,12 +6,12 @@
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
     <PropertyGroup>
-        <RemoteName>$(Name).Remote.Core</RemoteName>
-        <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
+        <HostName>$(Name).Remote.Core</HostName>
+        <HostPath>$(SourceDirectory)$(HostName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</HostPath>
     </PropertyGroup>
     
     <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
-        <Exec Command="$(RemotePath) --debug &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
+        <Exec Command="$(HostPath) --debug &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
     </Target>
 
 </Project>

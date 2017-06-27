@@ -11,7 +11,7 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <ProjectReference Include="$(SourceDirectory)$(Name)\$(Name).csproj" />
+    <ProjectReference Include="$(SourceDirectory)$(Name).Rewriting\$(Name).Rewriting.csproj" />
   </ItemGroup>
     
 </Project>

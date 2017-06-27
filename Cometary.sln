@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B9D9C5DF-9DB8-40E7-8C4A-90D414860AE5}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,23 +26,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C88213E4-4
 		docs\INSTALLATION.md = docs\INSTALLATION.md
 		docs\INTERNALS.md = docs\INTERNALS.md
 		docs\README.md = docs\README.md
-		docs\REMOTES.md = docs\REMOTES.md
+		docs\HostingS.md = docs\HostingS.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary", "src\Cometary\Cometary.csproj", "{CB78A4D4-6184-4AA7-9C0C-72EC9C2D860B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Common", "src\Cometary.Common\Cometary.Common.csproj", "{8D7AAB3F-95D6-43A1-9153-71D3F6AB9B1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Core", "src\Cometary.Core\Cometary.Core.csproj", "{8D7AAB3F-95D6-43A1-9153-71D3F6AB9B1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Rewriting", "src\Cometary.Rewriting\Cometary.Rewriting.csproj", "{CB78A4D4-6184-4AA7-9C0C-72EC9C2D860B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Remote", "src\Cometary.Remote\Cometary.Remote.csproj", "{7E634595-5CB0-49FD-9FB2-0B1ADEFBB5DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Symbols", "src\Cometary.Symbols\Cometary.Symbols.csproj", "{0D45C0BE-168E-4878-99A1-972551164AF7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Remote.Core", "src\Cometary.Remote.Core\Cometary.Remote.Core.csproj", "{6D80729A-10F7-4924-B5AD-9095EE9D41F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Scripting", "src\Cometary.Scripting\Cometary.Scripting.csproj", "{C2BC322A-0C47-4447-9EB8-8405D071F60D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Generation", "src\Cometary.Generation\Cometary.Generation.csproj", "{3E3FB6A4-8B95-446A-932F-7188DD08991E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting", "src\Cometary.Hosting\Cometary.Hosting.csproj", "{7E634595-5CB0-49FD-9FB2-0B1ADEFBB5DC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting.Core", "src\Cometary.Hosting.Core\Cometary.Hosting.Core.csproj", "{6D80729A-10F7-4924-B5AD-9095EE9D41F5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CB78A4D4-6184-4AA7-9C0C-72EC9C2D860B} = {CB78A4D4-6184-4AA7-9C0C-72EC9C2D860B}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Remote.MSBuild", "src\Cometary.Remote.MSBuild\Cometary.Remote.MSBuild.csproj", "{756A5036-AF09-4478-BD2F-FE62472AA5D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting.MSBuild", "src\Cometary.Hosting.MSBuild\Cometary.Hosting.MSBuild.csproj", "{756A5036-AF09-4478-BD2F-FE62472AA5D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Remote.VisualStudio", "src\Cometary.Remote.VisualStudio\Cometary.Remote.VisualStudio.csproj", "{1D88B2F0-237F-43A1-A927-68769D07F069}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting.VisualStudio", "src\Cometary.Hosting.VisualStudio\Cometary.Hosting.VisualStudio.csproj", "{1D88B2F0-237F-43A1-A927-68769D07F069}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.VSIX", "src\Cometary.VSIX\Cometary.VSIX.csproj", "{0142D773-9A3E-413C-B222-D2E70521F19E}"
 EndProject
@@ -50,9 +56,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Contracts", "sampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.IL", "samples\Cometary.IL\Cometary.IL.csproj", "{A1267367-60D6-4C3A-B459-FC8E02E2EC06}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remotes", "Remotes", "{85B63314-97D9-4DA0-BC78-3BA2703AC2DC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosting", "Hosting", "{85B63314-97D9-4DA0-BC78-3BA2703AC2DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remotes", "Remotes", "{91E879B2-7047-422E-900C-C6294D0A26B8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosting", "Hosting", "{91E879B2-7047-422E-900C-C6294D0A26B8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{D32E7C96-D907-4285-9549-320B3EF344F0}"
 EndProject
@@ -217,6 +223,30 @@ Global
 		{DAA7DE9C-1AC8-4369-B01D-81DF0D45B5FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DAA7DE9C-1AC8-4369-B01D-81DF0D45B5FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{DAA7DE9C-1AC8-4369-B01D-81DF0D45B5FE}.Release|x86.Build.0 = Release|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Debug|x86.Build.0 = Debug|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Release|x86.ActiveCfg = Release|Any CPU
+		{0D45C0BE-168E-4878-99A1-972551164AF7}.Release|x86.Build.0 = Release|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Debug|x86.Build.0 = Debug|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Release|x86.ActiveCfg = Release|Any CPU
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D}.Release|x86.Build.0 = Release|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Debug|x86.Build.0 = Debug|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Release|x86.ActiveCfg = Release|Any CPU
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,5 +271,8 @@ Global
 		{394F1384-C26C-438A-A092-C76FF7F8357E} = {91E879B2-7047-422E-900C-C6294D0A26B8}
 		{3417CB1F-8289-4F05-BFDC-AB93069E8C9E} = {D32E7C96-D907-4285-9549-320B3EF344F0}
 		{DAA7DE9C-1AC8-4369-B01D-81DF0D45B5FE} = {D32E7C96-D907-4285-9549-320B3EF344F0}
+		{0D45C0BE-168E-4878-99A1-972551164AF7} = {B9D9C5DF-9DB8-40E7-8C4A-90D414860AE5}
+		{C2BC322A-0C47-4447-9EB8-8405D071F60D} = {B9D9C5DF-9DB8-40E7-8C4A-90D414860AE5}
+		{3E3FB6A4-8B95-446A-932F-7188DD08991E} = {B9D9C5DF-9DB8-40E7-8C4A-90D414860AE5}
 	EndGlobalSection
 EndGlobal

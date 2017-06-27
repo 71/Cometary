@@ -6,11 +6,6 @@
     
     <Import Project="..\Common.props" />
 
-    <PropertyGroup>
-        <AssemblyName>$(Name).IL</AssemblyName>
-        <DefaultNamespace>$(AssemblyName)</DefaultNamespace>
-    </PropertyGroup>
-
     <ItemGroup>
       <PackageReference Include="Mono.Cecil" Version="0.10.0-beta6" />
     </ItemGroup>

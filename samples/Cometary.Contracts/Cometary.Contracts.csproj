@@ -6,9 +6,4 @@
     
     <Import Project="..\Common.props" />
 
-    <PropertyGroup>
-        <AssemblyName>$(Name).Contracts</AssemblyName>
-        <DefaultNamespace>$(AssemblyName)</DefaultNamespace>
-    </PropertyGroup>
-
 </Project>

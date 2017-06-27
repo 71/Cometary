@@ -1,0 +1,50 @@
+﻿<Project>
+
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <ItemGroup>
+    <None Update="Extensions\SyntaxExtensions.Fluent.g.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SyntaxExtensions.Fluent.g.cs</LastGenOutput>
+    </None>
+    <None Update="Macros\Quote.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Quote.g.cs</LastGenOutput>
+      <DependentUpon>Quote.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Extensions\SyntaxExtensions.Fluent.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SyntaxExtensions.Fluent.g.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Macros\Quote.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Quote.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <HostName>$(Name).Hosting.Core</HostName>
+    <HostPath>..\$(HostName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</HostPath>
+  </PropertyGroup>
+
+  <Target Name="Cometary" AfterTargets="Build">
+    <Exec Command="$(HostPath) &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
+  </Target>
+
+</Project>

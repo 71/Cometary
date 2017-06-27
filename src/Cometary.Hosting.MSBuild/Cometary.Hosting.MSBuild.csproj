@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsHost>True</IsHost>
+    </PropertyGroup>
+
+    <Import Project="..\Common.props" />
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build" Version="15.1.0-*" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="15.1.0-*" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.1.0-*" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.0-*" PrivateAssets="All" />
+    </ItemGroup>
+
+</Project>

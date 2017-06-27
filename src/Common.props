@@ -1,53 +1,58 @@
 <Project>
-    
-    <!-- Common properties -->
-    <PropertyGroup>
-        
-        <Name>Cometary</Name>
-        <Version>0.1.0</Version>
 
-        <Authors>Gregoire GEIS</Authors>
-        <Copyright>Copyright Gregoire GEIS (C) 2017</Copyright>
-        
-        <RepositoryUrl>https://github.com/6A/$(Name)</RepositoryUrl>
+  <!-- Common properties -->
+  <PropertyGroup>
 
-        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-        <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
-        <PackageTags>roslyn;meta;metaprogramming;cometary</PackageTags>
-        <PackageVersion>$(Version)</PackageVersion>
+    <Name>Cometary</Name>
+    <Version>0.1.0</Version>
 
-        <AssemblyVersion>$(Version)</AssemblyVersion>
-        <ApplicationVersion>$(Version)</ApplicationVersion>
+    <Authors>Gregoire GEIS</Authors>
+    <Copyright>Copyright Gregoire GEIS (C) 2017</Copyright>
 
-        <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
-        <DocumentationFile Condition=" '$(Configuration)' == 'Release' ">bin\Release\$(TargetFramework)\$(ProjectName).xml</DocumentationFile>
+    <RepositoryUrl>https://github.com/6A/$(Name)</RepositoryUrl>
 
-        <PackageTargetFallback>
-            $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
-        </PackageTargetFallback>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageTags>roslyn;meta;metaprogramming;cometary</PackageTags>
+    <PackageVersion>$(Version)</PackageVersion>
 
-        <SignAssembly>True</SignAssembly>
-        <DelaySign>False</DelaySign>
-        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <ApplicationVersion>$(Version)</ApplicationVersion>
+    <RoslynVersion>2.2.0</RoslynVersion>
 
-    </PropertyGroup>
+    <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+    <DocumentationFile Condition=" '$(Configuration)' == 'Release' ">bin\Release\$(TargetFramework)\$(ProjectName).xml</DocumentationFile>
 
-    <!-- Remote properties -->
-    <PropertyGroup Condition=" '$(IsRemote)' == 'True' ">
-        <TargetFramework>net47</TargetFramework>
-        <GenerateDocumentation>False</GenerateDocumentation>
-        <RootNamespace>$(Name).Remote</RootNamespace>
-    </PropertyGroup>
-    
-    
-    <!-- Dependencies -->
-    <ItemGroup Condition=" '$(IsRemote)' == 'True' ">
-        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Core\$(Name).Core.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup Condition=" '$(IsRemote)' == 'True' and '$(ProjectName)' != '$(Name).Remote' ">
-        <ProjectReference Include="$(MSBuildThisFileDirectory)$(Name).Remote\$(Name).Remote.csproj" />
-    </ItemGroup>
-    
+    <PackageTargetFallback>
+      $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
+    </PackageTargetFallback>
+
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+
+  </PropertyGroup>
+
+  <!-- Host properties -->
+  <PropertyGroup Condition=" '$(IsHost)' == 'True' ">
+    <TargetFramework>net47</TargetFramework>
+    <GenerateDocumentation>False</GenerateDocumentation>
+    <RootNamespace>$(Name).Hosting</RootNamespace>
+  </PropertyGroup>
+
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Condition=" '$(ProjectName)' != '$(Name).Common' "
+                      Include="$(MSBuildThisFileDirectory)$(Name).Common\$(Name).Common.csproj" />
+
+    <ProjectReference Condition=" '$(IsRemote)' == 'True' and '$(ProjectName)' != '$(Name).Hosting' "
+                      Include="$(MSBuildThisFileDirectory)$(Name).Hosting\$(Name).Hosting.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -6,10 +6,10 @@
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
     <PropertyGroup>
-        <RemoteName>$(Name).Remote.VisualStudio</RemoteName>
+        <HostName>$(Name).Hosting.VisualStudio</HostName>
     </PropertyGroup>
 
-    <UsingTask AssemblyFile="$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\$(RemoteName).dll" TaskName="Cometary.VSCometaryTask" />
+    <UsingTask AssemblyFile="$(SourceDirectory)$(HostName)\bin\$(Configuration)\net47\$(HostName).dll" TaskName="Cometary.VSCometaryTask" />
 
     <Target Name="Processing" Inputs="@(IntermediateAssembly->'%(FullPath)')" Outputs="@(IntermediateAssembly->'%(FullPath)')" AfterTargets="Compile">
         <Cometary.VSCometaryTask IsDebugging="False" />

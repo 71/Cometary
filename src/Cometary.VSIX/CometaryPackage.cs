@@ -43,18 +43,13 @@ namespace Cometary.VSIX
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(PackageGuidString)]
+    [Guid(Guids.CometaryCommandPackage)]
     public sealed class CometaryPackage : Package
     {
         private BuildEvents buildEvents;
         private Projects projects;
 
         private readonly Dictionary<ProjectElement, string> modifiedElements = new Dictionary<ProjectElement, string>();
-
-        /// <summary>
-        /// CometaryCommandPackage GUID string.
-        /// </summary>
-        public const string PackageGuidString = "8fad0f9b-a3b2-433e-81f2-525d2d9de9d2";
 
         /// <summary>
         /// Gets the static instance of the Cometary package.
@@ -94,7 +89,8 @@ namespace Cometary.VSIX
 
             Workspace.WorkspaceChanged += WorkspaceChanged;
 
-            CometaryCommand.Initialize(this);
+            ExecuteCometaryCommand.Initialize(this);
+            AddCometaryTaskCommand.Initialize(this);
 
             base.Initialize();
         }
