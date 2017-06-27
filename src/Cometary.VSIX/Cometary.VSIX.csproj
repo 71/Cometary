@@ -324,17 +324,17 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cometary.Core\Cometary.Core.csproj">
+    <ProjectReference Include="..\Cometary.Common\Cometary.Common.csproj">
       <Project>{8d7aab3f-95d6-43a1-9153-71d3f6ab9b1b}</Project>
-      <Name>Cometary.Core</Name>
+      <Name>Cometary.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Cometary.Remote\Cometary.Remote.csproj">
+    <ProjectReference Include="..\Cometary.Hosting\Cometary.Hosting.csproj">
       <Project>{7e634595-5cb0-49fd-9fb2-0b1adefbb5dc}</Project>
-      <Name>Cometary.Remote</Name>
+      <Name>Cometary.Hosting</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Cometary\Cometary.csproj">
+    <ProjectReference Include="..\Cometary.Rewriting\Cometary.Rewriting.csproj">
       <Project>{cb78a4d4-6184-4aa7-9c0c-72ec9c2d860b}</Project>
-      <Name>Cometary</Name>
+      <Name>Cometary.Rewriting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
