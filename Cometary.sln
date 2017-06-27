@@ -24,7 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{C88213E4-4
 		docs\DEBUGGING.md = docs\DEBUGGING.md
 		docs\EXTENSIONS.md = docs\EXTENSIONS.md
 		docs\HOSTS.md = docs\HOSTS.md
-		docs\INSTALLATION.md = docs\INSTALLATION.md
 		docs\INTERNALS.md = docs\INTERNALS.md
 		docs\README.md = docs\README.md
 	EndProjectSection
