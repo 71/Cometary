@@ -22,6 +22,7 @@ namespace Cometary.Extensions
         /// </summary>
         public static TOperation Operation<TOperation>(this SyntaxNode node) where TOperation : class, IOperation => node.Operation() as TOperation;
 
+
         /// <summary>
         /// Gets the <see cref="ISymbol"/> associated with the given declaration <see cref="SyntaxNode"/>.
         /// </summary>
