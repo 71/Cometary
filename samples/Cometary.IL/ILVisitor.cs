@@ -9,11 +9,11 @@ namespace Cometary
     using Visiting;
 
     /// <summary>
-    /// <see cref="AssemblyVisitor"/> that allows the use of
+    /// <see cref="AssemblyRewriter"/> that allows the use of
     /// Jean-Baptiste Evain's Mono.Cecil library.
     /// </summary>
     /// <seealso href="https://github.com/jbevain/cecil"/>
-    internal sealed class ILVisitor : AssemblyVisitor
+    internal sealed class ILVisitor : AssemblyRewriter
     {
         internal static readonly ISymbolWriterProvider WriterProvider = new PortablePdbWriterProvider();
         internal static readonly ISymbolReaderProvider ReaderProvider = new PortablePdbReaderProvider();

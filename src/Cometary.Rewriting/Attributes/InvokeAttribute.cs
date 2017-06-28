@@ -5,28 +5,33 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Cometary.Attributes
 {
     /// <summary>
-    /// Indicates that the marked method will be invoked
-    /// during compilation.
     /// <para>
-    /// The following parameters can be defined:
-    /// <see cref="MethodDeclarationSyntax"/>, <see cref="ClassDeclarationSyntax"/>,
-    /// <see cref="MethodInfo"/> and <see cref="TypeInfo"/>.
+    ///   Indicates that the marked method will be invoked
+    ///   during compilation.
+    /// </para>
+    /// <para>
+    ///   The types can be used as parameters:
+    ///   <see cref="MethodDeclarationSyntax"/>, <see cref="ClassDeclarationSyntax"/>,
+    ///   <see cref="MethodInfo"/> and <see cref="TypeInfo"/>.
     /// </para>
     /// </summary>
-    /// <remarks>CTFE stands for Compile-Time Function Invocation.</remarks>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class CTFIAttribute : Attribute, IMethodVisitor
+    public sealed class InvokeAttribute : Attribute, IMethodVisitor
     {
         /// <summary>
-        /// If <see langword="false"/>, the marked method will be removed
-        /// from the compiled <see cref="Assembly"/>.
         /// <para>
-        /// Default: <see langword="false"/>.
+        ///   If <see langword="false"/>, the marked method will be removed
+        ///   from the compiled <see cref="Assembly"/>.
+        /// </para>
+        /// <para>
+        ///   Default: <see langword="false"/>.
         /// </para>
         /// </summary>
         public bool KeepMethod { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///   Invokes the given <paramref name="method"/>.
+        /// </summary>
         public MethodDeclarationSyntax Visit(MethodInfo method, MethodDeclarationSyntax node)
         {
             if (!method.IsStatic)

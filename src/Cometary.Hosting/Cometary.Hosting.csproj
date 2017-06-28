@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsHost>True</IsHost>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsHost>True</IsHost>
+  </PropertyGroup>
 
-    <Import Project="..\Common.props" />
+  <Import Project="..\Common.props" />
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynVersion)" />
-        <PackageReference Include="System.Runtime.Loader" Version="4.3.0" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynVersion)" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" Condition=" '$(TargetFramework)' == 'netstandard1.6' " />
+  </ItemGroup>
 
 </Project>

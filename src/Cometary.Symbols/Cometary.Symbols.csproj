@@ -10,7 +10,7 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
   <ItemGroup>
-    <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
+    <ProjectReference Include="..\$(Name).Rewriting\$(Name).Rewriting.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -36,7 +36,7 @@
 
   <!-- Host properties -->
   <PropertyGroup Condition=" '$(IsHost)' == 'True' ">
-    <TargetFramework>net47</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <GenerateDocumentation>False</GenerateDocumentation>
     <RootNamespace>$(Name).Hosting</RootNamespace>
   </PropertyGroup>
@@ -51,7 +51,7 @@
     <ProjectReference Condition=" '$(ProjectName)' != '$(Name).Common' "
                       Include="$(MSBuildThisFileDirectory)$(Name).Common\$(Name).Common.csproj" />
 
-    <ProjectReference Condition=" '$(IsRemote)' == 'True' and '$(ProjectName)' != '$(Name).Hosting' "
+    <ProjectReference Condition=" '$(IsHost)' == 'True' and '$(ProjectName)' != '$(Name).Hosting' "
                       Include="$(MSBuildThisFileDirectory)$(Name).Hosting\$(Name).Hosting.csproj" />
   </ItemGroup>
 

@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsHost>True</IsHost>
-    </PropertyGroup>
+  <PropertyGroup>
+    <IsHost>True</IsHost>
+  </PropertyGroup>
 
-    <Import Project="..\Common.props" />
+  <Import Project="..\Common.props" />
 
-    <ItemGroup>
-        <ProjectReference Include="..\$(Name).Hosting.MSBuild\$(Name).Hosting.MSBuild.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\$(Name).Hosting.MSBuild\$(Name).Hosting.MSBuild.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="EnvDTE" Version="8.0.1" />
-        <PackageReference Include="Microsoft.VisualStudio.ComponentModelHost" Version="15.0.26201" />
-        <PackageReference Include="Microsoft.VisualStudio.LanguageServices" Version="2.1.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Shell.14.0" Version="14.3.25407" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EnvDTE" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.ComponentModelHost" Version="15.0.26201" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.14.0" Version="14.3.25407" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServices" Version="$(RoslynVersion)" />
+  </ItemGroup>
 
 </Project>

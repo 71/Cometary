@@ -6,31 +6,26 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
-    using Common;
-
     /// <summary>
-    /// <see cref="CSharpSyntaxRewriter"/> that replaces
-    /// nodes modified or removed through <see cref="MetaExtensions.Replace{T}"/>,
-    /// and <see cref="MetaExtensions.Delete"/>.
+    ///   <see cref="CSharpSyntaxRewriter"/> that replaces
+    ///   nodes modified or removed through <see cref="MetaExtensions.Replace{T}"/>,
+    ///   and <see cref="MetaExtensions.Delete"/>.
     /// </summary>
-    internal sealed class ReplacedAndRemovedVisitor : LightAssemblyVisitor
+    internal sealed class ReplacedAndRemovedVisitor : AssemblyRewriter
     {
         /// <inheritdoc />
         public override bool RewritesTree => false;
 
-        /// <inheritdoc />
-        public override int CompareTo(LightAssemblyVisitor other) => 1;
-
         /// <summary>
-        /// List of all changes made to the syntax tree currently being visited.
+        ///   List of all changes made to the syntax tree currently being visited.
         /// </summary>
         private List<(SyntaxNode node, Func<SyntaxNode, SyntaxNode> apply)> ChangesList;
 
         /// <summary>
-        /// Applies changes made through <see cref="MetaExtensions.Replace{T}"/>
-        /// and <see cref="MetaExtensions.Delete"/>.
+        ///   Applies changes made through <see cref="MetaExtensions.Replace{T}"/>
+        ///   and <see cref="MetaExtensions.Delete"/>.
         /// </summary>
-        public override CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation)
+        public override CSharpCompilation VisitCompilation(Assembly assembly, CSharpCompilation compilation)
         {
             for (int i = 0; i < compilation.SyntaxTrees.Length; i++)
             {
@@ -46,6 +41,9 @@ namespace Cometary
             return compilation;
         }
 
+        /// <summary>
+        ///   Ensures the given <paramref name="node"/> gets changed, if needed.
+        /// </summary>
         public override SyntaxNode Visit(SyntaxNode node)
         {
             if (node == null)

@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
 {
     using Attributes;
+    using Extensions;
 
     /// <summary>
-    /// <see cref="AssemblyVisitor"/> that visits attributes set on members.
+    ///   <see cref="AssemblyRewriter"/> that visits attributes set on members.
     /// </summary>
-    internal sealed class AttributesVisitor : AssemblyVisitor
+    internal sealed class AttributesVisitor : AssemblyRewriter
     {
         /// <inheritdoc />
         public override bool RewritesTree => true;
@@ -26,6 +26,9 @@ namespace Cometary
 
         private static SyntaxList<AttributeListSyntax> RemoveAttribute(SyntaxList<AttributeListSyntax> attributes, IList<string> attrsToRemove)
         {
+            if (!CleanUp.ShouldCleanUp)
+                return attributes;
+
             for (int i = 0; i < attributes.Count; i++)
             {
                 var attrs = attributes[i].Attributes;
@@ -47,9 +50,43 @@ namespace Cometary
             return attributes;
         }
 
-        /// <inheritdoc />
-        public override MethodDeclarationSyntax Visit(MethodInfo method, MethodDeclarationSyntax node)
+        private static MethodDeclarationSyntax VisitParameter(ParameterSyntax parameterSyntax, MethodDeclarationSyntax node, MethodInfo method, ParameterInfo parameter)
         {
+            List<string> attrsToRemove = new List<string>();
+
+            foreach (IParameterVisitor visitor in GetCustomAttributes<IParameterVisitor>(method))
+            {
+                node = visitor.Visit(parameter, parameterSyntax, node);
+
+                if (node == null)
+                    return null;
+
+                attrsToRemove.Add(visitor.GetType().Name);
+            }
+
+            ParameterSyntax newParameterSyntax = parameterSyntax.WithAttributeLists(RemoveAttribute(parameterSyntax.AttributeLists, attrsToRemove));
+
+            return node.WithParameterList(node.ParameterList.WithParameters(node.ParameterList.Parameters.Replace(parameterSyntax, newParameterSyntax)));
+        }
+
+        /// <inheritdoc />
+        public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
+        {
+            MethodInfo method = node.Info();
+
+            if (method == null)
+                return node;
+
+            ParameterInfo[] parameters = method.GetParameters();
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                node = VisitParameter(node.ParameterList.Parameters[i], node, method, parameters[i]);
+
+                if (node == null)
+                    return null;
+            }
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IMethodVisitor visitor in GetCustomAttributes<IMethodVisitor>(method))
@@ -66,8 +103,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override ClassDeclarationSyntax Visit(TypeInfo type, ClassDeclarationSyntax node)
+        public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
         {
+            TypeInfo type = node.Info();
+
+            if (type == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IClassVisitor visitor in GetCustomAttributes<IClassVisitor>(type))
@@ -84,8 +126,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override PropertyDeclarationSyntax Visit(PropertyInfo property, PropertyDeclarationSyntax node)
+        public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
         {
+            PropertyInfo property = node.Info();
+
+            if (property == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IPropertyVisitor visitor in GetCustomAttributes<IPropertyVisitor>(property))
@@ -102,8 +149,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override FieldDeclarationSyntax Visit(FieldInfo field, FieldDeclarationSyntax node)
+        public override SyntaxNode VisitFieldDeclaration(FieldDeclarationSyntax node)
         {
+            FieldInfo field = node.Info();
+
+            if (field == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IFieldVisitor visitor in GetCustomAttributes<IFieldVisitor>(field))
@@ -120,8 +172,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override DelegateDeclarationSyntax Visit(TypeInfo type, DelegateDeclarationSyntax node)
+        public override SyntaxNode VisitDelegateDeclaration(DelegateDeclarationSyntax node)
         {
+            TypeInfo type = node.Info();
+
+            if (type == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IDelegateVisitor visitor in GetCustomAttributes<IDelegateVisitor>(type))
@@ -138,26 +195,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override MethodDeclarationSyntax Visit(ParameterInfo parameter, ParameterSyntax syntax, MethodDeclarationSyntax node)
+        public override SyntaxNode VisitEventDeclaration(EventDeclarationSyntax node)
         {
-            List<string> attrsToRemove = new List<string>();
+            EventInfo @event = node.Info();
 
-            foreach (IParameterVisitor visitor in parameter.GetCustomAttributes().OfType<IParameterVisitor>())
-            {
-                node = visitor.Visit(parameter, syntax, node);
+            if (@event == null)
+                return node;
 
-                if (node == null)
-                    return null;
-
-                attrsToRemove.Add(visitor.GetType().Name);
-            }
-
-            return node.WithAttributeLists(RemoveAttribute(node.AttributeLists, attrsToRemove));
-        }
-
-        /// <inheritdoc />
-        public override EventDeclarationSyntax Visit(EventInfo @event, EventDeclarationSyntax node)
-        {
             List<string> attrsToRemove = new List<string>();
 
             foreach (IEventVisitor visitor in GetCustomAttributes<IEventVisitor>(@event))
@@ -174,8 +218,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override EnumDeclarationSyntax Visit(TypeInfo @enum, EnumDeclarationSyntax node)
+        public override SyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
+            TypeInfo @enum = node.Info();
+
+            if (@enum == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IEnumVisitor visitor in GetCustomAttributes<IEnumVisitor>(@enum))
@@ -192,8 +241,13 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override InterfaceDeclarationSyntax Visit(TypeInfo @interface, InterfaceDeclarationSyntax node)
+        public override SyntaxNode VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
         {
+            TypeInfo @interface = node.Info();
+
+            if (@interface == null)
+                return node;
+
             List<string> attrsToRemove = new List<string>();
 
             foreach (IInterfaceVisitor visitor in GetCustomAttributes<IInterfaceVisitor>(@interface))
@@ -207,21 +261,6 @@ namespace Cometary
             }
 
             return node.WithAttributeLists(RemoveAttribute(node.AttributeLists, attrsToRemove));
-        }
-
-        /// <inheritdoc />
-        public override CSharpCompilation Visit(Assembly assembly, CSharpCompilation compilation)
-        {
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            foreach (IAssemblyVisitor visitor in assembly.GetCustomAttributes().OfType<IAssemblyVisitor>())
-            {
-                CSharpCompilation newCompilation = visitor.Visit(assembly, compilation);
-
-                if (newCompilation != null)
-                    compilation = newCompilation;
-            }
-
-            return compilation;
         }
     }
 }

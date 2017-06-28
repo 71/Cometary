@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,19 +9,18 @@ using Microsoft.CodeAnalysis.Semantics;
 
 namespace Cometary
 {
-    using Common;
     using Extensions;
 
     /// <summary>
-    /// <see cref="CSharpSyntaxRewriter"/> that transforms macro calls.
+    ///   <see cref="AssemblyRewriter"/> that transforms macro calls.
     /// </summary>
-    internal sealed class MacroVisitor : LightAssemblyVisitor
+    internal sealed class MacroVisitor : AssemblyRewriter
     {
         private readonly Stack<SyntaxList<StatementSyntax>> ModificationsStack = new Stack<SyntaxList<StatementSyntax>>();
         private readonly Stack<int> DeletionsCountStack = new Stack<int>();
 
         /// <summary>
-        /// Gets whether or not the given parameter is a quote.
+        ///   Gets whether or not the given parameter is a quote.
         /// </summary>
         private static bool IsQuoteParameter(IParameterSymbol parameter)
         {
@@ -31,14 +28,11 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public override int CompareTo(LightAssemblyVisitor other) => other is AttributesVisitor ? 1 : 0;
-
-        /// <inheritdoc />
         public override bool RewritesTree => true;
 
         /// <summary>
-        /// Ensures that we visit every single statement,
-        /// even if the block gets modified.
+        ///   Ensures that we visit every single statement,
+        ///   even if the block gets modified.
         /// </summary>
         public override SyntaxNode VisitBlock(BlockSyntax node)
         {
@@ -80,7 +74,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Ensures void quotes are correctly reduced.
+        ///   Ensures void quotes are correctly reduced.
         /// </summary>
         public override SyntaxNode VisitExpressionStatement(ExpressionStatementSyntax node)
         {
@@ -104,7 +98,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Ensures quotes get returned immediately.
+        ///   Ensures quotes get returned immediately.
         /// </summary>
         public override SyntaxNode VisitReturnStatement(ReturnStatementSyntax node)
         {
@@ -128,7 +122,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Calls macros.
+        ///   Ensures macros get called.
         /// </summary>
         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
         {
@@ -271,13 +265,6 @@ namespace Cometary
                 
                 return ReturnLastNode(insertedNodes[0]);
             }
-
-            // We must use a block at this point, and even create it if necessary
-            bool isBlockCreated = block == null;
-
-            if (isBlockCreated)
-                // Gotta transform that method into a method with statements
-                block = SyntaxFactory.Block();
 
             SyntaxList<StatementSyntax> stmts = new SyntaxList<StatementSyntax>();
 

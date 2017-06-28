@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cometary
 {
-    using Common;
-
     /// <summary>
-    /// <see cref="LightAssemblyVisitor"/> that adds members to a <see cref="TypeDeclarationSyntax"/>.
+    ///   <see cref="AssemblyRewriter"/> that adds members to a <see cref="TypeDeclarationSyntax"/>.
     /// </summary>
-    internal sealed class MemberAddingVisitor : LightAssemblyVisitor
+    internal sealed class MemberAddingVisitor : AssemblyRewriter
     {
         internal static readonly Stack<MemberDeclarationSyntax> Members = new Stack<MemberDeclarationSyntax>();
 
+        /// <inheritdoc />
         public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
         {
             ClassDeclarationSyntax result = (ClassDeclarationSyntax)base.VisitClassDeclaration(node);
@@ -29,6 +27,7 @@ namespace Cometary
             return result.AddMembers(membersToAdd);
         }
 
+        /// <inheritdoc />
         public override SyntaxNode VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
         {
             InterfaceDeclarationSyntax result = (InterfaceDeclarationSyntax)base.VisitInterfaceDeclaration(node);
@@ -44,6 +43,7 @@ namespace Cometary
             return result.AddMembers(membersToAdd);
         }
 
+        /// <inheritdoc />
         public override SyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
             EnumDeclarationSyntax result = (EnumDeclarationSyntax)base.VisitEnumDeclaration(node);
@@ -58,17 +58,5 @@ namespace Cometary
 
             return result.AddMembers(membersToAdd);
         }
-    }
-
-    /// <summary>
-    /// Static class used to add members to types during a visit.
-    /// </summary>
-    public static class Members
-    {
-        /// <summary>
-        /// Adds the given <paramref name="member"/> to the <see langword="class"/>,
-        /// <see langword="interface"/> or <see langword="enum"/> currently being visited.
-        /// </summary>
-        public static void Add(MemberDeclarationSyntax member) => MemberAddingVisitor.Members.Push(member);
     }
 }
