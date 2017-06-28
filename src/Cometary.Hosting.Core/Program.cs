@@ -13,15 +13,15 @@ namespace Cometary
         private static bool CanGetBuffer;
 
         /// <summary>
-        /// Entry point of the program, that serves as a synchronous
-        /// wrapper around <see cref="Execute"/>.
+        ///   Entry point of the program, that serves as a synchronous
+        ///   wrapper around <see cref="ExecuteAsync"/>.
         /// </summary>
-        public static int Main(string[] args) => Execute(args).Result;
+        public static int Main(string[] args) => ExecuteAsync(args).Result;
 
         /// <summary>
-        /// Asynchronously processes the specified project.
+        ///   Asynchronously processes the specified project.
         /// </summary>
-        public static async Task<int> Execute(string[] args)
+        public static async Task<int> ExecuteAsync(string[] args)
         {
             Console.WriteLine();
 
