@@ -137,7 +137,6 @@ public sealed class EvilVisitor : AssemblyVisitor
 # Documentation
 - [Getting started](./docs/README.md)
 - [Debugging](./docs/DEBUGGING.md)
-- [Samples](./docs/SAMPLES.md)
 - [Hosts](./docs/HOSTS.md)
 - [Internals](./docs/INTERNALS.md)
 
