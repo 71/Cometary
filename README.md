@@ -160,6 +160,9 @@ All components have individual READMEs, which can be found in the following dire
 - [Cometary.Hosting.MSBuild](./src/Cometary.Hosting.MSBuild)
 - [Cometary.Hosting.VisualStudio](./src/Cometary.Hosting.VisualStudio)
 
+### Samples
+See [`samples`](./samples) directory.
+
 # Current state
 It works, as long as you stick to the [.NET Core version](src/Cometary.Hosting.Core).
 
