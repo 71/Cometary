@@ -12,27 +12,6 @@ namespace Cometary
     public sealed class CometaryState
     {
         /// <summary>
-        ///   Defines the current state of the assembly.
-        /// </summary>
-        public enum AssemblyState
-        {
-            /// <summary>
-            ///   The assembly has been compiled, but not yet fully visited.
-            /// </summary>
-            Loaded,
-
-            /// <summary>
-            ///   The assembly has been compiled and emitted.
-            /// </summary>
-            Visited
-        }
-
-        /// <summary>
-        ///   Gets the current <see cref="AssemblyState"/> of the process.
-        /// </summary>
-        public AssemblyState State { get; internal set; }
-
-        /// <summary>
         ///   Gets the <see cref="CometaryOptions"/> set for the process.
         /// </summary>
         public CometaryOptions Options => CometaryOptions.Options;
@@ -57,6 +36,11 @@ namespace Cometary
         ///   project to modify.
         /// </summary>
         public CSharpCompilation Compilation { get; set; }
+
+        /// <summary>
+        ///   Event triggered after emitting the finished assembly.
+        /// </summary>
+        public event Hook Emitted;
 
         internal CometaryState(MemoryStream aStream, MemoryStream sStream, Assembly assembly, CSharpCompilation compilation)
         {
@@ -93,5 +77,11 @@ namespace Cometary
             if (changes != 0)
                 Compilation = compilation;
         }
+
+        /// <summary>
+        ///   Indicates that the assembly has been emitted a second time,
+        ///   thus triggering the <see cref="Emitted"/> event.
+        /// </summary>
+        internal void OnEmitted() => Emitted?.Invoke(this);
     }
 }

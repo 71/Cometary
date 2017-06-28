@@ -4,10 +4,10 @@ using System.Reflection;
 namespace Cometary
 {
     /// <summary>
-    /// Shim for APIs available only on CoreCLR.
+    ///   Shim for APIs available only on CoreCLR.
     /// </summary>
     /// <seealso href="http://source.roslyn.io/#Microsoft.CodeAnalysis.Scripting/CoreClrShim.cs" />
-    /// <seealso href="https://github.com/dotnet/core-setup/blob/release/1.0.0/src/corehost/cli/hostpolicy.cpp#L91-L123"/>
+    /// <seealso href="https://github.com/dotnet/core-setup/blob/release/1.0.0/src/corehost/cli/hostpolicy.cpp#L91-L123" />
     internal static class Shim
     {
         internal static readonly Type AssemblyLoadContext

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,14 +21,11 @@ namespace Cometary
         private readonly Dictionary<string, string> _references = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Gets or sets the <see cref="Assembly"/> emitted by the compilation.
+        ///   Gets or sets the <see cref="Assembly"/> emitted by the compilation.
         /// </summary>
         public Assembly EmittedAssembly { get; internal set; }
 
 #if NET_CORE
-        /// <summary>
-        /// 
-        /// </summary>
         public CometaryAssemblyLoadContext()
         {
             KnownReferences = new List<string>();
@@ -35,9 +33,6 @@ namespace Cometary
             Resolving += ResolvingAssembly;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private Assembly ResolvingAssembly(AssemblyLoadContext ctx, AssemblyName assemblyName)
         {
             string name = assemblyName.Name;
@@ -54,10 +49,6 @@ namespace Cometary
             AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
         }
 
-        /// <summary>
-        /// Resolves the assembly with the given name by looking up
-        /// all registered references.
-        /// </summary>
         public Assembly AssemblyResolve(object sender, ResolveEventArgs args)
         {
             if (args.Name == EmittedAssembly?.FullName)
@@ -67,9 +58,12 @@ namespace Cometary
                 ?? LoadAssembly(args.Name);
         }
 #endif
+
         /// <summary>
-        /// 
+        ///   Registers an assembly in the list of known assemblies, in order
+        ///   to enable its resolution.
         /// </summary>
+        [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "File exists, thus Path.GetFileNameWithoutExtension will not be null.")]
         public void Register(string assemblyPath)
         {
             if (File.Exists(assemblyPath))

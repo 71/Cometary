@@ -9,34 +9,16 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Cometary
 {
     /// <summary>
-    /// <see cref="CSharpSyntaxRewriter"/> that prepares a
-    /// <see cref="CSharpCompilation"/> before compilation,
-    /// by replacing its <see langword="extern"/> members
-    /// and adding custom generated members.
+    /// <para>
+    ///   <see cref="CSharpSyntaxRewriter"/> that prepares a <see cref="CSharpCompilation"/> before compilation,
+    ///   by replacing its <see langword="extern"/> members and adding custom generated members.
+    /// </para>
     /// </summary>
     /// <seealso href="https://github.com/dotnet/csharplang/blob/master/spec/classes.md">
-    /// Lists all members that can be <see langword="extern"/>.
+    ///   Lists all members that can be <see langword="extern"/>.
     /// </seealso>
     internal sealed class PreprocessingRewriter : CSharpSyntaxRewriter
     {
-        /// <summary>
-        /// Gets the ID of the assembly to process.
-        /// </summary>
-        public int ID { get; }
-
-        /// <summary>
-        /// Gets whether or not the <see cref="ID"/> has been injected.
-        /// </summary>
-        public bool HasInjectedID { get; private set; }
-
-
-        /// <summary>
-        /// Initializes a new <see cref="PreprocessingRewriter"/>, given
-        /// the ID of the assembly to process.
-        /// </summary>
-        internal PreprocessingRewriter(int id) => ID = id;
-
-        #region Injecting ID
         /// <summary>
         /// <see cref="AttributeListSyntax"/> that'll be injected in
         /// generated members.
@@ -47,9 +29,7 @@ namespace Cometary
                 F.SeparatedList(new[] {
                     F.Attribute(
                         F.ParseName(typeof(CompilerGeneratedAttribute).FullName)) } ));
-        #endregion
 
-        #region Rewriting extern members
         /// <summary>
         /// <see cref="ArrowExpressionClauseSyntax"/> that'll be injected
         /// in <see langword="extern"/> methods.
@@ -175,6 +155,5 @@ namespace Cometary
                     node.AccessorList.Accessors.Select(x => x.WithExpressionBody(ThrowBody))
                 )));
         }
-        #endregion
     }
 }

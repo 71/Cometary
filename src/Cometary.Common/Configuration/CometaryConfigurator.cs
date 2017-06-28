@@ -140,12 +140,12 @@ namespace Cometary
         ///   Sets the global <see cref="CometaryOptions"/> instance to <see langword="this"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">Global Cometary options have already been set.</exception>
-        public void Build()
+        internal CometaryOptions Build()
         {
             if (builtOptions != null)
                 throw new InvalidOperationException("Options can only be built once.");
 
-            builtOptions = new CometaryOptions(Properties, Hooks);
+            return builtOptions = new CometaryOptions(Properties, Hooks);
         }
     }
 }

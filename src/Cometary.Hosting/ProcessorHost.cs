@@ -8,17 +8,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 
-[assembly: InternalsVisibleTo("Cometary.Remote.Core, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
-[assembly: InternalsVisibleTo("Cometary.Remote.MSBuild, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
-[assembly: InternalsVisibleTo("Cometary.Remote.VisualStudio, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+[assembly: InternalsVisibleTo("Cometary.Hosting.Core, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+[assembly: InternalsVisibleTo("Cometary.Hosting.MSBuild, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
+[assembly: InternalsVisibleTo("Cometary.Hosting.VisualStudio, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ddc50907e7882cd6af3432d5c3ba2f9a257e9ea6602df0e06098aba23eed5d650e4adb8aaefcee05afd5a70c43fe058b4d6dbecddf48a99ff9729f6a9968e8915677fa29a24a3a7293788c7de96040fb40d6eaf7f2b24320ec43624189d3a66250c5c0d31823343feb6e6fa9787f6e4961f8c84af6b59993c2e5d1c981b82bcb")]
 
 namespace Cometary
 {
-    using Common;
-
     /// <summary>
-    /// Represents a host that delegates <see cref="Project"/> processing
-    /// to a <see cref="Processor"/>.
+    ///   Represents a host that delegates <see cref="Project"/> processing
+    ///   to a <see cref="Processor"/>.
     /// </summary>
     [DebuggerDisplay("Host for '{Workspace.CurrentSolution.FilePath}' (Contains {ProcessorMap.Count} processors)")]
     public sealed class ProcessorHost : IDisposable
@@ -30,81 +28,68 @@ namespace Cometary
         }
 
         /// <summary>
-        /// The global instances for processor hosts.
+        ///   List that contains all global instances of processor hosts.
         /// </summary>
         private static readonly List<ProcessorHost> Instances = new List<ProcessorHost>();
 
         /// <summary>
-        /// A dictionary that contains all processors, identified by their <see cref="Processor.ID"/>.
+        ///   Dictionary that contains all processors, identified by their <see cref="Processor.ID"/>.
         /// </summary>
         internal static readonly Dictionary<int, Processor> ProcessorMap = new Dictionary<int, Processor>();
 
         /// <summary>
-        /// An <see cref="object"/> used to lock operations.
+        ///   An <see cref="object"/> used to lock operations.
         /// </summary>
         private static readonly object SyncRoot = new object();
 
         /// <summary>
-        /// Gets the workspace for this processor.
+        ///   Gets the workspace used by this host.
         /// </summary>
         public Workspace Workspace { get; }
 
         /// <summary>
-        /// Gets the <see cref="IDispatcher"/> used for the process.
-        /// </summary>
-        public IDispatcher Dispatcher { get; private set; }
-
-        /// <summary>
-        /// Gets a list of all processors that are currently active.
+        ///   Gets a list of all processors that are currently active.
         /// </summary>
         public IReadOnlyCollection<Processor> Processors { get; }
 
         /// <summary>
-        /// Gets a dictionary containing all loaded assemblies that
-        /// are shared by different processors.
+        ///   Gets a dictionary containing all loaded assemblies that
+        ///   are shared by different processors.
         /// </summary>
         internal Dictionary<AssemblyName, Assembly> SharedAssemblies { get; }
 
         /// <summary>
-        /// Gets a dictionary containg all assemblies that have been or are
-        /// being emitted by a <see cref="Processor"/>.
+        ///   Gets a dictionary containg all assemblies that have been or are
+        ///   being emitted by a <see cref="Processor"/>.
         /// </summary>
         internal Dictionary<Assembly, Processor> EmittedAssemblies { get; }
 
         /// <summary>
-        /// Gets a dictionary containing all loaded visitors that
-        /// are shared by different processors.
-        /// </summary>
-        internal Dictionary<Assembly, LightAssemblyVisitor> SharedVisitors { get; }
-
-        /// <summary>
-        /// Gets a list containing all references that
-        /// are shared by different processors.
+        ///   Gets a list containing all references that
+        ///   are shared by different processors.
         /// </summary>
         internal List<string> SharedReferences { get; }
 
         /// <summary>
-        /// Event invoked when a message is logged in a <see cref="Processor"/>.
+        ///   Event triggered when a message is logged in a <see cref="Processor"/>.
         /// </summary>
         public event EventHandler<ProcessingMessage> MessageLogged;
 
         /// <summary>
-        /// Event invoked when a warning is logged in a <see cref="Processor"/>.
+        ///   Event triggered when a warning is logged in a <see cref="Processor"/>.
         /// </summary>
         public event EventHandler<ProcessingMessage> WarningLogged;
 
         /// <summary>
-        /// Event invoked when a debug message is logged in a <see cref="Processor"/>.
+        ///   Event triggered when a debug message is logged in a <see cref="Processor"/>.
         /// </summary>
         public event EventHandler<ProcessingMessage> DebugMessageLogged;
 
         private ProcessorHost(Workspace workspace)
         {
             Workspace  = workspace;
-            Dispatcher = new CoreDispatcher();
 
             SharedAssemblies = new Dictionary<AssemblyName, Assembly>();
-            SharedVisitors   = new Dictionary<Assembly, LightAssemblyVisitor>();
             SharedReferences = new List<string>();
 
             Processors = ProcessorMap.Values;
@@ -114,18 +99,15 @@ namespace Cometary
         /// <inheritdoc />
         public void Dispose()
         {
-            Workspace.Dispose();
-
             foreach (Processor processor in Processors)
                 processor.Dispose();
 
-            foreach (IDisposable disposableVisitor in SharedVisitors.Values.OfType<IDisposable>())
-                disposableVisitor.Dispose();
+            Workspace.Dispose();
         }
 
         /// <summary>
-        /// Gets a <see cref="ProcessorHost"/> for the given <paramref name="workspace"/>,
-        /// optionally creating it.
+        ///   Gets a <see cref="ProcessorHost"/> for the given <paramref name="workspace"/>,
+        ///   optionally creating it.
         /// </summary>
         public static ProcessorHost GetHost(Workspace workspace)
         {
@@ -165,8 +147,18 @@ namespace Cometary
             }
         }
 
+        /// <summary>
+        ///   Gets the <see cref="Processor"/> taking care of the
+        ///   calling method.
+        /// </summary>
         private static Processor GetProcessor()
         {
+            // Since many assemblies with the same identity are running at
+            // the same time, getting a processor for each assembly can be tricky.
+            // In order to get the assembly, we use a stack frame and find the first
+            // method declared in the target assembly. Once we have it, finding its associated
+            // processor is extremely easy.
+
             StackTrace trace = new StackTrace();
 
             for (int i = trace.FrameCount - 1; i > 0; i--)
@@ -189,13 +181,13 @@ namespace Cometary
 
         /// <summary>
         /// <para>
-        ///     Gets the <see cref="Processor"/> associated with the given <paramref name="project"/>.
+        ///   Gets the <see cref="Processor"/> associated with the given <paramref name="project"/>.
         /// </para>
         /// <para>
-        ///     If no matching processor exists, one will be created.
+        ///   If no matching processor exists, one will be created.
         /// </para>
         /// <para>
-        ///     The created <see cref="Processor"/> will lazily initialize itself later.
+        ///   The created <see cref="Processor"/> will lazily initialize itself later.
         /// </para>
         /// </summary>
         public Processor GetProcessor(Project project)
@@ -221,10 +213,10 @@ namespace Cometary
 
         /// <summary>
         /// <para>
-        ///     Gets the <see cref="Processor"/> associated with the given <paramref name="project"/>.
+        ///   Gets the <see cref="Processor"/> associated with the given <paramref name="project"/>.
         /// </para>
         /// <para>
-        ///     If no matching processor exists, one will be created.
+        ///   If no matching processor exists, one will be created.
         /// </para>
         /// </summary>
         public async Task<Processor> GetProcessorAsync(Project project, CancellationToken token = default(CancellationToken))
