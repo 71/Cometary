@@ -49,7 +49,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting.MSBuild", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Hosting.VisualStudio", "src\Cometary.Hosting.VisualStudio\Cometary.Hosting.VisualStudio.csproj", "{1D88B2F0-237F-43A1-A927-68769D07F069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.VSIX", "src\Cometary.VSIX\Cometary.VSIX.csproj", "{0142D773-9A3E-413C-B222-D2E70521F19E}"
+# Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.VSIX", "src\Cometary.VSIX\Cometary.VSIX.csproj", "{0142D773-9A3E-413C-B222-D2E70521F19E}"
+# EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.VSIX", "src\Cometary.VSIX\Cometary.VSIX.csproj", "{0142D773-9A3E-413C-B222-D2E70521F19E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Contracts", "samples\Cometary.Contracts\Cometary.Contracts.csproj", "{65EF32A5-8356-48C8-AAAB-29BFE1B957FD}"
 EndProject
