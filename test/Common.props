@@ -8,7 +8,7 @@
     <Name>Cometary</Name>
     <Version>0.1.0</Version>
 
-    <DefaultNamespace>$(Name).Tests</DefaultNamespace>
+    <RootNamespace>$(Name).Tests</RootNamespace>
 
     <SourceDirectory>$(MSBuildThisFileDirectory)..\src\</SourceDirectory>
     <SamplesDirectory>$(MSBuildThisFileDirectory)..\samples\</SamplesDirectory>
@@ -16,6 +16,8 @@
     <IsCommon Condition=" '$(IsCommon)' == '' ">False</IsCommon>
     <IsSample Condition=" '$(IsSample)' == '' ">False</IsSample>
 
+    <HostFramework>net47</HostFramework>
+    
     <PackageTargetFallback>
       $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
     </PackageTargetFallback>
