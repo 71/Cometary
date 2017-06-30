@@ -16,59 +16,59 @@ using Project = Microsoft.CodeAnalysis.Project;
 namespace Cometary.VSIX
 {
     /* See:
-     * - https://github.com/Microsoft/VSSDK-Extensibility-Samples/tree/master/ErrorList
      * - https://github.com/Microsoft/VSSDK-Extensibility-Samples/tree/master/Code_Sweep
-     *   which is exactly what I wanna do.
-     * 
-     * 
+     *   uses VS to modify the build process, but does not build things itself. That's what I'd like
+     *   to do, in order to allow the user to use any version of Cometary, no matter the version of the VSIX.
+     *   
+     * - https://github.com/6A/Scry
+     *   is my first VS package, and has some code that can be reused.
      */
 
     /// <summary>
-    /// This is the class that implements the package exposed by this assembly.
+    ///   Visual Studio <see cref="Package"/> class
+    ///   that allows Cometary to be integrated in the IDE.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The minimum requirement for a class to be considered a valid package for Visual Studio
-    /// is to implement the IVsPackage interface and register itself with the shell.
-    /// This package uses the helper classes defined inside the Managed Package Framework (MPF)
-    /// to do it: it derives from the Package class that provides the implementation of the
-    /// IVsPackage interface and uses the registration attributes defined in the framework to
-    /// register itself and its components with the shell. These attributes tell the pkgdef creation
-    /// utility what data to put into .pkgdef file.
-    /// </para>
-    /// <para>
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
-    /// </para>
-    /// </remarks>
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(Guids.CometaryCommandPackage)]
     public sealed class CometaryPackage : Package
     {
+        #region Static members
+        /// <summary>
+        ///   Gets the global instance of the Cometary package.
+        /// </summary>
+        public static CometaryPackage Instance { get; private set; }
+
+        /// <summary>
+        ///   Gets the global instance of the <see cref="VisualStudioWorkspace"/>
+        ///   used by Visual Studio.
+        /// </summary>
+        public static VisualStudioWorkspace GlobalWorkspace
+            => GetGlobalService(typeof(SComponentModel)) is IComponentModel componentModel
+             ? componentModel.GetService<VisualStudioWorkspace>()
+             : null; 
+        #endregion
+
         private BuildEvents buildEvents;
         private Projects projects;
 
         private readonly Dictionary<ProjectElement, string> modifiedElements = new Dictionary<ProjectElement, string>();
 
         /// <summary>
-        /// Gets the static instance of the Cometary package.
-        /// </summary>
-        public static CometaryPackage Instance { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="VisualStudioWorkspace"/> of the current solution.
+        ///   Gets the <see cref="VisualStudioWorkspace"/> of the current solution.
         /// </summary>
         public VisualStudioWorkspace Workspace { get; private set; }
 
         /// <summary>
-        /// Gets the processor host of the current VS instance.
+        ///   Gets the processor host of the current VS instance.
         /// </summary>
         public ProcessorHost Host { get; private set; }
 
         /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        ///   Initialization of the package; this method is called right after the package is sited, so this is the place
+        ///   where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
         protected override void Initialize()
         {
@@ -126,7 +126,7 @@ namespace Cometary.VSIX
         }
 
         /// <summary>
-        /// Disposes of all processors.
+        ///   Disposes of all processors.
         /// </summary>
         protected override void Dispose(bool disposing)
         {
@@ -139,7 +139,7 @@ namespace Cometary.VSIX
         }
 
         /// <summary>
-        /// Keeps track of changed workspaces.
+        ///   Keeps track of changed workspaces.
         /// </summary>
         private async void WorkspaceChanged(object sender, WorkspaceChangeEventArgs e)
         {

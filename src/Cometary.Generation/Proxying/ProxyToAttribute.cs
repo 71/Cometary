@@ -10,21 +10,23 @@ namespace Cometary
     using System.Linq;
 
     /// <summary>
-    /// Indicates that new members that match the marked member's signature
-    /// will be created, and proxied to the marked member.
     /// <para>
-    /// This method should be used to provide multiple names for a single member.
+    ///   Indicates that new members that match the marked member's signature
+    ///   will be created, and proxied to the marked member.
     /// </para>
     /// <para>
-    /// Unlike the <see cref="CopyToAttribute"/>, the body of the method
-    /// is not copied.
+    ///   This method should be used to provide multiple names for a single member.
+    /// </para>
+    /// <para>
+    ///   Unlike the <see cref="CopyToAttribute"/>, the body of the method
+    ///   is not copied.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     internal sealed class ProxyToAttribute : Attribute, IMethodVisitor
     {
         /// <summary>
-        /// Gets the names of the member that'll be created.
+        ///   Gets the names of the member that'll be created.
         /// </summary>
         public string[] Names { get; }
 
@@ -56,7 +58,7 @@ namespace Cometary
             MethodDeclarationSyntax proxy = node.WithExpressionBody(F.ArrowExpressionClause(F.InvocationExpression(expression).AddArgumentListArguments(arguments)));
 
             foreach (string name in Names)
-                Members.Add(proxy.WithIdentifier(F.Identifier(name)));
+                Members.AddSibling(node, proxy.WithIdentifier(F.Identifier(name)));
 
             return node;
         }

@@ -95,7 +95,7 @@ namespace Cometary.VSIX
             if (proj == null)
                 return;
 
-            Processor = await Processor.CreateAsync(package.Workspace, proj);
+            Processor = await package.Host.GetProcessorAsync(proj);
             await Processor.ProcessAsync();
         }
 

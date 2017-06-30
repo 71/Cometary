@@ -51,7 +51,7 @@
     <HostPath>..\$(HostName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</HostPath>
   </PropertyGroup>
 
-  <Target Name="Cometary" AfterTargets="Build">
+  <Target Name="Cometary" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
     <Exec Command="$(HostPath) &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
   </Target>
 

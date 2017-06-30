@@ -8,17 +8,19 @@ namespace Cometary
     using Attributes;
 
     /// <summary>
-    /// Indicates that the marked member will be copied to one or many other members,
-    /// with the exact same signature and a new name.
     /// <para>
-    /// This method should be used to provide multiple names for a single member.
+    ///   Indicates that the marked member will be copied to one or many other members,
+    ///   with the exact same signature and a new name.
+    /// </para>
+    /// <para>
+    ///   This method should be used to provide multiple names for a single member.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
     internal sealed class CopyToAttribute : Attribute, IMethodVisitor, IPropertyVisitor
     {
         /// <summary>
-        /// Gets the names of the member that'll be created.
+        ///   Gets the names of the member that'll be created.
         /// </summary>
         public string[] Names { get; }
 
@@ -32,7 +34,7 @@ namespace Cometary
         public MethodDeclarationSyntax Visit(MethodInfo method, MethodDeclarationSyntax node)
         {
             foreach (string name in Names)
-                Members.Add(node.WithIdentifier(SyntaxFactory.Identifier(name)));
+                Members.AddSibling(node, node.WithIdentifier(SyntaxFactory.Identifier(name)));
 
             return node;
         }
@@ -41,7 +43,7 @@ namespace Cometary
         public PropertyDeclarationSyntax Visit(PropertyInfo property, PropertyDeclarationSyntax node)
         {
             foreach (string name in Names)
-                Members.Add(node.WithIdentifier(SyntaxFactory.Identifier(name)));
+                Members.AddSibling(node, node.WithIdentifier(SyntaxFactory.Identifier(name)));
 
             return node;
         }

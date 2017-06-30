@@ -20,8 +20,8 @@ namespace Cometary
     internal sealed class PreprocessingRewriter : CSharpSyntaxRewriter
     {
         /// <summary>
-        /// <see cref="AttributeListSyntax"/> that'll be injected in
-        /// generated members.
+        ///   <see cref="AttributeListSyntax"/> that'll be injected in
+        ///   generated members.
         /// </summary>
         public static readonly AttributeListSyntax GeneratedAttribute
             = F.AttributeList(
@@ -31,8 +31,8 @@ namespace Cometary
                         F.ParseName(typeof(CompilerGeneratedAttribute).FullName)) } ));
 
         /// <summary>
-        /// <see cref="ArrowExpressionClauseSyntax"/> that'll be injected
-        /// in <see langword="extern"/> methods.
+        ///   <see cref="ArrowExpressionClauseSyntax"/> that'll be injected
+        ///   in <see langword="extern"/> methods.
         /// </summary>
         public static readonly ArrowExpressionClauseSyntax ThrowBody
             = F.ArrowExpressionClause(
@@ -49,7 +49,7 @@ namespace Cometary
 
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> methods to have a body.
+        ///   Rewrites <see langword="extern"/> methods to have a body.
         /// </summary>
         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
         {
@@ -64,7 +64,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> operators to have a body.
+        ///   Rewrites <see langword="extern"/> operators to have a body.
         /// </summary>
         public override SyntaxNode VisitOperatorDeclaration(OperatorDeclarationSyntax node)
         {
@@ -79,7 +79,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> constructors to have a body.
+        ///   Rewrites <see langword="extern"/> constructors to have a body.
         /// </summary>
         public override SyntaxNode VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
@@ -94,7 +94,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> destructors to have a body.
+        ///   Rewrites <see langword="extern"/> destructors to have a body.
         /// </summary>
         public override SyntaxNode VisitDestructorDeclaration(DestructorDeclarationSyntax node)
         {
@@ -109,7 +109,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> events to have a body.
+        ///   Rewrites <see langword="extern"/> events to have a body.
         /// </summary>
         public override SyntaxNode VisitEventDeclaration(EventDeclarationSyntax node)
         {
@@ -123,7 +123,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> indexers to have a body.
+        ///   Rewrites <see langword="extern"/> indexers to have a body.
         /// </summary>
         public override SyntaxNode VisitIndexerDeclaration(IndexerDeclarationSyntax node)
         {
@@ -140,7 +140,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// Rewrites <see langword="extern"/> properties to have a body.
+        ///   Rewrites <see langword="extern"/> properties to have a body.
         /// </summary>
         public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
         {

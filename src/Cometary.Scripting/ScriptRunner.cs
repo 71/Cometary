@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using Task = System.Threading.Tasks.Task;
 
 namespace Cometary
 {
+
+#if false
     internal class ScriptRunner
     {
         // In theory, ScriptRunner isn't used till the ScryPackage is initialized
@@ -29,12 +37,12 @@ namespace Cometary
                             "Microsoft.CodeAnalysis",
                             "Microsoft.CodeAnalysis.CSharp",
                             "Microsoft.CodeAnalysis.CSharp.Syntax")
-                .AddReferences(typeof(string).Assembly,
-                               typeof(MethodInfo).Assembly,
-                               typeof(Task).Assembly,
-                               typeof(SyntaxNode).Assembly,
-                               typeof(CSharpCompilation).Assembly,
-                               typeof(Workspace).Assembly);
+                .AddReferences(typeof(string).GetTypeInfo().Assembly,
+                               typeof(MethodInfo).GetTypeInfo().Assembly,
+                               typeof(Task).GetTypeInfo().Assembly,
+                               typeof(SyntaxNode).GetTypeInfo().Assembly,
+                               typeof(CSharpCompilation).GetTypeInfo().Assembly,
+                               typeof(Workspace).GetTypeInfo().Assembly);
 
             var script = CSharpScript.Create(content, opts, globals.GetType());
             var diagnostics = script.Compile();
@@ -67,7 +75,7 @@ namespace Cometary
             {
                 string content = File.ReadAllText(script);
 
-                var (_,_,diags,ex) = await RunAsync(script, GetMatchingProject(script), content);
+                var (_, _, diags, ex) = await RunAsync(script, GetMatchingProject(script), content);
 
                 foreach (var diag in diags)
                     Log(script, diag);
@@ -79,6 +87,8 @@ namespace Cometary
         public static void Log(string script, Diagnostic diag)
         {
             var loc = diag.Location.GetMappedLineSpan();
+
+            Meta.LogWarning()
 
             ErrorListProvider.Tasks.Add(new ErrorTask
             {
@@ -103,5 +113,6 @@ namespace Cometary
 
             return projItem.ContainingProject.FileName;
         }
-    }
+    } 
+#endif
 }

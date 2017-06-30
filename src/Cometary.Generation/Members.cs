@@ -52,6 +52,18 @@ namespace Cometary
         #endregion
 
         /// <summary>
+        ///   Adds the given <paramref name="member"/> to the declaring type
+        ///   of the specified <paramref name="sibling"/>.
+        /// </summary>
+        public static void AddSibling(MemberDeclarationSyntax sibling, MemberDeclarationSyntax member)
+        {
+            if (sibling == null)
+                throw new ArgumentNullException(nameof(sibling));
+
+            AddCore((TypeDeclarationSyntax)sibling.Parent, member);
+        }
+
+        /// <summary>
         ///   Adds the given <paramref name="member"/> to the specified <see langword="class"/>.
         /// </summary>
         public static void Add(this ClassDeclarationSyntax type, MemberDeclarationSyntax member) => AddCore(type, member);

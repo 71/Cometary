@@ -74,7 +74,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Returns a copy of the given <paramref name="node"/>, with a new <paramref name="position"/>.
         /// </summary>
-        [CopyTo("WithStart")]
+        //[CopyTo("WithStart")]
         public static T WithPosition<T>(this T node, int position) where T : SyntaxNode
         {
             T copy = GetMemberwiseClone(node);
@@ -122,7 +122,7 @@ namespace Cometary.Extensions
         /// <summary>
         /// Returns a copy of the given <paramref name="token"/>, with a new <paramref name="position"/>.
         /// </summary>
-        [CopyTo("WithStart")]
+        //[CopyTo("WithStart")]
         public static SyntaxToken WithPosition(this SyntaxToken token, int position)
         {
             SyntaxToken copy = token;

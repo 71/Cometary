@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Language.Intellisense;
@@ -75,8 +74,6 @@ namespace Cometary.VSIX
 
         private bool CanGetSuggestedActions()
         {
-            if (TextView.)
-
             return true;
         }
 

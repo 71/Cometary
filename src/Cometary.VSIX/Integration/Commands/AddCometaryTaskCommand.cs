@@ -7,61 +7,61 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace Cometary.VSIX
 {
     /// <summary>
-    /// Command handler
+    ///   Handler for the "Add Cometary task" command.
     /// </summary>
     internal sealed class AddCometaryTaskCommand
     {
+        #region Static members
         /// <summary>
-        /// Gets the instance of the command.
+        ///   Gets the global instance of the command.
         /// </summary>
         public static AddCometaryTaskCommand Instance { get; private set; }
 
         /// <summary>
-        /// Command ID.
+        ///   Initializes the singleton instance of the command.
         /// </summary>
-        public const int CommandId = Ids.AddTaskCommandID;
+        public static void Initialize(CometaryPackage package)
+        {
+            if (Instance == null)
+                Instance = new AddCometaryTaskCommand(package);
+        }
 
         /// <summary>
-        /// Command menu group (command set GUID).
+        ///   Command ID.
+        /// </summary>
+        public static int CommandId => Ids.AddTaskCommandID;
+
+        /// <summary>
+        ///   Command menu group (command set GUID).
         /// </summary>
         public static readonly Guid CommandSet = new Guid(Guids.CometaryCommandPackageCmdSet);
+        #endregion
 
         /// <summary>
-        /// VS Package that provides this command, not null.
+        ///   Gets the service provider from the owner package.
+        /// </summary>
+        private IServiceProvider ServiceProvider => this.package;
+
+        /// <summary>
+        ///   VS Package that provides this command, not null.
         /// </summary>
         private readonly CometaryPackage package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddCometaryTaskCommand"/> class.
-        /// Adds our command handlers for menu (commands must exist in the command table file)
+        ///   Initializes a new instance of the <see cref="AddCometaryTaskCommand"/> class.
+        ///   Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
-        /// <param name="package">Owner package, not null.</param>
         private AddCometaryTaskCommand(CometaryPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
-            if (commandService != null)
+            if (ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
-        }
-
-        /// <summary>
-        /// Gets the service provider from the owner package.
-        /// </summary>
-        private IServiceProvider ServiceProvider => this.package;
-
-        /// <summary>
-        /// Initializes the singleton instance of the command.
-        /// </summary>
-        /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(CometaryPackage package)
-        {
-            Instance = new AddCometaryTaskCommand(package);
         }
 
         /// <summary>

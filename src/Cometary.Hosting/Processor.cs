@@ -239,6 +239,10 @@ namespace Cometary
             AssemblyStream.SetLength(0);
             SymbolsStream.SetLength(0);
 
+            // Emit as debug, thus disabling optimizations and making the compilation
+            // process faster.
+            compilation = compilation.WithOptions(compilation.Options.WithOptimizationLevel(OptimizationLevel.Debug));
+
             List<Exception> exceptions = new List<Exception>();
             EmitResult result = await Task.Factory.StartNew(() => compilation.Emit(AssemblyStream, SymbolsStream, cancellationToken: token), token);
 
