@@ -7,8 +7,6 @@ using Xunit;
 
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-[assembly: Cometary.Cometary]
-
 namespace Cometary.Tests
 {
     using Attributes;
@@ -19,13 +17,15 @@ namespace Cometary.Tests
         #region Extern support
         public extern void DontThrow();
 
-        [CTFI]
+        [Invoke]
         public static void ModifyMethod(TypeDeclarationSyntax type)
         {
+#pragma warning disable RS1014 // Do not ignore values returned by methods on immutable objects.
             type.GetMethod(nameof(DontThrow))
-                .Replace(x => x.WithModifiers(x.Modifiers.Remove(x.Modifiers.First(y => y.Kind() == SyntaxKind.ExternKeyword)))
+                .Replace(x => x.RemoveModifiers(Modifiers.Extern)
                                .WithBody(F.Block())
                                .WithExpressionBody(null));
+#pragma warning restore RS1014 // Do not ignore values returned by methods on immutable objects.
         }
 
         [Fact]
@@ -64,18 +64,6 @@ namespace Cometary.Tests
         //    ).ToString().ShouldBe("1 * 3;");
         //}
         #endregion
-
-        [CTFIFact]
-        public void ShouldHaveGlobalCometaryInstance()
-        {
-            // Note: we're using the field here to make sure
-            // the property doesn't lazy-initializes itself.
-            typeof(CometaryAttribute)
-                .GetTypeInfo()
-                .GetDeclaredField(nameof(CometaryAttribute.Instance).ToLower())
-                .GetValue(null)
-                .ShouldNotBeNull();
-        }
 
         [CTFIFact]
         public void ShouldFindAssembly()

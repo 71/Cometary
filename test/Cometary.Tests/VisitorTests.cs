@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
@@ -7,19 +6,20 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Cometary.Tests
 {
+    using Microsoft.CodeAnalysis;
     using Shouldly;
 
     /// <summary>
-    /// <see cref="AssemblyVisitor"/> that sets all declared
-    /// enum flags to the same value.
+    ///   <see cref="AssemblyRewriter"/> that sets all declared
+    ///   enum flags to the same value.
     /// </summary>
-    public sealed class EvilVisitor : AssemblyVisitor
+    public sealed class EvilVisitor : AssemblyRewriter
     {
         /// <inheritdoc />
         public override bool RewritesTree => true;
 
         /// <inheritdoc />
-        public override EnumDeclarationSyntax Visit(TypeInfo @enum, EnumDeclarationSyntax node)
+        public override SyntaxNode VisitEnumDeclaration(EnumDeclarationSyntax node)
         {
             EqualsValueClauseSyntax clause = F.EqualsValueClause(
                 F.LiteralExpression(SyntaxKind.NumericLiteralExpression,

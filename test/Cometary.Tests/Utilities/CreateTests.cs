@@ -39,7 +39,13 @@ namespace Cometary.Tests
             }
         }
 
-        [CTFI(KeepMethod = true)]
+        public static CometaryConfigurator Configure(CometaryConfigurator config)
+        {
+            return config
+                .HandleAttributes();
+        }
+
+        [Invoke(KeepMethod = true)]
         public static void CreateTests()
         {
             IMethodSymbol method = Meta.Compilation
@@ -55,7 +61,9 @@ namespace Cometary.Tests
             if (methodSyntax == null)
                 return;
 
+#pragma warning disable RS1014 // Do not ignore values returned by methods on immutable objects.
             methodSyntax.Replace(x => x.WithBody(SyntaxFactory.Block(WrappedTests)));
+#pragma warning restore RS1014 // Do not ignore values returned by methods on immutable objects.
 
             Meta.LogMessage("Succesfully created test method.");
         }

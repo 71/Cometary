@@ -13,13 +13,15 @@ namespace Cometary.Tests
     {
         private static bool True => false;
 
-        [CTFI]
+        [Invoke]
         private static void ModifyProperty(TypeDeclarationSyntax type)
         {
+#pragma warning disable RS1014 // Do not ignore values returned by methods on immutable objects.
             type.GetProperty(nameof(True))
                 .Replace(x => x.WithExpressionBody(
                     x.ExpressionBody.WithExpression("true".Syntax<ExpressionSyntax>()))
                 );
+#pragma warning restore RS1014 // Do not ignore values returned by methods on immutable objects.
         }
 
         [Fact]

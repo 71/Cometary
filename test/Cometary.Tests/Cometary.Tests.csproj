@@ -14,8 +14,8 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
-    <RemoteName>$(Name).Remote.Core</RemoteName>
-    <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</RemotePath>
+    <RemoteName>$(Name).Hosting.Core</RemoteName>
+    <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\$(HostFramework)\dotnet-$(Name.ToLower()).exe</RemotePath>
   </PropertyGroup>
 
   <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
