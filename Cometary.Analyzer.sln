@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Analyzer", "Cometary.Analyzer\Cometary.Analyzer\Cometary.Analyzer.csproj", "{3904D763-41F8-42FC-B110-094F2C09CF26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Analyzer.Test", "Cometary.Analyzer\Cometary.Analyzer.Test\Cometary.Analyzer.Test.csproj", "{6AF63E68-609E-48F2-91A7-A3FA82998B83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Analyzer.Vsix", "Cometary.Analyzer\Cometary.Analyzer.Vsix\Cometary.Analyzer.Vsix.csproj", "{B67CCB2B-7766-4957-A432-33A22A2759DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3904D763-41F8-42FC-B110-094F2C09CF26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3904D763-41F8-42FC-B110-094F2C09CF26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3904D763-41F8-42FC-B110-094F2C09CF26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3904D763-41F8-42FC-B110-094F2C09CF26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AF63E68-609E-48F2-91A7-A3FA82998B83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AF63E68-609E-48F2-91A7-A3FA82998B83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AF63E68-609E-48F2-91A7-A3FA82998B83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AF63E68-609E-48F2-91A7-A3FA82998B83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B67CCB2B-7766-4957-A432-33A22A2759DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B67CCB2B-7766-4957-A432-33A22A2759DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B67CCB2B-7766-4957-A432-33A22A2759DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B67CCB2B-7766-4957-A432-33A22A2759DC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
