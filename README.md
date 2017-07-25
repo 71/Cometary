@@ -9,6 +9,88 @@ Cometary is a C# project that aims at bringing true meta-programming to the C# w
 > **Note**  
 > Even though all the tests are passing, this project is still in early development, and *extremely* unstable. Proceed with caution.
 
+> **Note**
+> Even though Cometary *edits* assemblies, the verb *analyze* will be used, because Cometary uses C# analyzers to edit things.
+
+# Get started
+Depending on what you want, this section will be different.
+> [I want my assembly to analyze itself](#Self-analysis).  
+> [I want another analyzer to analyze my assembly](#Regular-analysis).
+
+## Self Analysis
+#### Installation
+```powershell
+Install-Package Cometary
+Install-Package Cometary.SelfAnalyzer
+```
+
+#### Usage
+Create a class that inherits `CompilationEditor`:
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Cometary;
+
+public sealed class EarthCompilationEditor : CompilationEditor
+{
+    public override async Task<CSharpCompilation> EditAsync(CSharpCompilation compilation, CancellationToken cancellationToken)
+    {
+        ReportInfo("Adding the answer to life, the universe, and everything.");
+        
+        return compilation.AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree(@"
+          public static class TheAnswer {
+            public static int Value => 42;
+          }
+        "));
+    }
+}
+```
+
+#### Build
+Just let Visual Studio or `dotnet` compile your project (but do make sure the analyzer is referenced).
+
+## Regular Analysis
+#### Installation
+```powershell
+Install-Package Cometary.Analyzer
+```
+
+#### Usage
+Create an analyzer class that inherits `CompilationEditor`:
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Cometary;
+
+public sealed class DeepThoughtAnalyzer : DiagnosticsAnalyzer
+{
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+        = ImmutableArray.Create(...);
+    
+    public override void Initialize(AnalysisContext context)
+    {
+        HookingAnalyzer.EditPipeline += (compilation, addDiagnostic, cancellationToken) =>
+        {
+            addDiagnostic(Diagnostic.Create(...));
+            
+            return compilation.AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree(@"
+              public static class TheAnswer {
+                public static int Value => 42;
+              }
+            "));
+        }
+    }
+}
+```
+
+#### Build
+Build your analyzer, and import it in another project.
+
 # Overview
 Cometary both provides a library to create your own analyzers, and some already existing analyzers.
 
