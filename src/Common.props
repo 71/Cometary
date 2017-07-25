@@ -1,0 +1,56 @@
+<Project>
+
+  <PropertyGroup>
+
+    <!-- Common -->
+    <Name>Cometary</Name>
+    <Version>0.1.0</Version>
+
+    <Authors>Gregoire Geis</Authors>
+    <Copyright>Copyright 2017 (c) Gregoire Geis</Copyright>
+
+    <!-- Signing -->
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+
+    <!-- Package -->
+    <Title>$(ProjectName)</Title>
+    <PackageId>$(ProjectName)</PackageId>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageTags>roslyn;meta;metaprogramming;cometary;analyzer</PackageTags>
+    <PackageVersion>$(Version)</PackageVersion>
+
+    <RepositoryUrl>https://github.com/6A/Cometary</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <!-- Output -->
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <ApplicationVersion>$(Version)</ApplicationVersion>
+    <BuildDir>$(MSBuildThisFileDirectory)..\build\</BuildDir>
+
+    <!-- Dependencies -->
+    <SystemVersion>4.3.0</SystemVersion>
+    <RoslynVersion>2.0.0</RoslynVersion>
+    <DisableImplicitFrameworkReferences>True</DisableImplicitFrameworkReferences>
+
+    <PackageTargetFallback>
+      $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
+    </PackageTargetFallback>
+
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(IsAnalyzer)' == 'True' and '$(BuildingInsideVisualStudio)' != 'True' ">
+    <None Include="$(BuildDir)Tools\*.ps1" PackagePath="tools" Pack="True" />
+    <None Include="bin\$(Configuration)\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="Microsoft.NETLibrary" />
+  </ItemGroup>
+  
+</Project>
