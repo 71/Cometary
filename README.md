@@ -1,10 +1,11 @@
 Cometary
 ========
 
-Development has shifted to the [analyzer](../analyzer) branch, but Cometary isn't quite ready for use yet.  
+Development has shifted to the [analyzer](../../tree/analyzer) branch, but Cometary isn't quite ready for use yet.  
 Please bear with me while it gets polished.
 
 -------
+
 Old documentation:
 ==================
 
