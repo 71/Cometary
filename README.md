@@ -129,7 +129,7 @@ public sealed class DeepThoughtAttribute : CometaryAttribute
     
     public override IEnumerable<CompilationEditor> Initialize()
     {
-        yield return new DeepThoughtEditor(@namespace);
+        yield return new DeepThoughtEditor(Namespace);
     }
 }
 ```
