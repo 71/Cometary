@@ -1,10 +1,14 @@
 Cometary
 ========
 
-Cometary is a C# project that aims at bringing true meta-programming to the C# world. It features [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and other goodies.
+Development has shifted to the [analyzer](../analyzer) branch, but Cometary isn't quite ready for use yet.  
+Please bear with me while it gets polished.
 
-> **Note**  
-> Even though all the tests are passing, this project is still in early development, and *extremely* unstable. Proceed with caution.
+-------
+Old documentation:
+==================
+
+Cometary is a C# project that aims at bringing true meta-programming to the C# world. It features [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and other goodies.
 
 # Installation
 Cometary can be installed in different ways, depending on your setup.  
