@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <Import Project="..\Common.props" />
 
-  <PropertyGroup>    
+  <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceDirectory)Cometary\Cometary.csproj" />
+    <ProjectReference Include="..\Cometary.Tests.Library\Cometary.Tests.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,27 @@
+<Project>
+
+  <PropertyGroup>
+    <SourceDirectory>$(MSBuildThisFileDirectory)..\src\</SourceDirectory>
+    <RootNamespace>Cometary.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceDirectory)Cometary.Core\Cometary.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="Shouldly" Version="2.8.3" />
+    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="xunit.core" Version="2.2.0" />
+    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Analyzer Include="$(SourceDirectory)Cometary.Analyzer\bin\$(Configuration)\Cometary.Analyzer.dll" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(DefinesTests)' != 'False' ">
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+  
+</Project>

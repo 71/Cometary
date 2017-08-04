@@ -11,16 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Extensions\SymbolExtensions.csx" />
-    <Compile Update="Extensions\SymbolExtensions.g.cs">
+    <None Update="IL.csx" />
+    <Compile Update="IL.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>SymbolExtensions.csx</DependentUpon>
+      <DependentUpon>IL.csx</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Macros\" />
   </ItemGroup>
 
 </Project>

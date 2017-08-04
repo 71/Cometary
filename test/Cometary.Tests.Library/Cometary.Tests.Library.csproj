@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefinesTests>False</DefinesTests>
+  </PropertyGroup>
+  
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+</Project>

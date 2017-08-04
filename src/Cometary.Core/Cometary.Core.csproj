@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <RootNamespace>Cometary</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Common.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AnyConstraint.Analyzer" Version="1.0.0" />
+    <PackageReference Include="Ryder" Version="0.5.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+    <PackageReference Include="System.Reflection.TypeExtensions" Version="$(SystemVersion)" />
+  </ItemGroup>
+
+</Project>

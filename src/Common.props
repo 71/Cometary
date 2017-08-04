@@ -5,6 +5,7 @@
     <!-- Common -->
     <Name>Cometary</Name>
     <Version>0.1.0</Version>
+    <RootNamespace>$(Name)</RootNamespace>
 
     <Authors>Gregoire Geis</Authors>
     <Copyright>Copyright 2017 (c) Gregoire Geis</Copyright>

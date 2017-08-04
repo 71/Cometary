@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <IsAnalyzer>True</IsAnalyzer>
-  </PropertyGroup>
   
   <Import Project="..\Common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\$(Name)\$(Name).csproj" />
+    <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(BuildingInsideVisualStudio)' != 'True' ">
+    <None Include="$(BuildDir)Tools\*.ps1" PackagePath="tools" Pack="True" />
+    <None Include="bin\$(Configuration)\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="$(SystemVersion)" />
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="$(SystemVersion)" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

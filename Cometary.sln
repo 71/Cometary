@@ -10,27 +10,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2B362A4B-031
 		src\Key.snk = src\Key.snk
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{D0B06D22-8F8C-492D-8ADB-172F20ED4111}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}"
+	ProjectSection(SolutionItems) = preProject
+		test\Common.props = test\Common.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{3872666C-5108-4138-B9F1-9461B9EC3E20}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{931F6B1A-CAE2-448E-B523-569FADF667C4}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{22EF4E7D-958A-4778-A4C4-B658133A801F}"
 	ProjectSection(SolutionItems) = preProject
 		build\Build.ps1 = build\Build.ps1
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary", "src\Cometary\Cometary.csproj", "{C754927E-BFAA-4920-AE93-48684C248D67}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Analyzer", "src\Cometary.Analyzer\Cometary.Analyzer.csproj", "{3904D763-41F8-42FC-B110-094F2C09CF26}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Tests", "test\Cometary.Tests\Cometary.Tests.csproj", "{7EF0151C-E2E0-408E-B2A1-B95D182F6D84}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Tests.Analyzer", "test\Cometary.Tests.Analyzer\Cometary.Tests.Analyzer.csproj", "{A87AC454-F5CA-4D73-A109-F7DC55FD437C}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.SelfAnalyzer.Tests", "test\Cometary.SelfAnalysis.Tests\Cometary.SelfAnalyzer.Tests.csproj", "{2FB17A08-4875-4F60-9554-BAEC932F8FB1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3904D763-41F8-42FC-B110-094F2C09CF26} = {3904D763-41F8-42FC-B110-094F2C09CF26}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.SelfAnalyzer", "src\Cometary.SelfAnalyzer\Cometary.SelfAnalyzer.csproj", "{79D4E212-1D2C-4149-A467-55528FFFE90E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{D5757CDF-AF77-4D5A-AFA5-722F74EC498F}"
 	ProjectSection(SolutionItems) = preProject
@@ -38,20 +38,69 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{D5757CDF
 		build\Tools\Uninstall.ps1 = build\Tools\Uninstall.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Core", "src\Cometary.Core\Cometary.Core.csproj", "{8559E8B1-5A77-438F-89A4-72C1B6F0AE77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Analyzer", "src\Cometary.Analyzer\Cometary.Analyzer.csproj", "{3904D763-41F8-42FC-B110-094F2C09CF26}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary", "src\Cometary\Cometary.csproj", "{C754927E-BFAA-4920-AE93-48684C248D67}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Metaprogramming", "src\Cometary.Metaprogramming\Cometary.Metaprogramming.csproj", "{79D4E212-1D2C-4149-A467-55528FFFE90E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.IL", "src\Cometary.IL\Cometary.IL.csproj", "{C800562E-1834-4A84-AE35-CA3187EC0021}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.CleanUp", "src\Cometary.CleanUp\Cometary.CleanUp.csproj", "{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Debugging", "src\Cometary.Debugging\Cometary.Debugging.csproj", "{2F7C06B1-0A1C-4729-BD1E-11EC04A84330}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Core.Tests", "test\Cometary.Core.Tests\Cometary.Core.Tests.csproj", "{7EF0151C-E2E0-408E-B2A1-B95D182F6D84}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Tests.Library", "test\Cometary.Tests.Library\Cometary.Tests.Library.csproj", "{A87AC454-F5CA-4D73-A109-F7DC55FD437C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Metaprogramming.Tests", "test\Cometary.Metaprogramming.Tests\Cometary.Metaprogramming.Tests.csproj", "{2FB17A08-4875-4F60-9554-BAEC932F8FB1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3904D763-41F8-42FC-B110-094F2C09CF26} = {3904D763-41F8-42FC-B110-094F2C09CF26}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.IL.Tests", "test\Cometary.IL.Tests\Cometary.IL.Tests.csproj", "{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.CleanUp.Tests", "test\Cometary.CleanUp.Tests\Cometary.CleanUp.Tests.csproj", "{B5192860-CD21-4DD3-A3BD-E8596A94AE04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Tests", "test\Cometary.Tests\Cometary.Tests.csproj", "{0721B946-CC98-4D66-9212-D1838C77C8C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C754927E-BFAA-4920-AE93-48684C248D67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C754927E-BFAA-4920-AE93-48684C248D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C754927E-BFAA-4920-AE93-48684C248D67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C754927E-BFAA-4920-AE93-48684C248D67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8559E8B1-5A77-438F-89A4-72C1B6F0AE77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8559E8B1-5A77-438F-89A4-72C1B6F0AE77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8559E8B1-5A77-438F-89A4-72C1B6F0AE77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8559E8B1-5A77-438F-89A4-72C1B6F0AE77}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3904D763-41F8-42FC-B110-094F2C09CF26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3904D763-41F8-42FC-B110-094F2C09CF26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3904D763-41F8-42FC-B110-094F2C09CF26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3904D763-41F8-42FC-B110-094F2C09CF26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C754927E-BFAA-4920-AE93-48684C248D67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C754927E-BFAA-4920-AE93-48684C248D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C754927E-BFAA-4920-AE93-48684C248D67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C754927E-BFAA-4920-AE93-48684C248D67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C800562E-1834-4A84-AE35-CA3187EC0021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C800562E-1834-4A84-AE35-CA3187EC0021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C800562E-1834-4A84-AE35-CA3187EC0021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C800562E-1834-4A84-AE35-CA3187EC0021}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F7C06B1-0A1C-4729-BD1E-11EC04A84330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F7C06B1-0A1C-4729-BD1E-11EC04A84330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F7C06B1-0A1C-4729-BD1E-11EC04A84330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F7C06B1-0A1C-4729-BD1E-11EC04A84330}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7EF0151C-E2E0-408E-B2A1-B95D182F6D84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7EF0151C-E2E0-408E-B2A1-B95D182F6D84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EF0151C-E2E0-408E-B2A1-B95D182F6D84}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -64,21 +113,38 @@ Global
 		{2FB17A08-4875-4F60-9554-BAEC932F8FB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FB17A08-4875-4F60-9554-BAEC932F8FB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FB17A08-4875-4F60-9554-BAEC932F8FB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79D4E212-1D2C-4149-A467-55528FFFE90E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5192860-CD21-4DD3-A3BD-E8596A94AE04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5192860-CD21-4DD3-A3BD-E8596A94AE04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5192860-CD21-4DD3-A3BD-E8596A94AE04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5192860-CD21-4DD3-A3BD-E8596A94AE04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0721B946-CC98-4D66-9212-D1838C77C8C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0721B946-CC98-4D66-9212-D1838C77C8C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0721B946-CC98-4D66-9212-D1838C77C8C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0721B946-CC98-4D66-9212-D1838C77C8C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C754927E-BFAA-4920-AE93-48684C248D67} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
+		{D5757CDF-AF77-4D5A-AFA5-722F74EC498F} = {22EF4E7D-958A-4778-A4C4-B658133A801F}
+		{D0B06D22-8F8C-492D-8ADB-172F20ED4111} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
+		{8559E8B1-5A77-438F-89A4-72C1B6F0AE77} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
 		{3904D763-41F8-42FC-B110-094F2C09CF26} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
+		{C754927E-BFAA-4920-AE93-48684C248D67} = {D0B06D22-8F8C-492D-8ADB-172F20ED4111}
+		{79D4E212-1D2C-4149-A467-55528FFFE90E} = {D0B06D22-8F8C-492D-8ADB-172F20ED4111}
+		{C800562E-1834-4A84-AE35-CA3187EC0021} = {D0B06D22-8F8C-492D-8ADB-172F20ED4111}
+		{A62E6B6D-6CDA-4DCF-84AF-540B6AD9524C} = {D0B06D22-8F8C-492D-8ADB-172F20ED4111}
+		{2F7C06B1-0A1C-4729-BD1E-11EC04A84330} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
 		{7EF0151C-E2E0-408E-B2A1-B95D182F6D84} = {6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}
 		{A87AC454-F5CA-4D73-A109-F7DC55FD437C} = {6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}
-		{2FB17A08-4875-4F60-9554-BAEC932F8FB1} = {6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}
-		{79D4E212-1D2C-4149-A467-55528FFFE90E} = {2B362A4B-0310-4B27-B2F9-585ADCE458D7}
-		{D5757CDF-AF77-4D5A-AFA5-722F74EC498F} = {22EF4E7D-958A-4778-A4C4-B658133A801F}
+		{2FB17A08-4875-4F60-9554-BAEC932F8FB1} = {3872666C-5108-4138-B9F1-9461B9EC3E20}
+		{3872666C-5108-4138-B9F1-9461B9EC3E20} = {6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}
+		{B4EA7EB2-70B5-47E3-A07F-F02B9BB80C28} = {3872666C-5108-4138-B9F1-9461B9EC3E20}
+		{B5192860-CD21-4DD3-A3BD-E8596A94AE04} = {3872666C-5108-4138-B9F1-9461B9EC3E20}
+		{0721B946-CC98-4D66-9212-D1838C77C8C5} = {3872666C-5108-4138-B9F1-9461B9EC3E20}
 	EndGlobalSection
 EndGlobal

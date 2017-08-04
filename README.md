@@ -44,14 +44,14 @@ You now have the required dependencies, but nothing much will change. You need t
 ## Installing existing extensions
 Some existing extensions can be found in the "[src](./src)" directory, and installed through the NuGet package manager. Please consult their respective READMEs to learn how to install and use them.
 
-My convention, extensions must be installed as a dependency, **and** configured properly using attributes. For example, an extension would be registered with the following syntax:
+By convention, extensions must be installed as a dependency, **and** configured properly using attributes. For example, an extension would be registered with the following syntax:
 
 ```csharp
 [assembly: Foo(Bar = true)]
 ```
 
 ### Existing extensions
-- [Cometary.Metaprogramming][Metaprogramming], which will run extensions directly defined in your assembly, and execute some methods marked with the `Invoke` attribute. It allows an assembly to edit its own syntax and resulting compilation before being emitted by Roslyn. To do so, [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), [Macros](https://www.wikiwand.com/en/Macro_(computer_science)) will be made available to the user.
+- [Cometary.Metaprogramming][Metaprogramming], which will run extensions directly defined in your assembly, and execute some methods marked with the `Invoke` attribute. It allows an assembly to edit its own syntax and resulting compilation before being emitted by Roslyn. To do so, [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and [Macros](https://www.wikiwand.com/en/Macro_(computer_science)) will be made available to the user.
 - [Cometary.IL](./src/Cometary.IL), which will allow you to print your own IL code inline.
 
 ## Making your own extension
@@ -158,6 +158,7 @@ Build succeeded.
 - The analyzer is available for Roslyn 2.0.0 and up (VS 2017 and up). It should also work with `dotnet` and `csc`, as long as they use a recent version of Roslyn.
 - [Cometary.Core][Core] and other extensions are available for .NET Standard 1.4 and up.
 - [Cometary.Metaprogramming][Metaprogramming] is available for .NET Standard 1.5 and up.
+- For building, Visual Studio 2017 with the [Scry](https://github.com/6A/Scry) extension is required.
 
 # How does it work?
 - When loaded, the [Analyzer][Analyzer] loads the [Cometary.Core][Core] library (optionally resolving dependencies thanks to the references of the compilation it analyzes).

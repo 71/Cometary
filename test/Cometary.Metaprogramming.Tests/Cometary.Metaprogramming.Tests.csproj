@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <Import Project="..\Common.props" />
 
@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SourceDirectory)Cometary\Cometary.csproj" />
+    <ProjectReference Include="$(SourceDirectory)Cometary.Metaprogramming\Cometary.Metaprogramming.csproj" />
   </ItemGroup>
 
   <ItemGroup>
