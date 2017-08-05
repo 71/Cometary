@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
     /// <summary>
     /// 
     /// </summary>
-    internal sealed class CleaningEditor : CometaryEditor
+    internal sealed class CleaningEditor : CompilationEditor
     {
+        /// <inheritdoc />
+        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        {
+
+        }
     }
 }

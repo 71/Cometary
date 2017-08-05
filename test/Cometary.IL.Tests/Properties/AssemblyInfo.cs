@@ -1,0 +1,3 @@
+﻿using Cometary;
+
+[assembly: SupportIL]

@@ -1,10 +1,6 @@
-﻿using System.Reflection;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis;
 
-using TypeInfo = System.Reflection.TypeInfo;
-
-namespace Cometary.Attributes
+namespace Cometary
 {
     #region Member visitors
     /// <summary>
@@ -136,7 +132,7 @@ namespace Cometary.Attributes
         ///   Transforms the given return value, by modifying
         ///   its symbol.
         /// </summary>
-        IMethodSymbol Visit(TypeInfo parameterType, IMethodSymbol node);
+        IMethodSymbol Visit(ITypeSymbol parameterType, IMethodSymbol node);
     }
     #endregion
 }

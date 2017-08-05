@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 AutoWriteIndentation = true;
 
 Context
-    .WriteUsings("System", "System.Reflection", "System.Reflection.Emit")
+    .WriteUsings("System", "System.Reflection", "System.Reflection.Emit", "System.Diagnostics.CodeAnalysis")
     .WriteLine()
     .WriteNamespace("Cometary")
 
@@ -324,7 +324,7 @@ foreach (var ins in allOpCodes.ToLookup(Classify).Where(x => x.Key != "SKIP"))
     string varname = ins.Key == "" ? "" : $", ({ins.Key.Substring(ins.Key.LastIndexOf(' '))})";
     string paramname = ins.Key == "" ? "" : ins.Key;
 
-    Context.WriteLine($"#region {ins.Key}");
+    Context.WriteLine($"#region {(ins.Key == "" ? "No parameters" : ins.Key)}");
 
     foreach (var op in ins)
     {
@@ -335,16 +335,11 @@ foreach (var ins in allOpCodes.ToLookup(Classify).Where(x => x.Key != "SKIP"))
         if (blacklist.Any(opcode.StartsWith))
             continue;
 
-        if (Regex.IsMatch(op.Key, @"(?<=\()\w+(?=\))"))
-        {
-            lparamname = Regex.Replace(paramname, @"\w+$", Regex.Match(op.Key, @"(?<=\()\w+(?=\))").Value);
-            lvarname = Regex.Replace(varname, @"\w+$", Regex.Match(op.Key, @"(?<=\()\w+(?=\))").Value);
-        }
-
         Context.WriteLine("/// <summary>")
-               .WriteLine("///   {0}", op.Value.Replace("<", "&lt;").Replace(">", "&gt;"))
+               .WriteLine("///   <para>Prints <see cref=\"OpCodes.{0}\"/>:</para>", opcode)
+               .WriteLine("///   <para>\"{0}\"</para>", op.Value.Replace("<", "&lt;").Replace(">", "&gt;"))
                .WriteLine("/// </summary>")
-               .WriteLine($"public static void {opcode}({lparamname}) => Emit(new Instruction(OpCodes.{opcode}{lvarname}));")
+               .WriteLine($"public static void {opcode}({lparamname}) => Emit(OpCodes.{opcode}{lvarname});")
                .WriteLine();
     }
 

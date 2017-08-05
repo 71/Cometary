@@ -12,29 +12,29 @@ namespace Cometary
     /// </para>
     /// <para>
     ///   For enumeration, consider using <see cref="GetEnumerator"/> instead of a
-    ///   <see langword="for"/> loop, the former being much faster.
+    ///   <see langword="for"/> loop, the former being specifically optimized for flattening.
     /// </para>
     /// </summary>
     internal sealed class FlatteningList<T> : IReadOnlyList<T>
     {
-        private readonly LightList<IReadOnlyList<T>> lists = new LightList<IReadOnlyList<T>>();
+        private readonly LightList<IReadOnlyList<T>> underlyingLists = new LightList<IReadOnlyList<T>>();
 
         /// <summary>
-        /// 
+        ///   Adds the given read-only <paramref name="items"/> to the flattening list.
         /// </summary>
-        public void AddRange(IReadOnlyList<T> items) => lists.Add(items);
+        public void AddRange(IReadOnlyList<T> items) => underlyingLists.Add(items);
 
         /// <summary>
-        /// 
+        ///   Removes the given read-only list of <paramref name="items"/> to the flattening list.
         /// </summary>
-        public void RemoveRange(IReadOnlyList<T> items) => lists.Remove(items);
+        public void RemoveRange(IReadOnlyList<T> items) => underlyingLists.Remove(items);
 
         /// <inheritdoc />
         public T this[int index]
         {
             get
             {
-                IReadOnlyList<T>[] lists = this.lists.UnderlyingArray;
+                IReadOnlyList<T>[] lists = underlyingLists.UnderlyingArray;
                 int total = 0;
 
                 for (int i = 0; i < lists.Length; i++)
@@ -57,7 +57,7 @@ namespace Cometary
             get
             {
                 int count = 0;
-                IReadOnlyList<T>[] lists = this.lists.UnderlyingArray;
+                IReadOnlyList<T>[] lists = underlyingLists.UnderlyingArray;
 
                 for (int i = 0; i < lists.Length; i++)
                 {
@@ -69,11 +69,11 @@ namespace Cometary
         }
 
         /// <summary>
-        /// 
+        ///   Returns whether or not this list contains the specified <paramref name="item"/>.
         /// </summary>
         public bool Contains(T item)
         {
-            var lists = this.lists.UnderlyingArray;
+            var lists = underlyingLists.UnderlyingArray;
 
             if (item is IEquatable<T> equatable)
                 return ContainsEquatable(lists, equatable);
@@ -109,7 +109,7 @@ namespace Cometary
         }
 
         /// <inheritdoc />
-        public IEnumerator<T> GetEnumerator() => lists.SelectMany(x => x).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => underlyingLists.SelectMany(x => x).GetEnumerator();
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -128,7 +128,7 @@ namespace Cometary
 
             internal Enumerator(FlatteningList<T> list)
             {
-                this.innerList = list.lists;
+                this.innerList = list.underlyingLists;
                 this.posInList = -1;
                 this.pos = 0;
             }

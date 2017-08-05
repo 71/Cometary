@@ -14,6 +14,7 @@ namespace Cometary
         public override IEnumerable<CompilationEditor> Initialize()
         {
             CodeGeneratorContext.EnsureInitialized();
+            IL.EnsurePipelineComponentIsActive();
 
             return Enumerable.Empty<CompilationEditor>();
         }

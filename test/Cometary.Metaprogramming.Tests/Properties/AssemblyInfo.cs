@@ -2,4 +2,5 @@
 using Cometary.Tests;
 
 [assembly: NoExterns]
-[assembly: EditSelf(typeof(TestEditor))]
+[assembly: EditSelf(typeof(TestEditor), typeof(InvokeEditor))]
+[assembly: Invoke]

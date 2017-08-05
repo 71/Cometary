@@ -6,7 +6,7 @@ namespace Cometary
     /// <summary>
     /// 
     /// </summary>
-    public sealed class DiagnosticException : Exception
+    public class DiagnosticException : Exception
     {
         /// <summary>
         /// 

@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using Microsoft.CodeAnalysis;
 using Shouldly;
 using Xunit;
-using System.Reflection;
 
 namespace Cometary.Tests
 {
@@ -31,6 +33,17 @@ namespace Cometary.Tests
         public void TestExecution()
         {
             typeof(Tests).GetProperty("Answer").GetValue(null).ShouldBe(42);
+        }
+
+        /// <summary>
+        ///   Ensures that the <see cref="InvokeAttribute"/> does lead to the execution of the marked method.
+        /// </summary>
+        [Invoke]
+        public static void TestInvocation(IMethodSymbol currentMethod)
+        {
+            // When we can normally edit the assembly, do it instead.
+            // For now, let's do some arbitrary stuff.
+            File.WriteAllText("D:\\DidRun.txt", "It ran.");
         }
     }
 }

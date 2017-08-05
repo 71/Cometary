@@ -1,0 +1,135 @@
+﻿<#@ output extension=".g.cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Linq.Expressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Linq.Expressions;
+
+namespace Cometary.Expressions
+{
+    <#
+    string dataStr = @"
+
+        Block
+        Conditional
+        Switch
+        Loop
+        Try
+
+        Default
+        Constant
+
+        DebugInfo
+        Goto
+        Index
+        Label
+        Lambda
+        ListInit
+        New
+        MemberInit
+        Parameter
+        RuntimeVariables
+
+        NewArray   > NewArrayBounds NewArrayInit
+        TypeBinary > TypeIs TypeEqual
+        Member     > MemberAccess
+        MethodCall > Call
+        Invocation > Invoke
+
+        Unary  > ArrayLength Convert ConvertChecked Negate NegateChecked Not Quote TypeAs UnaryPlus  Throw IsTrue IsFalse Increment Decrement OnesComplement Unbox  PreIncrementAssign PreDecrementAssign PostIncrementAssign PostDecrementAssign
+        Binary > Add AddChecked Subtract SubtractChecked Multiply MultiplyChecked Divide Power Modulo  And Or ExclusiveOr  LeftShift RightShift  AndAlso OrElse  Equal NotEqual GreaterThan GreaterThanOrEqual LessThan LessThanOrEqual Coalesce ArrayIndex  Assign AddAssign AddAssignChecked SubtractAssign SubtractAssignChecked MultiplyAssign MultiplyAssignChecked DivideAssign PowerAssign ModuloAssign  AndAssign OrAssign ExclusiveOrAssign  LeftShiftAssign RightShiftAssign
+    
+    ";
+    var data = dataStr
+        .Split('\n', ',')
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .ToDictionary(
+            x => x.Split('>')[0].Trim(),
+            x => x.Split('>').Last().Trim().Split(' ').Where(y => !string.IsNullOrWhiteSpace(y)).ToArray()
+        );
+    #>
+
+    partial class ExpressionVisitor<T>
+    {
+        // Generated methods: <#= data.Values.Sum(x => x.Length) #> / <#= Enum.GetNames(typeof(ExpressionType)).Length - 2 #>
+
+        #region PrivateVisit(Expression)
+        private T PrivateVisit(Expression node)
+        {
+            if (node.NodeType == ExpressionType.Extension)
+                return VisitExtension(node);
+
+            switch (node)
+            {
+            <#
+            foreach (var kvp in data)
+            {
+            string varname = $"expr{kvp.Key}";
+            #>
+                
+                case <#= kvp.Key #>Expression <#= varname #>:
+                <#
+                if (kvp.Value.Length == 1 && kvp.Value[0] == kvp.Key)
+                {
+                #>
+
+                    return Visit<#= kvp.Key #>(<#= varname #>);
+                <#
+                }
+                else
+                {
+                #>
+
+                    switch (node.NodeType)
+                    {
+                    <#
+                    foreach (string type in kvp.Value)
+                    {
+                    #>
+
+                        case ExpressionType.<#= type #>:
+                            return Visit<#= type #>(<#= varname #>);
+                    <#
+                    }
+                    #>
+                        
+                        default:
+                            throw new NotSupportedException();
+                    }
+                <#
+                }
+                #>
+            <#
+            }
+            #>
+
+                default:
+                    return dynamicVisit != null ? dynamicVisit(node) : DefaultVisit(node);
+            }
+        }
+        #endregion
+
+        <#
+        string[] blacklist = { "Block", "Try" };
+
+        foreach (var kvp in data)
+        {
+            foreach (string type in kvp.Value)
+            {
+                if (blacklist.Contains(type))
+                    continue;
+        #>
+
+        /// <summary>
+        /// Transforms a <see cref="<#= kvp.Key #>Expression"/> of type <see cref="ExpressionType.<#= type #>"/> into an object of type <see cref="T"/>.
+        /// </summary>
+        protected virtual T Visit<#= type #>(<#= kvp.Key #>Expression node) => DefaultVisit(node);
+        <#
+            }
+        }
+        #>
+
+    }
+}

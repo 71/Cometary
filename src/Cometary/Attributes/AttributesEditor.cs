@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Threading;
-using Cometary.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -9,7 +8,6 @@ namespace Cometary
     /// <summary>
     /// 
     /// </summary>
-    [CompilationEditor]
     internal sealed class AttributesEditor : CompilationEditor
     {
         /// <inheritdoc />

@@ -22,8 +22,8 @@ namespace Cometary
         /// </summary>
         public static event PipelineComponent<EmitDelegate> EmitPipeline
         {
-            add => Emitters.Add(value);
-            remove => Emitters.Remove(value);
+            add => Emitters.Add(value ?? throw new ArgumentNullException(nameof(value)));
+            remove => Emitters.Remove(value ?? throw new ArgumentNullException(nameof(value)));
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Cometary
             MethodInfo replacement = typeof(CodeGeneratorContext)
                 .GetMethod(nameof(EmitExpressionCore), BindingFlags.Static | BindingFlags.NonPublic);
 
-            EmitRedirection = Redirection.Redirect(original, replacement);
+            EmitRedirection = Redirection.Redirect(original, replacement, skipChecks: true);
             Emitters = new Pipeline<EmitDelegate>();
         }
 
@@ -78,7 +78,16 @@ namespace Cometary
                 EmitRedirection.InvokeOriginal(codeGenerator, expression, u);
             }
 
-            Emitters.MakeDelegate(Next)(new CodeGeneratorContext(codeGenerator, used), expression, used);
+            try
+            {
+                Emitters.MakeDelegate(Next)(new CodeGeneratorContext(codeGenerator, used), expression, used);
+            }
+            catch (Exception e)
+            {
+                // We're on our own here, nowhere to log data, nothing to do
+                EmitRedirection.InvokeOriginal(codeGenerator, expression, used);
+                Console.WriteLine(e);
+            }
         }
         #endregion
 
@@ -108,7 +117,7 @@ namespace Cometary
         /// <summary>
         ///   <see cref="MethodInfo"/> of the internal <c>ILBuilder.GetCurrentBuilder()</c> method.
         /// </summary>
-        private static readonly MethodInfo BlobBuilderGetter = ILBuilderType.GetMethod("GetCurrentWriter");
+        private static readonly MethodInfo BlobBuilderGetter = ILBuilderType.GetMethod("GetCurrentWriter", BindingFlags.NonPublic | BindingFlags.Instance);
 
 
         /// <summary>

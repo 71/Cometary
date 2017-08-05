@@ -1,0 +1,72 @@
+﻿<#@ output extension=".g.cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Linq.Expressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Linq.Expressions;
+
+namespace Cometary.Expressions
+{
+    <#
+    string dataStr = @"
+
+        Conditional
+        Switch
+        Loop
+
+        Default
+        Constant
+
+        DebugInfo
+        Goto
+        Index
+        Label
+        Lambda
+        New
+        Parameter
+        RuntimeVariables
+
+        NewArray   > NewArrayBounds NewArrayInit
+        TypeBinary > TypeIs TypeEqual
+        Member     > MemberAccess
+        MethodCall > Call
+        Invocation > Invoke
+
+        Unary  > ArrayLength Convert Negate Not Quote TypeAs UnaryPlus  Throw IsTrue IsFalse Increment Decrement OnesComplement Unbox
+        Binary > Add Subtract Multiply Divide Modulo  And Or ExclusiveOr  LeftShift RightShift  AndAlso OrElse  Equal NotEqual GreaterThan GreaterThanOrEqual LessThan LessThanOrEqual ArrayIndex  Assign
+    
+    ";
+    var data = dataStr
+        .Split('\n', ',')
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .ToDictionary(
+            x => x.Split('>')[0].Trim(),
+            x => x.Split('>').Last().Trim().Split(' ').Where(y => !string.IsNullOrWhiteSpace(y)).ToArray()
+        );
+    #>
+
+    /// <summary>
+    /// <see cref="ExpressionVisitor{T}"/> whose necessary methods to override
+    /// are <see langword="abstract"/> instead of returning
+    /// <see cref="ExpressionVisitor{T}.DefaultVisit(Expression)"/>.
+    /// </summary>
+    public abstract class AbstractExpressionVisitor<T> : ExpressionVisitor<T>
+    {
+        <#
+        foreach (var kvp in data)
+        {
+            foreach (string type in kvp.Value)
+            {
+        #>
+
+        /// <inheritdoc />
+        protected abstract override T Visit<#= type #>(<#= kvp.Key #>Expression node);
+        <#
+            }
+        }
+        #>
+
+    }
+}

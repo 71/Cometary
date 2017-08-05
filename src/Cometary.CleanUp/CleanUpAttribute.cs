@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Cometary
 {
@@ -11,5 +10,10 @@ namespace Cometary
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class CleanUpAttribute : CometaryAttribute
     {
+        /// <inheritdoc />
+        public override IEnumerable<CompilationEditor> Initialize()
+        {
+            return new CompilationEditor[] { new CleaningEditor() };
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace Cometary
         /// 
         /// </summary>
         internal static Lazy<TDelegate> MakeLazyDelegate<TDelegate>(string name, Action<ILGenerator> ilgen)
-            where TDelegate : class
+            where TDelegate : Delegate
         {
             Debug.Assert(typeof(TDelegate).GetMethod("Invoke") != null);
 
@@ -40,8 +40,8 @@ namespace Cometary
         /// <summary>
         /// 
         /// </summary>
-        internal static TDelegate MakeDelegate<TDelegate>(string name, Action<ILGenerator> ilgen)
-            where TDelegate : class
+        internal static TDelegate MakeDelegate<TDelegate>(string name, Action<ILGenerator> ilgen, Type owner = null)
+            where TDelegate : Delegate
         {
             MethodInfo invokeMethod = typeof(TDelegate).GetMethod("Invoke");
 
@@ -55,12 +55,15 @@ namespace Cometary
                 parameterTypes[i] = parameters[i].ParameterType;
             }
 
-            DynamicMethod method = new DynamicMethod(name, invokeMethod.ReturnType, parameterTypes, true);
+            DynamicMethod method = owner == null
+                ? new DynamicMethod(name, invokeMethod.ReturnType, parameterTypes, true)
+                : new DynamicMethod(name, invokeMethod.ReturnType, parameterTypes, owner, true);
+
             ILGenerator il = method.GetILGenerator();
 
             ilgen(il);
 
-            return (TDelegate)(object)method.CreateDelegate(typeof(TDelegate));
+            return (TDelegate)method.CreateDelegate(typeof(TDelegate));
         }
 
         /// <summary>

@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\$(Name)\$(Name).csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ExpressionVisitor\ExpressionVisitor.Abstract`1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ExpressionVisitor.Abstract`1.g.cs</LastGenOutput>
+    </None>
+    <None Update="ExpressionVisitor\ExpressionVisitor`1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ExpressionVisitor`1.g.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ExpressionVisitor\ExpressionVisitor.Abstract`1.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExpressionVisitor.Abstract`1.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ExpressionVisitor\ExpressionVisitor`1.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExpressionVisitor`1.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

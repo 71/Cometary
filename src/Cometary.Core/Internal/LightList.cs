@@ -97,5 +97,7 @@ namespace Cometary
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => UnderlyingArray.GetEnumerator();
+
+        public T[] ToArray() => underlyingArray;
     }
 }

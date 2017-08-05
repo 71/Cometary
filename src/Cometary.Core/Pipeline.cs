@@ -30,7 +30,7 @@ namespace Cometary
             var components = Components.UnderlyingArray;
             var next = @default;
 
-            for (int i = components.Length - 1; i != 0; i--)
+            for (int i = components.Length - 1; i >= 0; i--)
             {
                 next = components[i](next);
             }
@@ -45,7 +45,7 @@ namespace Cometary
 
         public void Remove(PipelineComponent<TDelegate> component)
         {
-            Components.Add(component);
+            Components.Remove(component);
         }
     }
 }

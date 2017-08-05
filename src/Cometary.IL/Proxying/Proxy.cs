@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.CodeAnalysis;
@@ -9,18 +11,19 @@ namespace Cometary
     ///   Object that provides a proxy to an internal object.
     ///   It attempts to limit its use of Reflection to speed up its usage as much as possible.
     /// </summary>
-    internal sealed class Proxy
+    public sealed class Proxy
     {
         #region Utils
         private const BindingFlags ALL = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy;
 
-        private static readonly Func<int[], int, int> CombineHashes
-            = typeof(SyntaxNode).GetTypeInfo().Assembly
-                                .GetType("Roslyn.Utilities.Hash")
-                                .GetMethod("CombineValues", new[] { typeof(int[]), typeof(int) })
-                                .CreateDelegate(typeof(Func<int[], int, int>)) as Func<int[], int, int>;
+        private static readonly Func<int, int, int> CombineHashes
+            = ReflectionHelpers.CodeAnalysisAssembly
+                               .GetType("Roslyn.Utilities.Hash")
+                               .GetMethods(ALL)
+                               .First(x => x.Name == "Combine" && x.GetParameters()[0].ParameterType == typeof(int))
+                               .CreateDelegate(typeof(Func<int, int, int>)) as Func<int, int, int>;
 
-        private static int Combine(params int[] hashes) => CombineHashes(hashes, int.MaxValue);
+        private static int Combine(int a, int b) => CombineHashes(a, b);
 
         #endregion
 
@@ -73,7 +76,7 @@ namespace Cometary
             object obj = Object;
 
             // Compute key, and try to find an already computed delegate
-            int key = Combine(ObjectTypeHash, name.GetHashCode(), args.Length.GetHashCode());
+            int key = Combine(Combine(ObjectTypeHash, name.GetHashCode()), args.Length.GetHashCode());
             var objType = obj.GetType();
 
             if (data.Invokers.TryGetValue(key, out var del))
@@ -116,42 +119,64 @@ namespace Cometary
                 }
 
                 // The parameters do match, create a delegate and return its invocation result
-                data.Invokers[key] = del = Helpers.MakeDelegate<Func<object, object[], object>>(name, il =>
-                {
-                    bool isStatic = mi.IsStatic;
-
-                    for (int j = 0; j < args.Length; j++)
-                    {
-                        Type type = parameters[j].ParameterType;
-
-                        il.Emit(OpCodes.Ldarg_S, (short)(isStatic ? j : j + 1));
-
-                        if (type.GetTypeInfo().IsValueType)
-                            il.Emit(OpCodes.Unbox_Any, type);
-                        else if (type != typeof(object))
-                            il.Emit(OpCodes.Castclass, type);
-                    }
-
-                    if (!isStatic)
-                        il.Emit(OpCodes.Ldarg_0);
-
-                    il.Emit(OpCodes.Call, mi);
-
-                    if (mi.ReturnType.GetTypeInfo().IsValueType)
-                    {
-                        il.Emit(OpCodes.Box, mi.ReturnType);
-                    }
-                    else if (mi.ReturnType == typeof(void))
-                    {
-                        il.Emit(OpCodes.Pop);
-                        il.Emit(OpCodes.Ldnull);
-                    }
-
-                    il.Emit(OpCodes.Ret);
-                });
-
-                result = del(obj, args);
+                result = mi.Invoke(obj, args);
                 return true;
+
+                // TODO: Fix this. I can't get it to work.
+                //data.Invokers[key] = del = Helpers.MakeDelegate<Func<object, object[], object>>(name, il =>
+                //{
+                //    bool isStatic = mi.IsStatic;
+
+                //    if (!isStatic)
+                //    {
+                //        Type declaringType = mi.DeclaringType;
+
+                //        il.Emit(OpCodes.Ldarg_0);
+
+                //        if (declaringType.GetTypeInfo().IsValueType)
+                //        {
+                //            LocalBuilder loc = il.DeclareLocal(declaringType, false);
+
+                //            il.Emit(OpCodes.Unbox_Any, declaringType);
+                //            il.Emit(OpCodes.Stloc, loc);
+                //            il.Emit(OpCodes.Ldloca, loc);
+                //        }
+                //        else // Who the f proxies object? if (declaringType != typeof(object))
+                //        {
+                //            il.Emit(OpCodes.Castclass, declaringType);
+                //        }
+                //    }
+
+                //    for (int j = 0; j < parameters.Length; j++)
+                //    {
+                //        Type type = parameters[j].ParameterType;
+
+                //        il.Emit(OpCodes.Ldarg_1);
+                //        il.Emit(OpCodes.Ldc_I4, j);
+                //        il.Emit(OpCodes.Ldelem_Ref);
+
+                //        if (type.GetTypeInfo().IsValueType)
+                //            il.Emit(OpCodes.Unbox_Any, type);
+                //        else if (type != typeof(object))
+                //            il.Emit(OpCodes.Castclass, type);
+                //    }
+
+                //    il.Emit(isStatic || mi.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, mi);
+
+                //    if (mi.ReturnType.GetTypeInfo().IsValueType)
+                //    {
+                //        il.Emit(OpCodes.Box, mi.ReturnType);
+                //    }
+                //    else if (mi.ReturnType == typeof(void))
+                //    {
+                //        il.Emit(OpCodes.Ldnull);
+                //    }
+
+                //    il.Emit(OpCodes.Ret);
+                //}, mi.DeclaringType);
+
+                //result = del(obj, args);
+                //return true;
 
                 Nope:;
             }

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Cometary
 {
@@ -97,9 +97,18 @@ namespace Cometary
         /// </summary>
         public void RegisterAttributes(IAssemblySymbol assembly)
         {
+            // Sort the attributes based on order and declaration
+            // Note: Since we're getting symbols here, the order is based
+            // on the order in which the files were read, and the order in code.
+            var attributes = assembly.GetAttributes();
+
             // Find all used editors, and register 'em
-            foreach (var attr in assembly.GetAttributes())
+            var allEditors = new Dictionary<int, IList<CompilationEditor>>(attributes.Length);
+            int editorsCount = 0;
+
+            for (int i = 0; i < attributes.Length; i++)
             {
+                AttributeData attr = attributes[i];
                 INamedTypeSymbol attrType = attr.AttributeClass;
 
                 // Make sure the attribute inherits CometaryAttribute
@@ -115,10 +124,21 @@ namespace Cometary
 
                 // We got here: we have a cometary attribute
                 IEnumerable<CompilationEditor> editors;
+                int order;
 
                 try
                 {
-                    editors = InitializeAttribute(attr);
+                    editors = InitializeAttribute(attr, out order);
+                }
+                catch (TargetInvocationException e)
+                {
+                    initializationExceptions.Add(e.InnerException);
+                    continue;
+                }
+                catch (TypeInitializationException e)
+                {
+                    initializationExceptions.Add(e.InnerException);
+                    continue;
                 }
                 catch (Exception e)
                 {
@@ -126,24 +146,34 @@ namespace Cometary
                     continue;
                 }
 
+                if (!allEditors.TryGetValue(order, out var editorsOfSameOrder))
+                {
+                    editorsOfSameOrder = new LightList<CompilationEditor>();
+                    allEditors[order] = editorsOfSameOrder;
+                }
+
                 foreach (CompilationEditor editor in editors)
                 {
                     if (editor == null)
                         continue;
 
-                    Register(editor);
+                    editorsOfSameOrder.Add(editor);
+                    editorsCount++;
                 }
 
                 NextAttribute:;
             }
 
-            Console.WriteLine($"We now have {Editors.Count.ToString()} editor(s)");
+            Editors.Capacity = Editors.Count + editorsCount;
+            Editors.AddRange(allEditors.OrderBy(x => x.Key).SelectMany(x => x.Value));
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static IEnumerable<CompilationEditor> InitializeAttribute(AttributeData data)
+        private static IEnumerable<CompilationEditor> InitializeAttribute(AttributeData data, out int order)
         {
-            return data.Construct<CometaryAttribute>().Initialize();
+            CometaryAttribute attribute = data.Construct<CometaryAttribute>();
+            order = attribute.Order;
+            return attribute.Initialize();
         }
 
         /// <summary>
@@ -168,12 +198,17 @@ namespace Cometary
             bool isSuccess = true;
 
             // Log all previously encountered exceptions
-            Exception[] exceptions = initializationExceptions.ToArray();
+            initializationExceptions.Capacity = initializationExceptions.Count;
+
+            ImmutableArray<Exception> exceptions = initializationExceptions.MoveToImmutable();
 
             for (int i = 0; i < exceptions.Length; i++)
             {
-                addDiagnostic(Diagnostic.Create(EditThrown, Location.None, exceptions[i].ToString()));
+                addDiagnostic(Diagnostic.Create(EditThrown, Location.None, "Initialization", exceptions[i].Message, exceptions[i].StackTrace));
             }
+
+            if (exceptions.Length > 0)
+                return compilation;
 
             // Initialize all editors
             for (int i = 0; i < editors.Count; i++)
@@ -195,6 +230,9 @@ namespace Cometary
                     goto Uninitialize;
                 }
             }
+
+            foreach (var editor in editors)
+                Console.WriteLine(editor.GetType());
 
             // Run the compilation
             try

@@ -103,6 +103,7 @@ namespace Cometary
         {
             // Sender is a CSharpCompilation
             CSharpCompilation compilation = (CSharpCompilation)context.Sender;
+            CSharpCompilation clone = compilation.Clone();
 
             // First argument is a DiagnosticBag
             Action<Diagnostic> addDiagnostic = Helpers.MakeAddDiagnostic(context.Arguments[0]);
@@ -127,7 +128,17 @@ namespace Cometary
             object[] args = new object[context.Arguments.Count];
             context.Arguments.CopyTo(args, 0);
 
-            context.ReturnValue = context.Invoke(args);
+            try
+            {
+                context.ReturnValue = context.Invoke(args);
+            }
+            catch (Exception e)
+            {
+                clone.CopyTo(compilation);
+                addDiagnostic(Diagnostic.Create("", "", e.Message, DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0, false));
+
+                context.ReturnValue = context.Invoke(args);
+            }
 
             CompilationRedirection.Start();
         }
