@@ -28,6 +28,11 @@ if (parameter == null)
 > **Note**  
 > This project is still in active development, and is *extremely* unstable. Please proceed with caution.
 
+> **Note**  
+> Currently, no NuGet package is published. I hope to release most of them by the end of August.
+> In any case, the [Analyzer][Analyzer], [Core][Core] and [Metaprogramming][Metaprogramming] packages should be released and fully working before the 10th of August.
+> In the meantime, you can check out the [v0.1](https://github.com/6A/Cometary/milestone/1) milestone for updates on the development of the project.
+
 # Get started
 Cometary requires two core components to work normally:
 - The [Analyzer][Analyzer], required to extend the Roslyn build process.
