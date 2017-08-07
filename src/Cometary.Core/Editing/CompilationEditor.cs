@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -42,37 +43,75 @@ namespace Cometary
         #endregion
 
         /// <summary>
-        ///   Represents the state of a <see cref="CSharpCompilation"/> emission.
-        /// </summary>
-        public enum CompilationState : byte
-        {
-            /// <summary>
-            ///   Indicates that the compilation is at its start: registered edits and overrides haven't
-            ///   yet been applied.
-            /// </summary>
-            Start,
-
-            /// <summary>
-            ///   Indicates that the compilation is reaching its end: registered edits and overrides
-            ///   have now been applied.
-            /// </summary>
-            End
-        }
-
-        /// <summary>
         ///   <see cref="Action"/> used to report errors, warnings and messages.
         /// </summary>
         private Action<Diagnostic> ReportDiagnostic;
 
         /// <summary>
-        ///   Gets the current state of the compilation.
+        /// 
         /// </summary>
-        public CompilationState State { get; internal set; }
+        public Store Storage { get; } = new Store();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<CompilationEditor, CSharpCompilation> CompilationStart;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<CompilationEditor, CSharpCompilation> CompilationEnd;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<CompilationEditor> EmissionStart;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public event Action<CompilationEditor> EmissionEnd;
+
+        internal void TriggerCompilationStart(CSharpCompilation compilation) => CompilationStart?.Invoke(this, compilation);
+        internal void TriggerCompilationEnd(CSharpCompilation compilation) => CompilationEnd?.Invoke(this, compilation);
+        internal void TriggerEmissionStart() => EmissionStart?.Invoke(this);
+        internal void TriggerEmissionEnd() => EmissionEnd?.Invoke(this);
 
         /// <summary>
         ///   Initializes this <see cref="CompilationEditor"/>.
         /// </summary>
-        public abstract void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken);
+        protected abstract void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// <para>
+        ///   Gets a collection of editors considered children of this <see cref="CompilationEditor"/>.
+        /// </para>
+        /// <para>
+        ///   This children will have the same order as their parent, and can be computed in the <see cref="Initialize"/> method.
+        /// </para>
+        /// </summary>
+        protected virtual IEnumerable<CompilationEditor> GetChildren()
+        {
+            return null;
+        }
+
+        /// <summary>
+        ///   Suppresses all reported diagnostics that match the given <paramref name="predicate"/>.
+        /// </summary>
+        /// <param name="predicate">
+        ///   A predicate that takes a <see cref="Diagnostic"/> as input.
+        ///   If it returns <see langword="true"/>, the <see cref="Diagnostic"/> will be suppressed.
+        /// </param>
+        protected void SuppressDiagnostic(Predicate<Diagnostic> predicate)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var predicates = Hooks.DiagnosticPredicates;
+
+            if (!predicates.Contains(predicate))
+                 predicates.Add(predicate);
+        }
 
         #region Diagnostic reporting or suppression
         /// <summary>

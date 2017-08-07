@@ -12,4 +12,9 @@ internal static class Common
     ///   Prefix of all Cometary diagnostics.
     /// </summary>
     internal const string DiagnosticsPrefix = "COMET";
+
+    /// <summary>
+    ///   Category of all Cometary diagnostics.
+    /// </summary>
+    internal const string DiagnosticsCategory = "Cometary";
 }

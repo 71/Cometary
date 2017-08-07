@@ -10,16 +10,11 @@ namespace Cometary.Visiting
     {
         private readonly CompilationEditor editor;
         private readonly Func<ISymbol, ISymbol> symbolRewriter;
-        private readonly Func<IOperation, IOperation> bodyRewriter;
 
-        internal SymbolTreeRewriter(
-            CompilationEditor editor,
-            Func<ISymbol, ISymbol> symbolRewriter,
-            Func<IOperation, IOperation> bodyRewriter)
+        internal SymbolTreeRewriter(CompilationEditor editor, Func<ISymbol, ISymbol> symbolRewriter)
         {
             this.editor = editor;
             this.symbolRewriter = symbolRewriter;
-            this.bodyRewriter = bodyRewriter;
         }
 
         internal IAssemblySymbol VisitRoot(IAssemblySymbol assemblySymbol)
@@ -34,7 +29,7 @@ namespace Cometary.Visiting
 
         public override ISymbol Visit(ISymbol symbol)
         {
-            return symbolRewriter?.Invoke(symbol) ?? symbol;
+            return symbolRewriter?.Invoke(symbol);
         }
 
         public override ISymbol DefaultVisit(ISymbol symbol)

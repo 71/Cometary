@@ -16,7 +16,6 @@ For example, the following `CompilationEditor` adds a simple class to the final 
 ```csharp
 using Cometary;
 
-[CompilationEditor]
 internal class CustomEditor : CompilationEditor
 {
 	/// <inheritdoc />

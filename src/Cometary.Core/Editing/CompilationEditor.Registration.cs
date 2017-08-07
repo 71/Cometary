@@ -9,105 +9,50 @@ namespace Cometary
     partial class CompilationEditor
     {
         /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit a <see cref="ISymbol"/>.
+        /// 
         /// </summary>
-        public void RegisterEdit(Edit<ISymbol> symbolEdit)
+        public event Edit<ISourceAssemblySymbol> AssemblyPipeline
         {
-            SymbolEdits.Add(symbolEdit ?? throw new ArgumentNullException(nameof(symbolEdit)));
-        }
-
-        /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit an <see cref="IOperation"/>.
-        /// </summary>
-        public void RegisterEdit(Edit<IOperation> operationEdit)
-        {
-            OperationEdits.Add(operationEdit ?? throw new ArgumentNullException(nameof(operationEdit)));
-        }
-
-        /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit a <see cref="SyntaxNode"/>.
-        /// </summary>
-        public void RegisterEdit(Edit<SyntaxNode> nodeEdit)
-        {
-            SyntaxEdits.Add(nodeEdit ?? throw new ArgumentNullException(nameof(nodeEdit)));
-        }
-
-        /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit a <see cref="CSharpCompilation"/>.
-        /// </summary>
-        public void RegisterEdit(Edit<CSharpCompilation> compilationEdit, CompilationState state)
-        {
-            if (compilationEdit == null)
-                throw new ArgumentNullException(nameof(compilationEdit));
-
-            switch (state)
+            add
             {
-                case CompilationState.Start:
-                    BeforeCompilationEdits.Add(compilationEdit);
-                    break;
-                case CompilationState.End:
-                    AfterCompilationEdits.Add(compilationEdit);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(state), state, null);
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                if (AssemblyEdits.Contains(value))
+                    return;
+
+                AssemblyEdits.Add(value);
             }
+
+            remove => AssemblyEdits.Remove(value ?? throw new ArgumentNullException(nameof(value)));
         }
 
         /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit a <see cref="CSharpSyntaxTree"/>.
+        /// 
         /// </summary>
-        public void RegisterEdit(Edit<CSharpSyntaxTree> syntaxTreeEdit)
+        public event Edit<CSharpCompilation> CompilationPipeline
         {
-            SyntaxTreeEdits.Add(syntaxTreeEdit ?? throw new ArgumentNullException(nameof(syntaxTreeEdit)));
+            add
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                if (CompilationEdits.Contains(value))
+                    return;
+
+                CompilationEdits.Add(value);
+            }
+
+            remove => CompilationEdits.Remove(value ?? throw new ArgumentNullException(nameof(value)));
         }
 
-        /// <summary>
-        ///   Registers the specified <see cref="Edit{T}"/> to be used
-        ///   to edit a <see cref="ISymbol"/> tree.
-        /// </summary>
-        public void RegisterEdit(Edit<IAssemblySymbol> symbolTreeEdit)
-        {
-            SymbolTreeEdits.Add(symbolTreeEdit ?? throw new ArgumentNullException(nameof(symbolTreeEdit)));
-        }
-
-        /// <summary>
-        ///   Suppresses all reported diagnostics that match the given <paramref name="predicate"/>.
-        /// </summary>
-        /// <param name="predicate">
-        ///   A predicate that takes a <see cref="Diagnostic"/> as input.
-        ///   If it returns <see langword="true"/>, the <see cref="Diagnostic"/> will be suppressed.
-        /// </param>
-        protected void SuppressDiagnostic(Predicate<Diagnostic> predicate)
-        {
-            if (predicate == null)
-                throw new ArgumentNullException(nameof(predicate));
-
-            var predicates = Hooks.DiagnosticPredicates;
-
-            if (!predicates.Contains(predicate))
-                 predicates.Add(predicate);
-        }
-
-        private readonly LightList<Edit<ISymbol>> SymbolEdits                = new LightList<Edit<ISymbol>>();
-        private readonly LightList<Edit<IOperation>> OperationEdits          = new LightList<Edit<IOperation>>();
-        private readonly LightList<Edit<CSharpCompilation>> BeforeCompilationEdits = new LightList<Edit<CSharpCompilation>>();
-        private readonly LightList<Edit<CSharpCompilation>> AfterCompilationEdits = new LightList<Edit<CSharpCompilation>>();
-        private readonly LightList<Edit<CSharpSyntaxTree>> SyntaxTreeEdits   = new LightList<Edit<CSharpSyntaxTree>>();
-        private readonly LightList<Edit<SyntaxNode>> SyntaxEdits             = new LightList<Edit<SyntaxNode>>();
-        private readonly LightList<Edit<IAssemblySymbol>> SymbolTreeEdits    = new LightList<Edit<IAssemblySymbol>>();
-
+        private readonly LightList<Edit<CSharpCompilation>> CompilationEdits  = new LightList<Edit<CSharpCompilation>>();
+        private readonly LightList<Edit<ISourceAssemblySymbol>> AssemblyEdits = new LightList<Edit<ISourceAssemblySymbol>>();
 
         /// <summary>
         ///   Initializes the <see cref="CompilationEditor"/>, allowing it to register edits and overrides.
         /// </summary>
         internal bool TryRegister(
             CometaryManager manager, Action<Diagnostic> reportDiagnostic,
-            CSharpCompilation compilation, CancellationToken token)
+            CSharpCompilation compilation, CancellationToken token, out IEnumerable<CompilationEditor> children)
         {
             // Initialize the editor.
             ReportDiagnostic = reportDiagnostic;
@@ -124,18 +69,16 @@ namespace Cometary
                 Initialize(compilation, token);
 
                 // Register all callbacks
-                AddUnlessEmpty(manager.BeforeCompilationPipeline, BeforeCompilationEdits);
-                AddUnlessEmpty(manager.AfterCompilationPipeline, AfterCompilationEdits);
-                AddUnlessEmpty(manager.OperationPipeline, OperationEdits);
-                AddUnlessEmpty(manager.SyntaxPipeline, SyntaxEdits);
-                AddUnlessEmpty(manager.SymbolPipeline, SymbolEdits);
-                AddUnlessEmpty(manager.SyntaxTreePipeline, SyntaxTreeEdits);
-                AddUnlessEmpty(manager.SymbolTreePipeline, SymbolTreeEdits);
+                AddUnlessEmpty(manager.CompilationPipeline, CompilationEdits);
+                AddUnlessEmpty(manager.AssemblyPipeline, AssemblyEdits);
+
+                children = GetChildren();
 
                 return true;
             }
             catch
             {
+                children = null;
                 return false;
             }
         }
@@ -145,13 +88,8 @@ namespace Cometary
         /// </summary>
         internal void UnregisterAll(CometaryManager manager)
         {
-            manager.BeforeCompilationPipeline.RemoveRange(BeforeCompilationEdits);
-            manager.AfterCompilationPipeline.RemoveRange(AfterCompilationEdits);
-            manager.OperationPipeline.RemoveRange(OperationEdits);
-            manager.SymbolPipeline.RemoveRange(SymbolEdits);
-            manager.SyntaxPipeline.RemoveRange(SyntaxEdits);
-            manager.SymbolTreePipeline.RemoveRange(SymbolTreeEdits);
-            manager.SyntaxTreePipeline.RemoveRange(SyntaxTreeEdits);
+            manager.CompilationPipeline.RemoveRange(CompilationEdits);
+            manager.AssemblyPipeline.RemoveRange(AssemblyEdits);
         }
     }
 }

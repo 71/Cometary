@@ -24,17 +24,31 @@ string GetFriendlyName(Type type)
     return name;
 }
 
+IEnumerable<Type> FindValidInterfaces(Type type)
+{
+    return type.GetInterfaces().Where(x =>
+    {
+        string name = x.Name;
+
+        return x.IsPublic &&
+            (name.EndsWith("Symbol") ||
+             name.EndsWith("Expression") ||
+             name.EndsWith("Statement") ||
+             name.EndsWith("Operation"));
+    });
+}
+
 Type FindFirstPublicAncestor(Type type)
 {
-    foreach (var interf in type.GetInterfaces())
+    if (type.GenericTypeArguments.Length > 0)
     {
-        if (interf.IsNotPublic)
-            continue;
+        return type.GetGenericTypeDefinition()
+            .MakeGenericType(type.GenericTypeArguments.Select(FindFirstPublicAncestor).ToArray());
+    }
 
-        if (interf.Name.EndsWith("Symbol") ||
-            interf.Name.EndsWith("Expression") ||
-            interf.Name.EndsWith("Statement"))
-            return interf;
+    foreach (var interf in FindValidInterfaces(type).OrderByDescending(x => x.GetInterfaces().Length))
+    {
+        return interf;
     }
 
     while (!type.IsPublic)
@@ -54,25 +68,27 @@ Context
     .WriteLine()
     .WriteNamespace("Cometary")
 
-    .WriteLine("partial class SymbolExtensions")
+    .WriteLine("public static partial class UpdateExtensions")
     .WriteLine('{')
     .IncreaseIndentation(4);
 
 // Find all "SourceSymbol" types
+List<MethodInfo> doneMethods = new List<MethodInfo>();
+
 foreach (TypeInfo type in from type in typeof(CSharpCompilation).Assembly.DefinedTypes
-                          where type.Name.StartsWith("Bound")
+                          where (type.Name.StartsWith("Bound") || type.Name.EndsWith("Symbol")) && !type.IsInterface
                           select type)
 {
     Type publicType = FindFirstPublicAncestor(type.AsType());
 
-    if (publicType == typeof(object))
+    if (publicType == typeof(object) || publicType == typeof(IOperation))
         continue;
 
     string friendlyName = GetFriendlyName(publicType);
 
     // Find all "Update" methods
     foreach (var method in from method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                           where method.Name == "Update"
+                           where method.Name == "Update" && !method.IsAbstract
                            select method)
     {
         StringBuilder pStr = new StringBuilder();
@@ -82,6 +98,11 @@ foreach (TypeInfo type in from type in typeof(CSharpCompilation).Assembly.Define
             Type paramPublicType = FindFirstPublicAncestor(param.ParameterType);
 
             pStr.AppendFormat(", {0} @{1}", GetFriendlyName(paramPublicType), param.Name);
+
+            if (param.HasDefaultValue)
+            {
+                pStr.AppendFormat(" = {0}", param.DefaultValue);
+            }
         }
 
         string paramsStr = pStr.ToString();
@@ -89,7 +110,13 @@ foreach (TypeInfo type in from type in typeof(CSharpCompilation).Assembly.Define
         if (Output.ToString().Contains(paramsStr))
             continue;
 
-        WriteLine($"public static {friendlyName} Update(this {friendlyName} self{pStr}) => self;");
+        string fullString = $"public static {friendlyName} Update(this {friendlyName} self{pStr}) => self;";
+
+        if (doneMethods.Any(x => x.DeclaringType.BaseType == method.DeclaringType || x.DeclaringType == method.DeclaringType.BaseType))
+            continue;
+
+        doneMethods.Add(method);
+        WriteLine(fullString);
     }
 }
 

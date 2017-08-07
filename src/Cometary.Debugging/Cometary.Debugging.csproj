@@ -1,13 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsDebugged>False</IsDebugged>
+  </PropertyGroup>
   
   <Import Project="..\Common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
-    <OutputType>Exe</OutputType>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <RootNamespace>$(Name).Debugging</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup Condition=" '$(BuildingInsideVisualStudio)' != 'True' ">
+    <Compile Remove="DebugProgramTemplate.cs" />
+    <EmbeddedResource Include="DebugProgramTemplate.cs" />
+  </ItemGroup>
+
   <ItemGroup>
+    <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
     <ProjectReference Include="..\$(Name).Analyzer\$(Name).Analyzer.csproj" />
   </ItemGroup>
 

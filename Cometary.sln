@@ -5,7 +5,6 @@ VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2B362A4B-0310-4B27-B2F9-585ADCE458D7}"
 	ProjectSection(SolutionItems) = preProject
-		src\Common.cs = src\Common.cs
 		src\Common.props = src\Common.props
 		src\Key.snk = src\Key.snk
 	EndProjectSection
@@ -67,9 +66,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.CleanUp.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Tests", "test\Cometary.Tests\Cometary.Tests.csproj", "{0721B946-CC98-4D66-9212-D1838C77C8C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Expressions", "src\Cometary.Expressions\Cometary.Expressions.csproj", "{45228677-F981-4284-8C31-DB8B845EB285}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Expressions", "src\Cometary.Expressions\Cometary.Expressions.csproj", "{45228677-F981-4284-8C31-DB8B845EB285}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Expressions.Tests", "test\Cometary.Expressions.Tests\Cometary.Expressions.Tests.csproj", "{8EFBECF8-39F1-4A56-901A-8A33472618F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Expressions.Tests", "test\Cometary.Expressions.Tests\Cometary.Expressions.Tests.csproj", "{8EFBECF8-39F1-4A56-901A-8A33472618F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

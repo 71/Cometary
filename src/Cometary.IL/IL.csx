@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 AutoWriteIndentation = true;
 
 Context
-    .WriteUsings("System", "System.Reflection", "System.Reflection.Emit", "System.Diagnostics.CodeAnalysis")
+    .WriteUsings("System", "System.Reflection", "System.Reflection.Emit", "System.Reflection.Metadata")
     .WriteLine()
     .WriteNamespace("Cometary")
 
@@ -339,7 +339,7 @@ foreach (var ins in allOpCodes.ToLookup(Classify).Where(x => x.Key != "SKIP"))
                .WriteLine("///   <para>Prints <see cref=\"OpCodes.{0}\"/>:</para>", opcode)
                .WriteLine("///   <para>\"{0}\"</para>", op.Value.Replace("<", "&lt;").Replace(">", "&gt;"))
                .WriteLine("/// </summary>")
-               .WriteLine($"public static void {opcode}({lparamname}) => Emit(OpCodes.{opcode}{lvarname});")
+               .WriteLine($"public static void {opcode}({lparamname}) => Emit((ILOpCode)OpCodes.{opcode}.Value{lvarname});")
                .WriteLine();
     }
 

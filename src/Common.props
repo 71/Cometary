@@ -1,5 +1,5 @@
 <Project>
-
+  
   <PropertyGroup>
 
     <!-- Common -->
@@ -43,12 +43,10 @@
       $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
     </PackageTargetFallback>
 
-  </PropertyGroup>
+    <!-- Other properties -->
+    <AnalyzerPath>$(MSBuildThisFileDirectory)$(Name).Analyzer\bin\$(Configuration)\$(Name).Analyzer.dll</AnalyzerPath>
 
-  <ItemGroup Condition=" '$(IsAnalyzer)' == 'True' and '$(BuildingInsideVisualStudio)' != 'True' ">
-    <None Include="$(BuildDir)Tools\*.ps1" PackagePath="tools" Pack="True" />
-    <None Include="bin\$(Configuration)\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
-  </ItemGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Remove="Microsoft.NETLibrary" />

@@ -30,7 +30,7 @@ namespace Cometary
         ///   Converts a simple <see cref="Action"/> into a <see cref="PipelineComponent{TDelegate}"/> to use
         ///   in <see cref="EmitPipeline"/>.
         /// </summary>
-        public static PipelineComponent<EmitDelegate> ToComponent(Action<CodeGeneratorContext, IOperation, bool, Action> component)
+        public static PipelineComponent<EmitDelegate> ToComponent(AlternateEmitDelegate component)
         {
             return next => (context, expression, used) => component(context, expression, used, () => next(context, expression, used));
         }
@@ -39,7 +39,7 @@ namespace Cometary
         /// <summary>
         ///   <see cref="MethodRedirection"/> for the <c>CodeGenerator.EmitExpressionCore</c> method.
         /// </summary>
-        private static readonly MethodRedirection EmitRedirection;
+        internal static readonly MethodRedirection EmitRedirection;
 
         /// <summary>
         /// 
@@ -61,21 +61,13 @@ namespace Cometary
         }
 
         /// <summary>
-        ///   Ensures that the static members of this class are initialized.
-        /// </summary>
-        internal static void EnsureInitialized()
-        {
-            // Calling this will ensure the cctor is called at least once.
-        }
-
-        /// <summary>
         ///   Target method of the <see cref="EmitRedirection"/> <see cref="Redirection"/>.
         /// </summary>
         private static void EmitExpressionCore(object codeGenerator, IOperation expression, bool used)
         {
-            void Next(CodeGeneratorContext ctx, IOperation expr, bool u)
+            void Next(CodeGeneratorContext ctx, IOperation op, bool u)
             {
-                EmitRedirection.InvokeOriginal(codeGenerator, expression, u);
+                EmitRedirection.InvokeOriginal(ctx.CodeGenerator, op, u);
             }
 
             try
@@ -119,6 +111,10 @@ namespace Cometary
         /// </summary>
         private static readonly MethodInfo BlobBuilderGetter = ILBuilderType.GetMethod("GetCurrentWriter", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        /// <summary>
+        ///   <see cref="FieldInfo"/> of the internal <c>CodeGenerator._diagnostics</c> field.
+        /// </summary>
+        private static readonly FieldInfo DiagnosticsField = CodeGeneratorType.GetField("_diagnostics", BindingFlags.NonPublic | BindingFlags.Instance);
 
         /// <summary>
         ///   <see cref="Proxy"/> to the calling <c>CodeGenerator</c>.
@@ -135,6 +131,11 @@ namespace Cometary
         ///   underlying <see cref="BlobBuilder"/>.
         /// </summary>
         private readonly Func<BlobBuilder> WriterGetter;
+
+        /// <summary>
+        ///   The <c>CodeGenerator</c>'s <see cref="DiagnosticBag"/>.
+        /// </summary>
+        private readonly Action<Diagnostic> AddDiagnostic;
 
         /// <summary>
         /// 
@@ -154,6 +155,7 @@ namespace Cometary
             ILBuilder = new Proxy(ilb, ILBuilderType, ProxyData);
 
             WriterGetter = BlobBuilderGetter.CreateDelegate(typeof(Func<BlobBuilder>), ilb) as Func<BlobBuilder>;
+            AddDiagnostic = Helpers.MakeAddDiagnostic(DiagnosticsField.GetValue(cg));
             Used = used;
         }
 
@@ -161,6 +163,133 @@ namespace Cometary
         /// 
         /// </summary>
         public void EmitOpCode(ILOpCode opcode) => ILBuilder.Invoke(nameof(EmitOpCode), opcode);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EmitToken(string str) => ILBuilder.Invoke(nameof(EmitToken), str);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EmitSymbolToken(IFieldSymbol symbol, SyntaxNode syntaxNode) => CodeGenerator.Invoke(nameof(EmitSymbolToken), symbol, syntaxNode);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EmitSymbolToken(IMethodSymbol symbol, SyntaxNode syntaxNode, bool encodeAsRawDefinitionToken = false) => CodeGenerator.Invoke(nameof(EmitSymbolToken), symbol, syntaxNode, null, encodeAsRawDefinitionToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void EmitSymbolToken(ITypeSymbol symbol, SyntaxNode syntaxNode) => CodeGenerator.Invoke(nameof(EmitSymbolToken), symbol, syntaxNode);
+
+        /// <summary>
+        /// <para>
+        ///   Emits a constant value, and its corresponding opcode.
+        /// </para>
+        /// <para>
+        ///   Supported types: <see langword="null"/>, <see cref="string"/>, <see cref="int"/>, <see cref="uint"/>, <see cref="bool"/>, <see cref="char"/>,
+        ///   <see cref="byte"/>, <see cref="sbyte"/>, <see cref="short"/>, <see cref="ushort"/>, <see cref="long"/>, <see cref="ulong"/>,
+        ///   <see cref="float"/> and <see cref="double"/>.
+        /// </para>
+        /// </summary>
+        public void EmitConstant(object obj)
+        {
+            if (obj == null)
+            {
+                ILBuilder.Invoke("EmitNullConstant");
+                return;
+            }
+
+            switch (obj)
+            {
+                case string str:
+                    ILBuilder.Invoke("EmitStringConstant", str);
+                    break;
+                case int int32:
+                    ILBuilder.Invoke("EmitIntConstant", int32);
+                    break;
+                case uint uint32:
+                    ILBuilder.Invoke("EmitIntConstant", uint32);
+                    break;
+                case bool boolean:
+                    ILBuilder.Invoke("EmitBoolConstant", boolean);
+                    break;
+                case char ch:
+                    ILBuilder.Invoke("EmitShortConstant", (short)ch);
+                    break;
+                case byte b:
+                    ILBuilder.Invoke("EmitByteConstant", b);
+                    break;
+                case sbyte sb:
+                    ILBuilder.Invoke("EmitSByteConstant", sb);
+                    break;
+                case short s:
+                    ILBuilder.Invoke("EmitShortConstant", s);
+                    break;
+                case ushort us:
+                    ILBuilder.Invoke("EmitUShortConstant", us);
+                    break;
+                case long int64:
+                    ILBuilder.Invoke("EmitLongConstant", int64);
+                    break;
+                case ulong uint64:
+                    ILBuilder.Invoke("EmitLongConstant", uint64);
+                    break;
+                case float flt:
+                    ILBuilder.Invoke("EmitSingleConstant", flt);
+                    break;
+                case double dbl:
+                    ILBuilder.Invoke("EmitDoubleConstant", dbl);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        ///   Emits a constant value, omitting its corresponding opcode.
+        /// </para>
+        /// <para>
+        ///   Supported types: <see langword="null"/>, <see cref="string"/>, <see cref="int"/>, <see cref="bool"/>, <see cref="long"/>,
+        ///   <see cref="float"/> and <see cref="double"/>.
+        /// </para>
+        /// </summary>
+        public void EmitRawConstant(object obj)
+        {
+            if (obj == null)
+            {
+                EmitOpCode(ILOpCode.Ldnull);
+                return;
+            }
+
+            switch (obj)
+            {
+                case string str:
+                    EmitToken(str);
+                    break;
+                case sbyte int8:
+                    ILBuilder.Invoke("EmitInt8", int8);
+                    break;
+                case int int32:
+                    ILBuilder.Invoke("EmitInt32", int32);
+                    break;
+                case long int64:
+                    ILBuilder.Invoke("EmitInt64", int64);
+                    break;
+                case float flt:
+                    ILBuilder.Invoke("EmitFloat", flt);
+                    break;
+                case double dbl:
+                    ILBuilder.Invoke("EmitDouble", dbl);
+                    break;
+                case bool boolean:
+                    ILBuilder.Invoke("EmitInt32", boolean ? 1 : 0);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
 
         /// <summary>
         /// 
@@ -237,7 +366,7 @@ namespace Cometary
                 case OperationKind.OmittedArgumentExpression:
                 case OperationKind.LateBoundMemberReferenceExpression:
                 case OperationKind.PlaceholderExpression:
-                    CodeGenerator.Invoke("EmitExpression", operation, /* used */ true);
+                    CodeGenerator.Invoke("EmitExpression", operation, /* used */ Used);
                     break;
 
                 case OperationKind.FieldInitializerInCreation:
@@ -268,6 +397,14 @@ namespace Cometary
             }
 
             EmitRedirection.Start();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Report(Diagnostic diagnostic)
+        {
+            AddDiagnostic(diagnostic);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Cometary
     ///   Object that provides a proxy to an internal object.
     ///   It attempts to limit its use of Reflection to speed up its usage as much as possible.
     /// </summary>
-    public sealed class Proxy
+    internal sealed class Proxy
     {
         #region Utils
         private const BindingFlags ALL = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy;

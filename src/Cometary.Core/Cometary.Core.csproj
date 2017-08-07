@@ -8,14 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Common.cs" />
-  </ItemGroup>
+    <PackageReference Include="AnyConstraint.Analyzer" Version="1.0.0" PrivateAssets="All" />
 
-  <ItemGroup>
-    <PackageReference Include="AnyConstraint.Analyzer" Version="1.0.0" />
-    <PackageReference Include="Ryder" Version="0.5.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="$(SystemVersion)" />
+    <PackageReference Include="Ryder" Version="0.5.0" />
   </ItemGroup>
 
 </Project>

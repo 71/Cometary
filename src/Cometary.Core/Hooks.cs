@@ -47,7 +47,6 @@ namespace Cometary
         internal static bool IsSuppressed(Diagnostic diagnostic)
         {
             if (diagnostic == null)
-                // Happens when we force the JIT
                 return false;
 
             DiagnosticSuppressionRedirection.Stop();
@@ -108,36 +107,49 @@ namespace Cometary
             // First argument is a DiagnosticBag
             Action<Diagnostic> addDiagnostic = Helpers.MakeAddDiagnostic(context.Arguments[0]);
 
+            object GetOriginal(CSharpCompilation newCompilation)
+            {
+                object[] args = new object[context.Arguments.Count];
+                context.Arguments.CopyTo(args, 0);
+
+                newCompilation.CopyTo(compilation);
+
+                return context.Invoke(args);
+            }
+
+            // CancellationToken should be last argument, but whatever.
+            CancellationToken cancellationToken = context.Arguments.OfType<CancellationToken>().FirstOrDefault();
+
             // Edit the compilation (if a matching CometaryManager is found)
             CompilationRedirection.Stop();
 
-            using (CometaryManager manager = CometaryManager.Create())
+            using (CometaryManager manager = CometaryManager.Create(GetOriginal, addDiagnostic))
             {
                 manager.RegisterAttributes(compilation.Assembly);
 
-                CSharpCompilation newCompilation = manager.EditCompilation(
-                    compilation, addDiagnostic, context.Arguments.OfType<CancellationToken>().FirstOrDefault()
-                );
+                // Edit the compilation, and emit it.
+                if (manager.TryEditCompilation(compilation, cancellationToken, out CSharpCompilation _, out object moduleBuilder))
+                {
+                    // No error, we can keep going
+                    context.ReturnValue = moduleBuilder;
 
-                if (newCompilation != compilation)
-                    newCompilation.CopyTo(compilation);
-            }
+                    addDiagnostic(Diagnostic.Create(
+                        id: "ProcessSuccess",
+                        category: Common.DiagnosticsCategory,
+                        message: "Successfully edited the emitted compilation.",
+                        severity: DiagnosticSeverity.Info,
+                        defaultSeverity: DiagnosticSeverity.Info,
+                        isEnabledByDefault: true,
+                        warningLevel: -1,
+                        isSuppressed: false));
+                }
+                else
+                {
+                    // Keep going as if we were never here (the errors will be reported anyways)
+                    clone.CopyTo(compilation);
 
-            // That's it, it's been correctly changed, and everything can proceed.
-            // Set the return value to "context.Invoke(context.Arguments)"
-            object[] args = new object[context.Arguments.Count];
-            context.Arguments.CopyTo(args, 0);
-
-            try
-            {
-                context.ReturnValue = context.Invoke(args);
-            }
-            catch (Exception e)
-            {
-                clone.CopyTo(compilation);
-                addDiagnostic(Diagnostic.Create("", "", e.Message, DiagnosticSeverity.Error, DiagnosticSeverity.Error, true, 0, false));
-
-                context.ReturnValue = context.Invoke(args);
+                    context.ReturnValue = context.Invoke(context.Arguments.ToArray());
+                }
             }
 
             CompilationRedirection.Start();
@@ -180,10 +192,9 @@ namespace Cometary
             // Make sure the method has been jitted
             try
             {
-                Diagnostic diagnostic = typeof(Diagnostic)
-                    .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-                    .First(x => x.Name == "Create" && x.GetParameters().Length == 2)
-                    .Invoke(null, new object[] { null, 0001 }) as Diagnostic;
+                Diagnostic diagnostic = getIsSuppressed.DeclaringType
+                    .GetTypeInfo().DeclaredConstructors.First()
+                    .Invoke(new object[] { null, null, true }) as Diagnostic;
 
                 getIsSuppressed.Invoke(diagnostic, null);
             }
@@ -192,7 +203,7 @@ namespace Cometary
                 // Happened on purpose!
             }
 
-            // DiagnosticSuppressionRedirection = Redirection.Redirect(getIsSuppressed, getCustomIsSuppressed);
+            DiagnosticSuppressionRedirection = Redirection.Redirect(getIsSuppressed, getCustomIsSuppressed);
             #endregion
 
             #region Compilation
@@ -201,7 +212,6 @@ namespace Cometary
             MethodInfo originalMethod = typeof(Compilation)
                 .GetMethod(nameof(CheckOptionsAndCreateModuleBuilder), BindingFlags.Instance | BindingFlags.NonPublic);
 
-            // Make sure the method has been jitted
             try
             {
                 CSharpCompilation csc = CSharpCompilation.Create("Init");

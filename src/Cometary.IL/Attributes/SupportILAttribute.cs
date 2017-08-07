@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
     /// <summary>
-    ///   Adds support for the use of the <see cref="IL"/> class in this assembly.
+    ///   Adds support for the use of the <see cref="IL"/> and <see cref="CodeGeneratorContext"/> classes in this assembly.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class SupportILAttribute : CometaryAttribute
@@ -13,10 +14,22 @@ namespace Cometary
         /// <inheritdoc />
         public override IEnumerable<CompilationEditor> Initialize()
         {
-            CodeGeneratorContext.EnsureInitialized();
-            IL.EnsurePipelineComponentIsActive();
+            return new CompilationEditor[] { new Editor() };
+        }
 
-            return Enumerable.Empty<CompilationEditor>();
+        private sealed class Editor : CompilationEditor
+        {
+            /// <inheritdoc />
+            protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+            {
+                IL.ActiveEditors++;
+            }
+
+            /// <inheritdoc />
+            public override void Dispose()
+            {
+                IL.ActiveEditors--;
+            }
         }
     }
 }

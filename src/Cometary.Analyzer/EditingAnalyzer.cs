@@ -20,13 +20,13 @@ namespace Cometary
         public override void Initialize(AnalysisContext context)
         {
             // TODO: Make this work or remove this class
-            context.RegisterCompilationAction(ctx =>
-            {
-                CSharpCompilation compilation = ctx.Compilation as CSharpCompilation;
-                CometaryManager manager = CometaryManager.Create();
+            //context.RegisterCompilationAction(ctx =>
+            //{
+            //    CSharpCompilation compilation = ctx.Compilation as CSharpCompilation;
+            //    CometaryManager manager = CometaryManager.Create();
 
-                manager.Register(Editor);
-            });
+            //    manager.Register(Editor);
+            //});
         }
     }
 }

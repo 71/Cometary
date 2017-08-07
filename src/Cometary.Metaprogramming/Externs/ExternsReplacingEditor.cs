@@ -38,9 +38,9 @@ namespace Cometary
         );
 
         /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            RegisterEdit(VisitSyntaxNode);
+            this.EditSyntax(VisitSyntaxNode);
         }
 
         /// <summary>

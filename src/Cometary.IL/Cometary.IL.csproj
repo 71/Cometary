@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AnyConstraint.Analyzer" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="IL.csx" />
     <Compile Update="IL.g.cs">
       <DesignTime>True</DesignTime>

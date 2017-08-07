@@ -16,6 +16,7 @@ namespace Cometary
     /// </summary>
     internal sealed class CometaryManager : IDisposable
     {
+        #region Static
         /// <summary>
         ///   Gets a <see cref="DiagnosticDescriptor"/> describing an unexpected exception
         ///   thrown by a <see cref="CompilationEditor"/>.
@@ -29,6 +30,7 @@ namespace Cometary
         /// </summary>
         public static DiagnosticDescriptor EditThrown { get; }
             = new DiagnosticDescriptor(Common.DiagnosticsPrefix + "ET02", "Unexpected error", "Exception thrown during the {0} step: '{1}'. Stack trace: \n{2}.", "Editing", DiagnosticSeverity.Error, true);
+        #endregion
 
         /// <summary>
         /// 
@@ -38,60 +40,59 @@ namespace Cometary
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<CSharpCompilation>> BeforeCompilationPipeline { get; } = new FlatteningList<Edit<CSharpCompilation>>();
+        public FlatteningList<Edit<CSharpCompilation>> CompilationPipeline { get; } = new FlatteningList<Edit<CSharpCompilation>>();
 
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<CSharpCompilation>> AfterCompilationPipeline { get; } = new FlatteningList<Edit<CSharpCompilation>>();
+        public FlatteningList<Edit<ISourceAssemblySymbol>> AssemblyPipeline { get; } = new FlatteningList<Edit<ISourceAssemblySymbol>>();
 
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<ISymbol>> SymbolPipeline { get; } = new FlatteningList<Edit<ISymbol>>();
+        public bool IsInitialized { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<IOperation>> OperationPipeline { get; } = new FlatteningList<Edit<IOperation>>();
+        public bool IsInitializationSuccessful { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<CSharpSyntaxTree>> SyntaxTreePipeline { get; } = new FlatteningList<Edit<CSharpSyntaxTree>>();
+        public Action<Diagnostic> AddDiagnostic { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        public FlatteningList<Edit<SyntaxNode>> SyntaxPipeline { get; } = new FlatteningList<Edit<SyntaxNode>>();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public FlatteningList<Edit<IAssemblySymbol>> SymbolTreePipeline { get; } = new FlatteningList<Edit<IAssemblySymbol>>();
+        internal readonly Func<CSharpCompilation, object> getModuleBuilder;
 
         /// <summary>
         ///   List of <see cref="Exception"/>s encountered during initialization,
         ///   before diagnostics could be added.
         /// </summary>
-        private readonly ImmutableArray<Exception>.Builder initializationExceptions = ImmutableArray.CreateBuilder<Exception>();
+        internal readonly ImmutableArray<Exception>.Builder initializationExceptions = ImmutableArray.CreateBuilder<Exception>();
 
-        private CometaryManager(IEnumerable<CompilationEditor> editors)
+        private CometaryManager(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, IEnumerable<CompilationEditor> editors)
         {
             Editors = new List<CompilationEditor>(editors);
+            AddDiagnostic = addDiagnostic;
+
+            getModuleBuilder = moduleBuilderGetter;
         }
 
         /// <summary>
         ///   Creates a new <see cref="CometaryManager"/>.
         /// </summary>
-        public static CometaryManager Create(params CompilationEditor[] editors)
+        public static CometaryManager Create(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, params CompilationEditor[] editors)
         {
             Debug.Assert(editors != null);
             Debug.Assert(editors.All(x => x != null));
 
-            return new CometaryManager(editors);
+            return new CometaryManager(moduleBuilderGetter, addDiagnostic, editors);
         }
 
+        #region Initialization
         /// <summary>
         /// 
         /// </summary>
@@ -177,25 +178,18 @@ namespace Cometary
         }
 
         /// <summary>
-        ///   Registers the given <see cref="CompilationEditor"/> among the known
-        ///   <see cref="Editors"/>.
+        ///   Initializes the <see cref="CometaryManager"/>, and all its registered members.
         /// </summary>
-        public void Register(CompilationEditor editor)
+        public bool TryInitialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            if (editor == null)
-                throw new ArgumentNullException(nameof(editor));
+            if (IsInitialized && IsInitializationSuccessful)
+                return true;
 
-            Editors.Add(editor);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public CSharpCompilation EditCompilation(CSharpCompilation compilation, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-        {
-            CSharpCompilation modified = compilation;
             List<CompilationEditor> editors = Editors;
-            bool isSuccess = true;
+            var addDiagnostic = AddDiagnostic;
+            CSharpCompilation clone = compilation.Clone();
+
+            IsInitialized = true;
 
             // Log all previously encountered exceptions
             initializationExceptions.Capacity = initializationExceptions.Count;
@@ -208,7 +202,7 @@ namespace Cometary
             }
 
             if (exceptions.Length > 0)
-                return compilation;
+                return false;
 
             // Initialize all editors
             for (int i = 0; i < editors.Count; i++)
@@ -217,7 +211,17 @@ namespace Cometary
 
                 try
                 {
-                    editor.TryRegister(this, addDiagnostic, modified, cancellationToken);
+                    // Register
+                    if (!editor.TryRegister(this, addDiagnostic, clone, cancellationToken, out var children))
+                        return false;
+
+                    // Optionally register some children
+                    if (children == null)
+                        continue;
+
+                    editors.InsertRange(i, children);
+                    // Since we insert them right after this one, the for loop will take care of initializing them easily
+                    // No recursion, baby
                 }
                 catch (Exception e)
                 {
@@ -225,145 +229,158 @@ namespace Cometary
                         e = tie.InnerException;
 
                     addDiagnostic(Diagnostic.Create(EditorThrown, Location.None, editor?.GetType().ToString() ?? "Unknown editor", e.Message));
-                    isSuccess = false;
 
-                    goto Uninitialize;
+                    return false;
                 }
             }
 
-            foreach (var editor in editors)
-                Console.WriteLine(editor.GetType());
-
-            // Run the compilation
-            try
-            {
-                RunCompilation(ref modified, editors, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                while (e is TargetInvocationException tie)
-                    e = tie.InnerException;
-
-                isSuccess = false;
-                addDiagnostic(Diagnostic.Create(EditThrown, Location.None, "Running", e.Message, e.Source));
-            }
-
-            // Uninitialize editors
-            Uninitialize:
-            for (int i = 0; i < editors.Count; i++)
-            {
-                editors[i].UnregisterAll(this);
-            }
-
-            // Copy new fields to original instance
-            return isSuccess ? modified : compilation;
+            // We got this far: the initialization is a success.
+            IsInitializationSuccessful = true;
+            return true;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void RunCompilation(ref CSharpCompilation compilation, IReadOnlyList<CompilationEditor> editors, CancellationToken cancellationToken)
+        public bool TryUninitialize()
         {
-            // Edit compilation 'before'
+            if (!IsInitialized || !IsInitializationSuccessful)
+                return false;
+
+            var editors = Editors;
+
+            // Uninitialize editors
             for (int i = 0; i < editors.Count; i++)
-                editors[i].State = CompilationEditor.CompilationState.Start;
-
-            InvokeAll(ref compilation, BeforeCompilationPipeline, cancellationToken);
-
-            SyntaxTreeRewriter rewriter = new SyntaxTreeRewriter(node =>
             {
-                foreach (var edit in SyntaxPipeline)
-                {
-                    node = edit(node, cancellationToken) ?? node;
-                }
+                editors[i].UnregisterAll(this);
+            }
 
-                return node;
-            });
+            return true;
+        }
+        #endregion
 
-            // Edit syntax trees
-            var syntaxTrees = compilation.SyntaxTrees.ToBuilder();
+        #region Editing
+        /// <summary>
+        ///   
+        /// </summary>
+        public bool TryEditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken, out CSharpCompilation modified, out object outputBuilder)
+        {
+            modified = compilation;
+
+            if (!IsInitialized && !TryInitialize(compilation, cancellationToken) ||
+                 IsInitialized && !IsInitializationSuccessful)
+            {
+                outputBuilder = null;
+                return false;
+            }
+
+            List<CompilationEditor> editors = Editors;
+            string step = "Unknown";
+
+            // Run the compilation
+            try
+            {
+                // Run the compilation
+                for (int i = 0; i < editors.Count; i++)
+                    editors[i].TriggerCompilationStart(compilation);
+
+                step = "Preprocesing";
+
+                foreach (var edit in CompilationPipeline)
+                    modified = edit(modified, cancellationToken) ?? modified;
 
 #if DEBUG
-            if (compilation.GetTypeByMetadataName("ProcessedByCometary") == null)
-                syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree("internal static class ProcessedByCometary { }"));
+                if (compilation.GetTypeByMetadataName("ProcessedByCometary") == null)
+                    modified = modified.AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree("internal static class ProcessedByCometary { }"));
 #endif
 
-            if (SyntaxTreePipeline.Count == 0)
-                goto SyntaxNodes;
+                // Notify of end of compilation, and start of emission
+                for (int i = 0; i < editors.Count; i++)
+                    editors[i].TriggerCompilationEnd(compilation);
 
-            for (int i = 0; i < syntaxTrees.Count; i++)
+                step = "Processing";
+
+                for (int i = 0; i < editors.Count; i++)
+                    editors[i].TriggerEmissionStart();
+
+                // Emit the assembly, and notify of start of emission
+                object moduleBuilder = getModuleBuilder(modified);
+                Type assemblySymbolInterf = typeof(IAssemblySymbol);
+
+                FieldInfo assemblyField = moduleBuilder.GetType().GetAllFields()
+                    .First(x => x.FieldType.GetInterfaces().Contains(assemblySymbolInterf));
+
+                ISourceAssemblySymbol assemblySymbol = assemblyField.GetValue(moduleBuilder) as ISourceAssemblySymbol;
+                ISourceAssemblySymbol originalAssembly = assemblySymbol;
+
+                foreach (var edit in AssemblyPipeline)
+                    assemblySymbol = edit(assemblySymbol, cancellationToken) ?? assemblySymbol;
+
+                // Notify of overall end
+                for (int i = 0; i < editors.Count; i++)
+                    editors[i].TriggerEmissionEnd();
+
+                step = "Continuing";
+
+                // Copy modified assembly to builder
+                if (!ReferenceEquals(originalAssembly, assemblySymbol))
+                    assemblyField.SetValue(moduleBuilder, assemblySymbol);
+
+                outputBuilder = moduleBuilder;
+                return true;
+            }
+            catch (Exception e)
             {
-                CSharpSyntaxTree tree = syntaxTrees[i] as CSharpSyntaxTree;
-
-                if (tree == null)
-                    continue;
-
-                foreach (var edit in SyntaxTreePipeline)
+                do
                 {
-                    tree = edit(tree, cancellationToken) ?? tree;
+                    if (e is DiagnosticException de)
+                    {
+                        AddDiagnostic(de.Diagnostic);
+                    }
+                    else if (e is AggregateException ae)
+                    {
+                        foreach (Exception ex in ae.InnerExceptions)
+                        {
+                            ReportDiagnostic(step, ex.Message, ex.Source);
+                        }
+                    }
+                    else
+                    {
+                        ReportDiagnostic(step, e.Message, e.Source);
+                    }
                 }
-
-                syntaxTrees[i] = tree;
+                while ((e = e.InnerException) != null);
             }
 
-            // Edit syntax nodes individually
-            SyntaxNodes:
-
-            if (SyntaxPipeline.Count == 0)
-                goto SymbolTrees;
-
-            for (int i = 0; i < syntaxTrees.Count; i++)
-            {
-                CSharpSyntaxTree tree = syntaxTrees[i] as CSharpSyntaxTree;
-
-                if (tree == null)
-                    continue;
-
-                CSharpSyntaxNode root = tree.GetRoot(cancellationToken);
-                SyntaxNode newRoot = rewriter.Visit(root);
-
-                if (root != newRoot)
-                    syntaxTrees[i] = tree.WithRootAndOptions(newRoot, tree.Options);
-            }
-
-            // Edit symbol trees
-            SymbolTrees:
-
-            if (SymbolTreePipeline.Count == 0)
-                goto SymbolsAndOperations;
-
-            // TODO
-
-            // Edit symbols (and operations) individually
-            SymbolsAndOperations:
-
-            if (SymbolPipeline.Count == 0 && OperationPipeline.Count == 0)
-                goto End;
-
-            // TODO
-
-            // Copy new trees to compilation
-            End:
-            compilation = compilation.RemoveAllSyntaxTrees().AddSyntaxTrees(syntaxTrees);
-
-            // Edit compilation 'after'
-            for (int i = 0; i < editors.Count; i++)
-                editors[i].State = CompilationEditor.CompilationState.End;
-
-            InvokeAll(ref compilation, AfterCompilationPipeline, cancellationToken);
+            outputBuilder = null;
+            return false;
         }
+        #endregion
 
-        private static void InvokeAll<T>(ref T item, IEnumerable<Edit<T>> edits, CancellationToken cancellationToken) where T : class
+        /// <summary>
+        /// 
+        /// </summary>
+        public void ReportDiagnostic(string step, string message, string stackTrace)
         {
-            foreach (Edit<T> edit in edits)
-            {
-                item = edit(item, cancellationToken) ?? item;
-            }
+            AddDiagnostic(Diagnostic.Create(EditThrown, Location.None, step, message, stackTrace));
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
+            foreach (var editor in Editors)
+            {
+                editor.UnregisterAll(this);
+
+                try
+                {
+                    editor.Dispose();
+                }
+                catch
+                {
+                    // Right now we don't care
+                }
+            }
         }
     }
 }

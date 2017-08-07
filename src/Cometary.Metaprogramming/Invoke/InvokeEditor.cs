@@ -15,9 +15,8 @@ namespace Cometary
     public sealed class InvokeEditor : CompilationEditor
     {
         /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            RegisterEdit(new Edit<ISymbol>(EditSymbol));
         }
 
         private ISymbol EditSymbol(ISymbol symbol, CancellationToken cancellationToken)

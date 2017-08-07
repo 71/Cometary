@@ -1,5 +1,5 @@
 ﻿using Cometary;
 using Cometary.Debugging;
 
-[assembly: SupportIL]
+[assembly: CleanUp]
 [assembly: DebugCometary, OutputAllTrees]

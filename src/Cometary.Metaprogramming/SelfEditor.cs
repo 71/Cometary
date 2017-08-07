@@ -44,14 +44,13 @@ namespace Cometary
         public static readonly DiagnosticDescriptor RunError
             = new DiagnosticDescriptor(RunErrorId, "Run error", "Error encountered when running the emitted assembly: {0}", "Execution", DiagnosticSeverity.Error, true);
 
-        /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
-        {
-            RegisterEdit(EditCompilation, CompilationState.Start);
-        }
+        private CompilationEditor[] children;
 
-        private CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken token)
+        /// <inheritdoc />
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
+            SuppressDiagnostic(diagnostic => diagnostic.Id == "CS0116" || diagnostic.Id == "CS0658");
+
             using (MemoryStream assemblyStream = new MemoryStream())
             using (MemoryStream symbolsStream = new MemoryStream())
             {
@@ -62,7 +61,7 @@ namespace Cometary
                     options: new EmitOptions(
                         tolerateErrors: true, includePrivateMembers: true,
                         debugInformationFormat: DebugInformationFormat.PortablePdb),
-                    cancellationToken: token);
+                    cancellationToken: cancellationToken);
 
                 // Ensure everything is good
                 if (!result.Success)
@@ -73,7 +72,6 @@ namespace Cometary
                     }
 
                     Report(Diagnostic.Create(EmitError, Location.None, result.Diagnostics.Length.ToString()));
-                    return compilation;
                 }
 
                 try
@@ -92,7 +90,7 @@ namespace Cometary
                     //
                     //compilationLoadContext.ProducedAssembly = producedAssembly;
 
-                    RunAssembly(producedAssembly, ref compilation, Report, token);
+                    children = GetAssemblyChildren(producedAssembly);
                 }
                 catch (TypeLoadException e)
                 {
@@ -103,14 +101,15 @@ namespace Cometary
                     Report(Diagnostic.Create(LoadError, Location.None, e.Message));
                 }
             }
-
-            return compilation;
         }
+
+        /// <inheritdoc />
+        protected override IEnumerable<CompilationEditor> GetChildren() => children;
 
         /// <summary>
         ///   Runs the emitted assembly.
         /// </summary>
-        private static void RunAssembly(Assembly assembly, ref CSharpCompilation compilation, Action<Diagnostic> addDiagnostic, CancellationToken token)
+        private CompilationEditor[] GetAssemblyChildren(Assembly assembly)
         {
             // Find the SelfEdit attribute on assembly
             string attrFullName = typeof(EditSelfAttribute).FullName;
@@ -118,8 +117,8 @@ namespace Cometary
 
             if (attrData == null)
             {
-                addDiagnostic(Diagnostic.Create(LoadError, Location.None, "Could not find EditSelf attribute on compiled assembly."));
-                return;
+                Report(Diagnostic.Create(LoadError, Location.None, "Could not find EditSelf attribute on compiled assembly."));
+                return null;
             }
 
             // Construct its args
@@ -135,17 +134,11 @@ namespace Cometary
                 if (editor != null)
                     continue;
 
-                addDiagnostic(Diagnostic.Create(LoadError, Location.None, $"Could not create editor of type '{editorTypes[i].Value}'."));
+                Report(Diagnostic.Create(LoadError, Location.None, $"Could not create editor of type '{editorTypes[i].Value}'."));
                 failed = true;
             }
 
-            if (failed)
-                return;
-
-            using (CometaryManager manager = CometaryManager.Create(editors))
-            {
-                compilation = manager.EditCompilation(compilation, addDiagnostic, token);
-            }
+            return failed ? null : editors;
         }
     }
 }

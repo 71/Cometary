@@ -1,9 +1,9 @@
 using System;
 using Xunit;
 
-namespace Cometary.CleanUp.Tests
+namespace Cometary.Tests
 {
-    public class UnitTest1
+    public class UnitTests
     {
         [Fact]
         public void Test1()

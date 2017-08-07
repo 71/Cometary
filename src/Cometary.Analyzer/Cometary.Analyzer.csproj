@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsDebugged>False</IsDebugged>
+  </PropertyGroup>
   
   <Import Project="..\Common.props" />
 
@@ -18,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="$(SystemVersion)" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="$(SystemVersion)" />
   </ItemGroup>
 
 </Project>
