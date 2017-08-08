@@ -32,3 +32,20 @@ Most of the time, Cometary will change the Syntax of your files during its execu
 Setting the `OutputAllTrees` attribute on your assembly does two things:
 - Write all new syntax trees to a temporary file, and point the debugger there.
 - Write all syntax trees that have been modified to a new temporary file, and point the debugger there.
+
+# Notes
+In order to execute the produced file, the project must be seen as an executable by Visual Studio. For example, the following declarations can make the debugging experience much better.
+
+```xml
+<Project>
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+</Project>
+```

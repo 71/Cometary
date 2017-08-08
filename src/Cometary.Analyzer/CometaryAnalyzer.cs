@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -14,36 +13,29 @@ namespace Cometary
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class CometaryAnalyzer : DiagnosticAnalyzer
     {
-        /// <summary>ID of the <see cref="HookingInfo"/> diagnostic.</summary>
-        public const string HookingInfoId = Common.DiagnosticsPrefix + "I01";
-
         /// <summary>
         ///   Describes a <see cref="Diagnostic"/> informing the user that the emitting
         ///   process has been hooked.
         /// </summary>
-        public static readonly DiagnosticDescriptor HookingInfo
-            = new DiagnosticDescriptor(HookingInfoId, "Hook successful", "The compiler hook has been successfully installed.", "Redirection", DiagnosticSeverity.Warning, true);
-
-        /// <summary>ID of the <see cref="HookingInfo"/> diagnostic.</summary>
-        public const string HookingErrorId = Common.DiagnosticsPrefix + "H01";
-
+        public static readonly DiagnosticDescriptor HookSuccess
+#if DEBUG
+            = new DiagnosticDescriptor("HookSuccess", "Hook successful", "The compiler hook has been successfully installed.", Common.DiagnosticsCategory, DiagnosticSeverity.Warning, true);
+#else
+            = new DiagnosticDescriptor("HookSuccess", "Hook successful", "The compiler hook has been successfully installed.", Common.DiagnosticsCategory, DiagnosticSeverity.Info, true);
+#endif
         /// <summary>
         ///   Describes a <see cref="Diagnostic"/> informing the user that an error
         ///   has thrown.
         /// </summary>
-        public static readonly DiagnosticDescriptor HookingError
-            = new DiagnosticDescriptor(HookingErrorId, "Hook unsuccessful", "{0}", "Redirection", DiagnosticSeverity.Error, true, "A registered edit has thrown an exception.");
+        public static readonly DiagnosticDescriptor HookError
+            = new DiagnosticDescriptor("HookFailure", "Hook unsuccessful", "{0}", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true, "A registered edit has thrown an exception.");
 
         /// <inheritdoc />
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-            = ImmutableArray.Create(HookingInfo, HookingError);
+            = ImmutableArray.Create(HookSuccess, HookError);
 
         public CometaryAnalyzer()
         {
-            // Ugly logging solution, temporary of course
-            // I can't wait for Cometary.Debugging to exist
-            Console.SetOut(new StreamWriter(File.OpenWrite("D:\\log.txt")) { AutoFlush = true });
-
             AssemblyLoading.EnableResolutionHelp();
         }
 
@@ -83,8 +75,8 @@ namespace Cometary
             void EndAction(CompilationAnalysisContext ctx)
             {
                 ctx.ReportDiagnostic(encounteredException != null
-                    ? Diagnostic.Create(HookingError, Location.None, encounteredException.ToString())
-                    : Diagnostic.Create(HookingInfo, Location.None));
+                    ? Diagnostic.Create(CometaryAnalyzer.HookError, Location.None, encounteredException.ToString())
+                    : Diagnostic.Create(CometaryAnalyzer.HookSuccess, Location.None));
             }
 
             // Make sure we Cometary.Core can be loaded

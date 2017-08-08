@@ -160,7 +160,11 @@ Build succeeded.
 ```
 
 # Compatibility
-- The analyzer is available for Roslyn 2.0.0 and up (VS 2017 and up). It should also work with `dotnet` and `csc`, as long as they use a recent version of Roslyn.
+- The analyzer is available for Roslyn 2.0.0 and up (VS 2017 and up), and works with `dotnet` and `csc`, as long as they use a recent version of Roslyn. However, right now, Visual Studio cannot load all assemblies required by the analyzer and, as such, cannot build projects that depend on it. A workaround is:
+    1. Open a command prompt in your project directory.
+    2. Build or run the project in Visual Studio; one or more errors will be shown.
+    3. In the command prompt, type `dotnet build`, no errors should be shown (at least not from Cometary).
+    4. Run the project again in Visual Studio. This time, it should load the file output by the previous command, and start immediately.
 - [Cometary.Core][Core] and other extensions are available for .NET Standard 1.4 and up.
 - [Cometary.Metaprogramming][Metaprogramming] is available for .NET Standard 1.5 and up.
 - For building, Visual Studio 2017 with the [Scry](https://github.com/6A/Scry) extension is required.

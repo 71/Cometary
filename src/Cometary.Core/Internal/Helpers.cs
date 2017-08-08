@@ -100,6 +100,8 @@ namespace Cometary
             LazySetAssembly.Value(compilation, assembly);
         }
 
+        internal static string Filter(this string str) => str.Replace('\r', ' ').Replace('\n', ' ');
+
         #region CopyTo & cie
         /// <summary>
         ///   Returns every single field declared by the specified <see cref="Type"/>,

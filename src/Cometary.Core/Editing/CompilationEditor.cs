@@ -14,32 +14,23 @@ namespace Cometary
     public abstract partial class CompilationEditor : IDisposable
     {
         #region Diagnostics
-        /// <summary>ID of the <see cref="EditorError"/> diagnostic.</summary>
-        public const string EditorErrorId = Common.DiagnosticsPrefix + "E01";
-
-        /// <summary>ID of the <see cref="EditorWarning"/> diagnostic.</summary>
-        public const string EditorWarningId = Common.DiagnosticsPrefix + "W01";
-
-        /// <summary>ID of the <see cref="EditorInfo"/> diagnostic.</summary>
-        public const string EditorInfoId = Common.DiagnosticsPrefix + "I01";
-
         /// <summary>
         ///   Represents an error reported by a <see cref="CompilationEditor"/>.
         /// </summary>
         public static readonly DiagnosticDescriptor EditorError
-            = new DiagnosticDescriptor(EditorErrorId, "Cometary error", "{0}", "Compilation editing", DiagnosticSeverity.Error, true);
+            = new DiagnosticDescriptor(nameof(EditorError), "Cometary error", "{0}: \"{1}\"", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         /// <summary>
         ///   Represents a warning reported by a <see cref="CompilationEditor"/>.
         /// </summary>
         public static readonly DiagnosticDescriptor EditorWarning
-            = new DiagnosticDescriptor(EditorWarningId, "Cometary warning", "{0}", "Compilation editing", DiagnosticSeverity.Warning, true);
+            = new DiagnosticDescriptor(nameof(EditorWarning), "Cometary warning", "{0}: \"{1}\"", Common.DiagnosticsCategory, DiagnosticSeverity.Warning, true);
 
         /// <summary>
         ///   Represents an information reported by a <see cref="CompilationEditor"/>.
         /// </summary>
         public static readonly DiagnosticDescriptor EditorInfo
-            = new DiagnosticDescriptor(EditorInfoId, "Cometary information", "{0}", "Compilation editing", DiagnosticSeverity.Info, true);
+            = new DiagnosticDescriptor(nameof(EditorInfo), "Cometary information", "{0}: \"{1}\"", Common.DiagnosticsCategory, DiagnosticSeverity.Info, true);
         #endregion
 
         /// <summary>
@@ -121,7 +112,7 @@ namespace Cometary
         {
             Requires.NotNull(error, nameof(error));
 
-            ReportDiagnostic(Diagnostic.Create(EditorError, location ?? Location.None, error));
+            ReportDiagnostic(Diagnostic.Create(EditorError, location ?? Location.None, this, error));
         }
 
         /// <summary>
@@ -131,7 +122,7 @@ namespace Cometary
         {
             Requires.NotNull(warning, nameof(warning));
 
-            ReportDiagnostic(Diagnostic.Create(EditorWarning, location ?? Location.None, warning));
+            ReportDiagnostic(Diagnostic.Create(EditorWarning, location ?? Location.None, this, warning));
         }
 
         /// <summary>
@@ -141,7 +132,7 @@ namespace Cometary
         {
             Requires.NotNull(message, nameof(message));
 
-            ReportDiagnostic(Diagnostic.Create(EditorInfo, location ?? Location.None, message));
+            ReportDiagnostic(Diagnostic.Create(EditorInfo, location ?? Location.None, this, message));
         }
 
         /// <summary>
@@ -152,6 +143,12 @@ namespace Cometary
             ReportDiagnostic(diagnostic ?? throw new ArgumentNullException(nameof(diagnostic)));
         }
         #endregion
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return GetType().Name;
+        }
 
         /// <inheritdoc />
         public virtual void Dispose()

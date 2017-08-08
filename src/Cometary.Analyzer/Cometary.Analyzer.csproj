@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <IsDebugged>False</IsDebugged>
-  </PropertyGroup>
   
   <Import Project="..\Common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.5</TargetFramework>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <TargetFrameworks>net461;netstandard1.5</TargetFrameworks>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <AppendTargetFrameworkToOutputPath>True</AppendTargetFrameworkToOutputPath>
+
+    <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);APPDOMAINS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,9 +19,13 @@
     <None Include="bin\$(Configuration)\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="$(SystemVersion)" />
     <PackageReference Include="System.Runtime.Loader" Version="$(SystemVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <PackageReference Include="System.Runtime" Version="$(SystemVersion)" />
   </ItemGroup>
 
 </Project>

@@ -38,7 +38,7 @@ namespace Cometary.Debugging
 
             string typeName = attribute.MainClassName;
 
-            if (Type.GetType(typeName) != null)
+            if (Type.GetType(typeName ?? DebugCometaryAttribute.DefaultMainClassName) != null)
                 return;
 
             CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
@@ -88,7 +88,7 @@ namespace Cometary.Debugging
                 FieldDeclarationSyntax WithBoolean(FieldDeclarationSyntax node, bool value)
                 {
                     VariableDeclaratorSyntax variableSyntax = node.Declaration.Variables[0];
-                    LiteralExpressionSyntax valueSyntax = F.LiteralExpression(value ? SyntaxKind.TrueKeyword : SyntaxKind.FalseKeyword);
+                    LiteralExpressionSyntax valueSyntax = F.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
 
                     return node.WithDeclaration(
                         node.Declaration.WithVariables(node.Declaration.Variables.Replace(
@@ -117,11 +117,11 @@ namespace Cometary.Debugging
                         case "AssemblyName":
                             field = WithValue(field, compilation.AssemblyName);
                             break;
-                        case "Written":
-                            field = WithBoolean(field, OutputAllTreesAttribute.Instance != null);
-                            break;
                         case "ErrorFile":
                             field = WithValue(field, errorFile);
+                            break;
+                        case "Written":
+                            field = WithBoolean(field, OutputAllTreesAttribute.Instance != null);
                             break;
                         case "BreakOnEnd":
                             field = WithBoolean(field, attribute.DisplayEndOfCompilationMessage);

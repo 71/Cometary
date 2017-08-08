@@ -12,7 +12,7 @@ namespace Cometary
         /// 
         /// </summary>
         public readonly DiagnosticDescriptor DefaultDescriptor = new DiagnosticDescriptor(
-            Common.DiagnosticsPrefix + "EXC001", "Exception encountered", "{0}", "Editing", DiagnosticSeverity.Error, true);
+            nameof(DiagnosticException) + "Error", "Exception encountered", "{0}", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         /// <summary>
         /// 
@@ -39,7 +39,7 @@ namespace Cometary
         /// </summary>
         public DiagnosticException(string message, Exception innerException, Location location) : base(message, innerException)
         {
-            Diagnostic = Diagnostic.Create(DefaultDescriptor, location ?? Location.None, message);
+            Diagnostic = Diagnostic.Create(DefaultDescriptor, location ?? Location.None, message.Filter());
         }
     }
 }

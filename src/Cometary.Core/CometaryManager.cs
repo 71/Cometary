@@ -21,15 +21,22 @@ namespace Cometary
         ///   Gets a <see cref="DiagnosticDescriptor"/> describing an unexpected exception
         ///   thrown by a <see cref="CompilationEditor"/>.
         /// </summary>
-        public static DiagnosticDescriptor EditorThrown { get; }
-            = new DiagnosticDescriptor(Common.DiagnosticsPrefix + "ET01", "Unexpected error", "Exception thrown by the '{0}' editor: '{1}'", "Editing", DiagnosticSeverity.Error, true);
+        public static DiagnosticDescriptor EditorError { get; }
+            = new DiagnosticDescriptor("EditorError", "Unexpected error", "Exception thrown by the '{0}' editor: '{1}'", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         /// <summary>
         ///   Gets a <see cref="DiagnosticDescriptor"/> describing an unexpected exception
         ///   encountered when modifying a <see cref="CSharpCompilation"/>.
         /// </summary>
-        public static DiagnosticDescriptor EditThrown { get; }
-            = new DiagnosticDescriptor(Common.DiagnosticsPrefix + "ET02", "Unexpected error", "Exception thrown during the {0} step: '{1}'. Stack trace: \n{2}.", "Editing", DiagnosticSeverity.Error, true);
+        public static DiagnosticDescriptor ProcessingError { get; }
+            = new DiagnosticDescriptor("ProcessingError", "Unexpected error", "Exception thrown during the {0} step: '{1}'. Stack trace: {2}.", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
+
+        /// <summary>
+        ///   Gets a <see cref="DiagnosticDescriptor"/> describing an unexpected exception
+        ///   encountered when initializing a <see cref="CometaryAttribute"/>.
+        /// </summary>
+        public static DiagnosticDescriptor InitializationError { get; }
+            = new DiagnosticDescriptor("InitializationError", "Unexpected error", "Exception thrown during the initialization by the '{0}' attribute: '{1}'. Stack trace: {2}.", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
         #endregion
 
         /// <summary>
@@ -71,7 +78,7 @@ namespace Cometary
         ///   List of <see cref="Exception"/>s encountered during initialization,
         ///   before diagnostics could be added.
         /// </summary>
-        internal readonly ImmutableArray<Exception>.Builder initializationExceptions = ImmutableArray.CreateBuilder<Exception>();
+        internal readonly ImmutableArray<(Exception Exception, AttributeData Data)>.Builder initializationExceptions = ImmutableArray.CreateBuilder<(Exception, AttributeData)>();
 
         private CometaryManager(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, IEnumerable<CompilationEditor> editors)
         {
@@ -133,17 +140,17 @@ namespace Cometary
                 }
                 catch (TargetInvocationException e)
                 {
-                    initializationExceptions.Add(e.InnerException);
+                    initializationExceptions.Add((e.InnerException, attr));
                     continue;
                 }
                 catch (TypeInitializationException e)
                 {
-                    initializationExceptions.Add(e.InnerException);
+                    initializationExceptions.Add((e.InnerException, attr));
                     continue;
                 }
                 catch (Exception e)
                 {
-                    initializationExceptions.Add(e);
+                    initializationExceptions.Add((e, attr));
                     continue;
                 }
 
@@ -194,11 +201,14 @@ namespace Cometary
             // Log all previously encountered exceptions
             initializationExceptions.Capacity = initializationExceptions.Count;
 
-            ImmutableArray<Exception> exceptions = initializationExceptions.MoveToImmutable();
+            var exceptions = initializationExceptions.MoveToImmutable();
 
             for (int i = 0; i < exceptions.Length; i++)
             {
-                addDiagnostic(Diagnostic.Create(EditThrown, Location.None, "Initialization", exceptions[i].Message, exceptions[i].StackTrace));
+                var (exception, data) = exceptions[i];
+                var location = data.ApplicationSyntaxReference.ToLocation();
+
+                addDiagnostic(Diagnostic.Create(InitializationError, location, data.AttributeClass, exception.Message.Filter(), exception.StackTrace.Filter()));
             }
 
             if (exceptions.Length > 0)
@@ -228,7 +238,7 @@ namespace Cometary
                     while (e is TargetInvocationException tie)
                         e = tie.InnerException;
 
-                    addDiagnostic(Diagnostic.Create(EditorThrown, Location.None, editor?.GetType().ToString() ?? "Unknown editor", e.Message));
+                    addDiagnostic(Diagnostic.Create(EditorError, Location.None, editor?.GetType().ToString() ?? "Unknown editor", e.Message.Filter()));
 
                     return false;
                 }
@@ -275,7 +285,7 @@ namespace Cometary
             }
 
             List<CompilationEditor> editors = Editors;
-            string step = "Unknown";
+            string step = "NotifyCompilationStart";
 
             // Run the compilation
             try
@@ -284,10 +294,12 @@ namespace Cometary
                 for (int i = 0; i < editors.Count; i++)
                     editors[i].TriggerCompilationStart(compilation);
 
-                step = "Preprocesing";
+                step = "Preprocessing";
 
                 foreach (var edit in CompilationPipeline)
                     modified = edit(modified, cancellationToken) ?? modified;
+
+                step = "NotifyCompilationEnd";
 
 #if DEBUG
                 if (compilation.GetTypeByMetadataName("ProcessedByCometary") == null)
@@ -298,10 +310,12 @@ namespace Cometary
                 for (int i = 0; i < editors.Count; i++)
                     editors[i].TriggerCompilationEnd(compilation);
 
-                step = "Processing";
+                step = "NotifyEmissionStart";
 
                 for (int i = 0; i < editors.Count; i++)
                     editors[i].TriggerEmissionStart();
+
+                step = "Processing";
 
                 // Emit the assembly, and notify of start of emission
                 object moduleBuilder = getModuleBuilder(modified);
@@ -315,6 +329,8 @@ namespace Cometary
 
                 foreach (var edit in AssemblyPipeline)
                     assemblySymbol = edit(assemblySymbol, cancellationToken) ?? assemblySymbol;
+
+                step = "NotifyEmissionEnd";
 
                 // Notify of overall end
                 for (int i = 0; i < editors.Count; i++)
@@ -362,7 +378,7 @@ namespace Cometary
         /// </summary>
         public void ReportDiagnostic(string step, string message, string stackTrace)
         {
-            AddDiagnostic(Diagnostic.Create(EditThrown, Location.None, step, message, stackTrace));
+            AddDiagnostic(Diagnostic.Create(ProcessingError, Location.None, step, message.Filter(), stackTrace.Filter()));
         }
 
         /// <inheritdoc />

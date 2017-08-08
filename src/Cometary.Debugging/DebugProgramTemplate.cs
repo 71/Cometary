@@ -69,13 +69,14 @@ internal static class DebugProgram
             if (!IsWrittenToDisk || !ShouldBreak)
                 return;
 
+            Diagnostic[] diagnostics = result.Diagnostics.OrderByDescending(x => x.Severity).ToArray();
+
             if (result.Success)
             {
-                Success();
+                Success(diagnostics);
                 return;
             }
 
-            Diagnostic[] diagnostics = result.Diagnostics.OrderByDescending(x => x.Severity).ToArray();
             string[] errors = diagnostics.TakeWhile(x => x.Severity == DiagnosticSeverity.Error).Select(x => x.ToString()).ToArray();
 
             try
@@ -92,7 +93,7 @@ internal static class DebugProgram
     }
     #endregion
 
-    public static void Success()
+    public static void Success(Diagnostic[] diagnostics)
     {
         // If you got here, that means the compilation was a success!
         //

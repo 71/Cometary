@@ -12,6 +12,14 @@ namespace Cometary
     public static class SymbolExtensions
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public static Location ToLocation(this SyntaxReference syntaxReference)
+        {
+            return Location.Create(syntaxReference.SyntaxTree, syntaxReference.Span);
+        }
+
+        /// <summary>
         ///   Gets the <see cref="BindingFlags"/> corresponding to the
         ///   <see cref="Accessibility"/> of the given <paramref name="symbol"/>.
         /// </summary>
@@ -64,7 +72,9 @@ namespace Cometary
             }
 
             INamedTypeSymbol named = (INamedTypeSymbol)symbol;
-            Type type = Type.GetType($"{named.ContainingNamespace}.{named.MetadataName}, {named.ContainingAssembly.MetadataName}");
+            Type type = named.ContainingNamespace.IsGlobalNamespace
+                ? Type.GetType($"{named.MetadataName}, {named.ContainingAssembly.MetadataName}")
+                : Type.GetType($"{named.ContainingNamespace}.{named.MetadataName}, {named.ContainingAssembly.MetadataName}");
 
             if (type == null)
                 return null;
@@ -94,6 +104,10 @@ namespace Cometary
                 throw new ArgumentNullException(nameof(symbol));
 
             Type declaringType = symbol.ContainingType.GetCorrespondingType();
+
+            if (declaringType == null)
+                return null;
+
             BindingFlags flags = symbol.GetCorrespondingBindingFlags();
 
             IEnumerable<MethodBase> possibleMethods;
@@ -132,7 +146,7 @@ namespace Cometary
                 Continue:;
             }
 
-            throw new KeyNotFoundException();
+            return null;
         }
 
         /// <summary>
@@ -211,7 +225,11 @@ namespace Cometary
             }
 
             // Find ctor, and invoke it
-            ConstructorInfo constructor = (ConstructorInfo)attribute.AttributeConstructor.GetCorrespondingMethod();
+            ConstructorInfo constructor = attribute.AttributeConstructor.GetCorrespondingMethod() as ConstructorInfo;
+
+            if (constructor == null)
+                throw new DiagnosticException($"Cannot find a constructor matching {attribute.AttributeConstructor}.", attribute.ApplicationSyntaxReference.ToLocation());
+
             T result = (T)constructor.Invoke(args);
 
             // Set named args
