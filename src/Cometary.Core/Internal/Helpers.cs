@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
 using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
@@ -14,6 +17,8 @@ namespace Cometary
     /// </summary>
     internal static class Helpers
     {
+        internal static readonly object RecomputeKey = new object();
+
         /// <summary>
         /// 
         /// </summary>
@@ -101,6 +106,37 @@ namespace Cometary
         }
 
         internal static string Filter(this string str) => str.Replace('\r', ' ').Replace('\n', ' ');
+
+        internal static CSharpCompilation RecomputeCompilationWithOptions(this CSharpCompilation compilation,
+            Func<CSharpParseOptions, CSharpParseOptions> selector, CancellationToken cancellationToken)
+        {
+            SyntaxTree[] syntaxTrees = new SyntaxTree[compilation.SyntaxTrees.Length];
+
+            for (int i = 0; i < syntaxTrees.Length; i++)
+            {
+                CSharpSyntaxTree tree = compilation.SyntaxTrees[i] as CSharpSyntaxTree;
+
+                if (tree == null)
+                {
+                    syntaxTrees[i] = compilation.SyntaxTrees[i];
+                    continue;
+                }
+
+                SourceText source = tree.GetText(cancellationToken);
+                CSharpParseOptions options = selector(tree.Options);
+
+                SyntaxTree newTree = CSharpSyntaxTree.ParseText(source, options, tree.FilePath, cancellationToken);
+
+                syntaxTrees[i] = newTree;
+            }
+
+            return compilation.RemoveAllSyntaxTrees().AddSyntaxTrees(syntaxTrees);
+        }
+
+        internal static Pipeline<Func<CSharpParseOptions, CSharpParseOptions>> GetRecomputationPipeline(this CompilationEditor editor)
+        {
+            return editor.SharedStorage.GetOrAdd(RecomputeKey, () => new Pipeline<Func<CSharpParseOptions, CSharpParseOptions>>());
+        }
 
         #region CopyTo & cie
         /// <summary>

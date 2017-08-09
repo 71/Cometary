@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Semantics;
 
 namespace Cometary.Visiting
@@ -12,8 +14,18 @@ namespace Cometary.Visiting
     /// </summary>
     internal sealed class OperationTreeRewriter : OperationVisitor<object, IOperation>
     {
+        // TODO: Find a way to rewrite an operation tree.
         private readonly CompilationEditor editor;
         private readonly Func<IOperation, IOperation> callback;
+
+        private readonly SyntheticSymbolFactory syntheticFactory;
+        private readonly SymbolFactory factory;
+
+        internal OperationTreeRewriter(CSharpCompilation compilation, IMethodSymbol method)
+        {
+
+            syntheticFactory = new SyntheticSymbolFactory(method, )
+        }
 
         private ImmutableArray<T> VisitList<T>(ImmutableArray<T> array, object argument = null) where T : IOperation
         {
@@ -58,7 +70,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override IOperation VisitVariableDeclaration(IVariableDeclaration operation, object argument)
         {
-            return operation;
+            return SourceSymbolFactory.created
         }
 
         /// <inheritdoc />

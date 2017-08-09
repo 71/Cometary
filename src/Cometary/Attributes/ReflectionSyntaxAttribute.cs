@@ -21,7 +21,7 @@ namespace Cometary.Attributes
         private sealed class Editor : CompilationEditor
         {
             /// <inheritdoc />
-            public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+            protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
             {
                 // Use the MethodKeyword (etc) to declare all this
             }

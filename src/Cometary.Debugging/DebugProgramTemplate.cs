@@ -24,10 +24,12 @@ internal static class DebugProgram
     public const string Files = "";
     public const string ErrorFile = "";
     public const bool Written = false;
-    public const bool BreakOnEnd = false;
+    public const bool BreakAtEnd = false;
+    public const bool BreakAtStart = false;
 
     public static bool IsWrittenToDisk => Written;
-    public static bool ShouldBreak => BreakOnEnd;
+    public static bool ShouldBreakAtEnd => BreakAtEnd;
+    public static bool ShouldBreakAtStart => BreakAtStart;
 
     public static int Main(string[] args)
     {
@@ -35,6 +37,9 @@ internal static class DebugProgram
         {
             DiagnosticAnalyzer analyzer = new CometaryAnalyzer();
             CSharpParseOptions parseOptions = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUGGING" });
+
+            if (IsWrittenToDisk && ShouldBreakAtStart)
+                Debugger.Break();
 
             CompilationWithAnalyzers compilation = CSharpCompilation.Create(
                 AssemblyName,
@@ -67,7 +72,7 @@ internal static class DebugProgram
         {
             var result = compilation.Compilation.Emit(assemblyStream, pdbStream);
 
-            if (!IsWrittenToDisk || !ShouldBreak)
+            if (!IsWrittenToDisk || !ShouldBreakAtEnd)
                 return;
 
             Diagnostic[] diagnostics = result.Diagnostics.OrderByDescending(x => x.Severity).ToArray();
@@ -84,12 +89,10 @@ internal static class DebugProgram
             {
                 File.WriteAllLines(ErrorFile, errors);
             }
-            catch
+            finally
             {
-                // Don't really care tbh
+                Failure(diagnostics, errors);
             }
-
-            Failure(diagnostics, errors);
         }
     }
     #endregion

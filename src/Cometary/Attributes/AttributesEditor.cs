@@ -11,7 +11,7 @@ namespace Cometary
     internal sealed class AttributesEditor : CompilationEditor
     {
         /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             RegisterEdit(new Edit<ISymbol>(EditSymbol));
         }

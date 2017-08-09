@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -32,11 +33,6 @@ namespace Cometary.Debugging
             if (compilationConfiguration == OptimizationLevel.Debug && !runInDebug)
                 return;
             if (compilationConfiguration == OptimizationLevel.Release && !runInRelease)
-                return;
-
-            string typeName = DebugCometaryAttribute.LastInstance?.MainClassName;
-
-            if (typeName != null && Type.GetType(typeName) != null)
                 return;
 
             CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)

@@ -1,9 +1,7 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Microsoft.CodeAnalysis;
 
 namespace Cometary
 {
@@ -14,7 +12,7 @@ namespace Cometary
     internal sealed class Proxy
     {
         #region Utils
-        private const BindingFlags ALL = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy;
+        internal const BindingFlags ALL = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy;
 
         private static readonly Func<int, int, int> CombineHashes
             = ReflectionHelpers.CodeAnalysisAssembly
@@ -25,6 +23,46 @@ namespace Cometary
 
         private static int Combine(int a, int b) => CombineHashes(a, b);
 
+
+        internal static MethodBase FindMatchingMethod(MethodBase[] possibleMethods, string name, params object[] args)
+        {
+            for (int i = 0; i < possibleMethods.Length; i++)
+            {
+                MethodBase mi = possibleMethods[i];
+
+                if (mi.Name != name)
+                    continue;
+
+                // Same name, but do the parameters match?
+                ParameterInfo[] parameters = mi.GetParameters();
+
+                if (parameters.Length != args.Length)
+                    continue;
+
+                for (int j = 0; j < parameters.Length; j++)
+                {
+                    object arg = args[j];
+                    ParameterInfo parameter = parameters[j];
+
+                    if (arg == null)
+                    {
+                        if (parameter.ParameterType.GetTypeInfo().IsValueType)
+                            goto Nope;
+
+                        continue;
+                    }
+
+                    if (!parameter.ParameterType.IsInstanceOfType(arg))
+                        goto Nope;
+                }
+
+                return mi;
+
+                Nope:;
+            }
+
+            return null;
+        }
         #endregion
 
         /// <summary>
@@ -86,103 +124,72 @@ namespace Cometary
             }
 
             // Nothing already computed, compute it now
-            MethodInfo[] possibleMethods = objType.GetMethods(ALL);
+            MethodInfo mi = FindMatchingMethod(objType.GetMethods(ALL), name, args) as MethodInfo;
 
-            for (int i = 0; i < possibleMethods.Length; i++)
+            if (mi == null)
             {
-                MethodInfo mi = possibleMethods[i];
-
-                if (mi.Name != name)
-                    continue;
-
-                // Same name, but do the parameters match?
-                ParameterInfo[] parameters = mi.GetParameters();
-
-                if (parameters.Length != args.Length)
-                    continue;
-
-                for (int j = 0; j < parameters.Length; j++)
-                {
-                    object arg = args[j];
-                    ParameterInfo parameter = parameters[j];
-
-                    if (arg == null)
-                    {
-                        if (parameter.ParameterType.GetTypeInfo().IsValueType)
-                            goto Nope;
-
-                        continue;
-                    }
-
-                    if (!parameter.ParameterType.IsInstanceOfType(arg))
-                        goto Nope;
-                }
-
-                // The parameters do match, create a delegate and return its invocation result
-                result = mi.Invoke(obj, args);
-                return true;
-
-                // TODO: Fix this. I can't get it to work.
-                //data.Invokers[key] = del = Helpers.MakeDelegate<Func<object, object[], object>>(name, il =>
-                //{
-                //    bool isStatic = mi.IsStatic;
-
-                //    if (!isStatic)
-                //    {
-                //        Type declaringType = mi.DeclaringType;
-
-                //        il.Emit(OpCodes.Ldarg_0);
-
-                //        if (declaringType.GetTypeInfo().IsValueType)
-                //        {
-                //            LocalBuilder loc = il.DeclareLocal(declaringType, false);
-
-                //            il.Emit(OpCodes.Unbox_Any, declaringType);
-                //            il.Emit(OpCodes.Stloc, loc);
-                //            il.Emit(OpCodes.Ldloca, loc);
-                //        }
-                //        else // Who the f proxies object? if (declaringType != typeof(object))
-                //        {
-                //            il.Emit(OpCodes.Castclass, declaringType);
-                //        }
-                //    }
-
-                //    for (int j = 0; j < parameters.Length; j++)
-                //    {
-                //        Type type = parameters[j].ParameterType;
-
-                //        il.Emit(OpCodes.Ldarg_1);
-                //        il.Emit(OpCodes.Ldc_I4, j);
-                //        il.Emit(OpCodes.Ldelem_Ref);
-
-                //        if (type.GetTypeInfo().IsValueType)
-                //            il.Emit(OpCodes.Unbox_Any, type);
-                //        else if (type != typeof(object))
-                //            il.Emit(OpCodes.Castclass, type);
-                //    }
-
-                //    il.Emit(isStatic || mi.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, mi);
-
-                //    if (mi.ReturnType.GetTypeInfo().IsValueType)
-                //    {
-                //        il.Emit(OpCodes.Box, mi.ReturnType);
-                //    }
-                //    else if (mi.ReturnType == typeof(void))
-                //    {
-                //        il.Emit(OpCodes.Ldnull);
-                //    }
-
-                //    il.Emit(OpCodes.Ret);
-                //}, mi.DeclaringType);
-
-                //result = del(obj, args);
-                //return true;
-
-                Nope:;
+                result = null;
+                return false;
             }
 
-            result = null;
-            return false;
+            result = mi.Invoke(obj, args);
+            return true;
+
+            // TODO: Fix this. I can't get it to work.
+            //data.Invokers[key] = del = Helpers.MakeDelegate<Func<object, object[], object>>(name, il =>
+            //{
+            //    bool isStatic = mi.IsStatic;
+
+            //    if (!isStatic)
+            //    {
+            //        Type declaringType = mi.DeclaringType;
+
+            //        il.Emit(OpCodes.Ldarg_0);
+
+            //        if (declaringType.GetTypeInfo().IsValueType)
+            //        {
+            //            LocalBuilder loc = il.DeclareLocal(declaringType, false);
+
+            //            il.Emit(OpCodes.Unbox_Any, declaringType);
+            //            il.Emit(OpCodes.Stloc, loc);
+            //            il.Emit(OpCodes.Ldloca, loc);
+            //        }
+            //        else // Who the f proxies object? if (declaringType != typeof(object))
+            //        {
+            //            il.Emit(OpCodes.Castclass, declaringType);
+            //        }
+            //    }
+
+            //    for (int j = 0; j < parameters.Length; j++)
+            //    {
+            //        Type type = parameters[j].ParameterType;
+
+            //        il.Emit(OpCodes.Ldarg_1);
+            //        il.Emit(OpCodes.Ldc_I4, j);
+            //        il.Emit(OpCodes.Ldelem_Ref);
+
+            //        if (type.GetTypeInfo().IsValueType)
+            //            il.Emit(OpCodes.Unbox_Any, type);
+            //        else if (type != typeof(object))
+            //            il.Emit(OpCodes.Castclass, type);
+            //    }
+
+            //    il.Emit(isStatic || mi.DeclaringType.GetTypeInfo().IsValueType ? OpCodes.Call : OpCodes.Callvirt, mi);
+
+            //    if (mi.ReturnType.GetTypeInfo().IsValueType)
+            //    {
+            //        il.Emit(OpCodes.Box, mi.ReturnType);
+            //    }
+            //    else if (mi.ReturnType == typeof(void))
+            //    {
+            //        il.Emit(OpCodes.Ldnull);
+            //    }
+
+            //    il.Emit(OpCodes.Ret);
+            //}, mi.DeclaringType);
+
+            //result = del(obj, args);
+            //return true;
         }
 
         /// <inheritdoc />

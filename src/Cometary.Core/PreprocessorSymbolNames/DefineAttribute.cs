@@ -6,14 +6,8 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Cometary
 {
     /// <summary>
-    /// <para>
     ///   Indicates that the specified constants should be used as preprocessor symbol names
     ///   during compilation.
-    /// </para>
-    /// <para>
-    ///   Setting this attribute on an assembly also ensures that all constants defined by
-    ///   <see cref="CompilationEditor"/>s are used during compilation.
-    /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class DefineAttribute : CometaryAttribute
@@ -49,8 +43,6 @@ namespace Cometary
             /// <inheritdoc />
             protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
             {
-                CompilationPipeline += EditCompilation;
-
                 string[] symbolNames = preprocessorSymbolNames;
 
                 for (int i = 0; i < symbolNames.Length; i++)
@@ -62,11 +54,6 @@ namespace Cometary
 
                     this.DefineConstant(symbolName);
                 }
-            }
-
-            private CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
-            {
-                return PreprocessorSymbolNamesDefining.RecomputeCompilation(compilation, this, cancellationToken);
             }
         }
     }

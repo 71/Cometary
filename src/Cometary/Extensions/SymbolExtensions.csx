@@ -1,63 +1,10 @@
 ﻿// Note: Scry <https://github.com/6A/Scry> is required to run this script.
+#load "../ScriptUtils.csx"
 
 using System.Text;
 
 using Type = System.Type;
 using TypeInfo = System.Reflection.TypeInfo;
-
-// Utils
-string GetFriendlyName(Type type)
-{
-    string name = type.Name;
-
-    var genArgs = type.GetGenericArguments();
-
-    if (genArgs.Length != 0)
-    {
-        name = name.Substring(0, name.Length - 2);
-        name += $"<{string.Join(", ", genArgs.Select(x => GetFriendlyName(FindFirstPublicAncestor(x))))}>";
-    }
-
-    if (type.IsArray)
-        name += "[]";
-
-    return name;
-}
-
-IEnumerable<Type> FindValidInterfaces(Type type)
-{
-    return type.GetInterfaces().Where(x =>
-    {
-        string name = x.Name;
-
-        return x.IsPublic &&
-            (name.EndsWith("Symbol") ||
-             name.EndsWith("Expression") ||
-             name.EndsWith("Statement") ||
-             name.EndsWith("Operation"));
-    });
-}
-
-Type FindFirstPublicAncestor(Type type)
-{
-    if (type.GenericTypeArguments.Length > 0)
-    {
-        return type.GetGenericTypeDefinition()
-            .MakeGenericType(type.GenericTypeArguments.Select(FindFirstPublicAncestor).ToArray());
-    }
-
-    foreach (var interf in FindValidInterfaces(type).OrderByDescending(x => x.GetInterfaces().Length))
-    {
-        return interf;
-    }
-
-    while (!type.IsPublic)
-    {
-        type = type.BaseType;
-    }
-
-    return type;
-}
 
 AutoWriteIndentation = true;
 

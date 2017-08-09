@@ -17,10 +17,29 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SymbolExtensions.csx</DependentUpon>
     </Compile>
+    <Compile Update="Factories\SourceSymbolFactory.g.cs">
+      <DependentUpon>SourceSymbolFactory.csx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Macros\" />
+    <None Update="Factories\SyntheticSymbolFactory.csx" />
+    <Compile Update="Factories\SyntheticSymbolFactory.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SyntheticSymbolFactory.csx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Factories\SymbolFactory.csx" />
+    <Compile Update="Factories\SymbolFactory.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SymbolFactory.csx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

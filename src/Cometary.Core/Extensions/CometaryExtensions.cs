@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
     /// <summary>
     ///   Provides utilities for symbols.
     /// </summary>
-    public static class SymbolExtensions
+    public static partial class CometaryExtensions
     {
         /// <summary>
-        /// 
+        ///   Returns a new <see cref="Location"/> whose <see cref="Location.SourceTree"/>
+        ///   and <see cref="Location.SourceSpan"/> properties match the <see cref="SyntaxReference.SyntaxTree"/>
+        ///   and <see cref="SyntaxReference.Span"/> properties.
         /// </summary>
         public static Location ToLocation(this SyntaxReference syntaxReference)
         {
             return Location.Create(syntaxReference.SyntaxTree, syntaxReference.Span);
         }
 
+        #region GetCorresponding*
         /// <summary>
         ///   Gets the <see cref="BindingFlags"/> corresponding to the
         ///   <see cref="Accessibility"/> of the given <paramref name="symbol"/>.
@@ -175,7 +179,9 @@ namespace Cometary
         {
             return symbol.ContainingType.GetCorrespondingType().GetEvent(symbol.Name, symbol.GetCorrespondingBindingFlags());
         }
+        #endregion
 
+        #region Attributes
         /// <summary>
         ///   Returns the value of the specified <see cref="TypedConstant"/>,
         ///   even if its kind is <see cref="TypedConstantKind.Array"/>.
@@ -341,5 +347,6 @@ namespace Cometary
                 ? attributes.FindAttributesOfInterface<T>()
                 : attributes.FindAttributesOfType<T>();
         }
+        #endregion
     }
 }

@@ -30,7 +30,7 @@ namespace Cometary.Debugging
 
         /// <summary>
         /// <para>
-        ///   Gets or sets a value indicating whether or not a message shoul be displayed
+        ///   Gets or sets a value indicating whether or not a message should be displayed
         ///   at the end of the compilation via a <see cref="System.Diagnostics.Debugger.Break"/> call.
         /// </para>
         /// <para>
@@ -38,6 +38,17 @@ namespace Cometary.Debugging
         /// </para>
         /// </summary>
         public bool DisplayEndOfCompilationMessage { get; set; } = true;
+
+        /// <summary>
+        /// <para>
+        ///   Gets or sets a value indicating whether or not the created process should break
+        ///   as soon as it starts.
+        /// </para>
+        /// <para>
+        ///   Default: <see langword="false"/>.
+        /// </para>
+        /// </summary>
+        public bool BreakDuringStart { get; set; } = false;
 
         /// <inheritdoc cref="DebugCometaryAttribute" />
         public DebugCometaryAttribute()

@@ -311,6 +311,14 @@ namespace Cometary
                 return false;
             }
 
+            // Recompute compilation if needed
+            if (SharedStorage.TryGet(Helpers.RecomputeKey, out Pipeline<Func<CSharpParseOptions, CSharpParseOptions>> pipeline))
+            {
+                Func<CSharpParseOptions, CSharpParseOptions> del = pipeline.MakeDelegate(opts => opts);
+
+                modified = modified.RecomputeCompilationWithOptions(del, cancellationToken);
+            }
+
             List<CompilationEditor> editors = Editors;
             string step = "NotifyCompilationStart";
 
@@ -328,10 +336,6 @@ namespace Cometary
 
                 step = "NotifyCompilationEnd";
 
-#if DEBUG
-                if (compilation.GetTypeByMetadataName("ProcessedByCometary") == null)
-                    modified = modified.AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree("internal static class ProcessedByCometary { }"));
-#endif
                 // Notify of end of compilation, and start of emission
                 for (int i = 0; i < editors.Count; i++)
                     editors[i].TriggerCompilationEnd(compilation);

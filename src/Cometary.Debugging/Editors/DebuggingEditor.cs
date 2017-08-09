@@ -36,9 +36,9 @@ namespace Cometary.Debugging
             if (compilationConfiguration == OptimizationLevel.Release && !attribute.RunInRelease)
                 return;
 
-            string typeName = attribute.MainClassName;
+            string typeName = attribute.MainClassName ?? DebugCometaryAttribute.DefaultMainClassName;
 
-            if (Type.GetType(typeName ?? DebugCometaryAttribute.DefaultMainClassName) != null)
+            if (Assembly.GetEntryAssembly().GetType(typeName) != null)
                 return;
 
             CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ namespace Cometary.Debugging
                 // Create the entry point:
                 string errorFile = Path.GetTempFileName();
 
-                SyntaxTree generatedSyntaxTree = CSharpSyntaxTree.ParseText(GetSourceText(attribute.DisplayEndOfCompilationMessage, errorFile), cancellationToken: cancellationToken);
+                CSharpSyntaxTree generatedSyntaxTree = (CSharpSyntaxTree)CSharpSyntaxTree.ParseText(GetSourceText(attribute.DisplayEndOfCompilationMessage, errorFile), cancellationToken: cancellationToken);
                 CompilationUnitSyntax generatedRoot = generatedSyntaxTree.GetCompilationUnitRoot(cancellationToken);
 
                 ClassDeclarationSyntax classSyntax = (ClassDeclarationSyntax)generatedRoot.Members.Last();
@@ -123,8 +123,11 @@ namespace Cometary.Debugging
                         case "Written":
                             field = WithBoolean(field, OutputAllTreesAttribute.Instance != null);
                             break;
-                        case "BreakOnEnd":
+                        case "BreakAtEnd":
                             field = WithBoolean(field, attribute.DisplayEndOfCompilationMessage);
+                            break;
+                        case "BreakAtStart":
+                            field = WithBoolean(field, attribute.BreakDuringStart);
                             break;
                         default:
                             continue;
@@ -135,9 +138,11 @@ namespace Cometary.Debugging
 
                 // Return the modified compilation.
                 return compilation.AddSyntaxTrees(
-                    generatedSyntaxTree.WithRootAndOptions(
-                        generatedRoot.WithMembers(generatedRoot.Members.Replace(originalClassSyntax, classSyntax.WithMembers(members))),
-                        generatedSyntaxTree.Options
+                    generatedSyntaxTree
+                        .WithCometaryOptions(this)
+                        .WithRoot(
+                            generatedRoot.WithMembers(generatedRoot.Members.Replace(originalClassSyntax, classSyntax.WithMembers(members))
+                        )
                     )
                 );
             }
