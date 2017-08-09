@@ -34,10 +34,11 @@ internal static class DebugProgram
         try
         {
             DiagnosticAnalyzer analyzer = new CometaryAnalyzer();
+            CSharpParseOptions parseOptions = new CSharpParseOptions(preprocessorSymbols: new[] { "DEBUGGING" });
 
             CompilationWithAnalyzers compilation = CSharpCompilation.Create(
                 AssemblyName,
-                Files.Split(';').Select(x => CSharpSyntaxTree.ParseText(File.ReadAllText(x))),
+                Files.Split(';').Select(x => CSharpSyntaxTree.ParseText(File.ReadAllText(x), parseOptions)),
                 References.Split(';').Select(x => MetadataReference.CreateFromFile(x))
             ).WithAnalyzers(ImmutableArray.Create(analyzer));
 

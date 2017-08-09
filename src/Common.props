@@ -4,8 +4,9 @@
 
     <!-- Common -->
     <Name>Cometary</Name>
-    <Version>0.1.0</Version>
     <RootNamespace>$(Name)</RootNamespace>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSufix>pre-1</VersionSufix>
 
     <Authors>Gregoire Geis</Authors>
     <Copyright>Copyright 2017 (c) Gregoire Geis</Copyright>
@@ -15,20 +16,22 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
 
     <!-- Package -->
-    <Title>$(ProjectName)</Title>
+    <PacakgeTitle>$(ProjectName)</PacakgeTitle>
     <PackageId>$(ProjectName)</PackageId>
+
+    <RepositoryUrl>https://github.com/6A/Cometary</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageTags>roslyn;meta;metaprogramming;cometary;analyzer</PackageTags>
-    <PackageVersion>$(Version)</PackageVersion>
-
-    <RepositoryUrl>https://github.com/6A/Cometary</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <PackageVersion></PackageVersion>
     
     <!-- Output -->
     <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-    <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+    <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentationFile>
+    <WarningsAsErrors Condition=" '$(Configuration)' == 'Release' ">True</WarningsAsErrors>
 
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <ApplicationVersion>$(Version)</ApplicationVersion>

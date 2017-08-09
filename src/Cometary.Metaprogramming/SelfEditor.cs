@@ -17,43 +17,35 @@ namespace Cometary
     /// </summary>
     internal sealed class SelfEditor : CompilationEditor
     {
-        /// <summary>ID of the <see cref="EmitError"/> diagnostic.</summary>
-        public const string EmitErrorId = Common.DiagnosticsPrefix + "S01";
-
-        /// <summary>ID of the <see cref="LoadError"/> diagnostic.</summary>
-        public const string LoadErrorId = Common.DiagnosticsPrefix + "S02";
-
-        /// <summary>ID of the <see cref="RunError"/> diagnostic.</summary>
-        public const string RunErrorId = Common.DiagnosticsPrefix + "S03";
-
         /// <summary>
         ///   Describes an error encountered when emitting the produced compilation.
         /// </summary>
         public static readonly DiagnosticDescriptor EmitError
-            = new DiagnosticDescriptor(EmitErrorId, "Emit error", "Error encountered when emitting the assembly: {0}", "Execution", DiagnosticSeverity.Error, true);
+            = new DiagnosticDescriptor(nameof(EmitError), "Emit error", "Error encountered when emitting the assembly: {0}", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         /// <summary>
         ///   Describes an error encountered when loading the emitted assembly.
         /// </summary>
         public static readonly DiagnosticDescriptor LoadError
-            = new DiagnosticDescriptor(LoadErrorId, "Load error", "Error encountered when loading the emitted assembly: {0}", "Execution", DiagnosticSeverity.Error, true);
+            = new DiagnosticDescriptor(nameof(LoadError), "Load error", "Error encountered when loading the emitted assembly: {0}", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         /// <summary>
         ///   Describes an error encountered when running the emitted assembly.
         /// </summary>
-        public static readonly DiagnosticDescriptor RunError
-            = new DiagnosticDescriptor(RunErrorId, "Run error", "Error encountered when running the emitted assembly: {0}", "Execution", DiagnosticSeverity.Error, true);
+        public static readonly DiagnosticDescriptor ExecutionError
+            = new DiagnosticDescriptor(nameof(ExecutionError), "Execution error", "Error encountered when running the emitted assembly: {0}", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
 
         private CompilationEditor[] children;
 
         /// <inheritdoc />
         protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            SuppressDiagnostic(diagnostic => diagnostic.Id == "CS0116" || diagnostic.Id == "CS0658");
-
             using (MemoryStream assemblyStream = new MemoryStream())
             using (MemoryStream symbolsStream = new MemoryStream())
             {
+                // Define the 'META' constant
+                compilation = PreprocessorSymbolNamesDefining.RecomputeCompilation(compilation, new[] { "META" }, cancellationToken);
+
                 // Emit stream for the first time
                 EmitResult result = compilation.Emit(
                     peStream: assemblyStream,
@@ -72,6 +64,8 @@ namespace Cometary
                     }
 
                     Report(Diagnostic.Create(EmitError, Location.None, result.Diagnostics.Length.ToString()));
+
+                    return;
                 }
 
                 try
@@ -100,11 +94,15 @@ namespace Cometary
                 {
                     Report(Diagnostic.Create(LoadError, Location.None, e.Message));
                 }
+                catch (TargetInvocationException e)
+                {
+                    Report(Diagnostic.Create(LoadError, Location.None, e.InnerException.Message));
+                }
             }
         }
 
         /// <inheritdoc />
-        protected override IEnumerable<CompilationEditor> GetChildren() => children;
+        protected override CompilationEditor[] Children => children;
 
         /// <summary>
         ///   Runs the emitted assembly.
@@ -129,10 +127,11 @@ namespace Cometary
 
             for (int i = 0; i < editors.Length; i++)
             {
-                CompilationEditor editor = editors[i] = Activator.CreateInstance(editorTypes[i].Value as Type, true) as CompilationEditor;
-
-                if (editor != null)
+                if (Activator.CreateInstance(editorTypes[i].Value as Type, true) is CompilationEditor editor)
+                {
+                    editors[i] = editor;
                     continue;
+                }
 
                 Report(Diagnostic.Create(LoadError, Location.None, $"Could not create editor of type '{editorTypes[i].Value}'."));
                 failed = true;

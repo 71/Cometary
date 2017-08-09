@@ -33,15 +33,23 @@ namespace Cometary
             = new DiagnosticDescriptor(nameof(EditorInfo), "Cometary information", "{0}: \"{1}\"", Common.DiagnosticsCategory, DiagnosticSeverity.Info, true);
         #endregion
 
+
         /// <summary>
         ///   <see cref="Action"/> used to report errors, warnings and messages.
         /// </summary>
         private Action<Diagnostic> ReportDiagnostic;
 
         /// <summary>
-        /// 
+        ///   Gets a <see cref="Store"/> used to store values
+        ///   specific to this <see cref="CompilationEditor"/>.
         /// </summary>
         public Store Storage { get; } = new Store();
+
+        /// <summary>
+        ///   Gets a <see cref="Store"/> used to store values
+        ///   specific to the processed <see cref="CSharpCompilation"/>.
+        /// </summary>
+        public Store SharedStorage { get; private set; }
 
         /// <summary>
         /// 
@@ -75,16 +83,14 @@ namespace Cometary
 
         /// <summary>
         /// <para>
-        ///   Gets a collection of editors considered children of this <see cref="CompilationEditor"/>.
+        ///   Gets an array of editors considered children of this <see cref="CompilationEditor"/>.
         /// </para>
         /// <para>
-        ///   This children will have the same order as their parent, and can be computed in the <see cref="Initialize"/> method.
+        ///   This children will be inserted in order, right after their parent, and
+        ///   can be computed in the <see cref="Initialize"/> method.
         /// </para>
         /// </summary>
-        protected virtual IEnumerable<CompilationEditor> GetChildren()
-        {
-            return null;
-        }
+        protected virtual CompilationEditor[] Children => null;
 
         /// <summary>
         ///   Suppresses all reported diagnostics that match the given <paramref name="predicate"/>.

@@ -12,6 +12,7 @@ namespace Cometary.Debugging
     {
         internal static OutputAllTreesAttribute Instance;
 
+        /// <inheritdoc cref="OutputAllTreesAttribute" />
         public OutputAllTreesAttribute()
         {
             Instance = this;

@@ -52,10 +52,12 @@ namespace Cometary
         /// </summary>
         internal bool TryRegister(
             CometaryManager manager, Action<Diagnostic> reportDiagnostic,
-            CSharpCompilation compilation, CancellationToken token, out IEnumerable<CompilationEditor> children)
+            CSharpCompilation compilation, CancellationToken token,
+            out CompilationEditor[] children)
         {
             // Initialize the editor.
             ReportDiagnostic = reportDiagnostic;
+            SharedStorage = manager.SharedStorage;
 
             void AddUnlessEmpty<T>(FlatteningList<T> list, IReadOnlyList<T> items)
             {
@@ -72,13 +74,14 @@ namespace Cometary
                 AddUnlessEmpty(manager.CompilationPipeline, CompilationEdits);
                 AddUnlessEmpty(manager.AssemblyPipeline, AssemblyEdits);
 
-                children = GetChildren();
+                children = Children;
 
                 return true;
             }
             catch
             {
                 children = null;
+
                 return false;
             }
         }

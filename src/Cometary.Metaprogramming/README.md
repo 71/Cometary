@@ -46,3 +46,23 @@ using Cometary;
 
 ### Let the magic be
 That's it.
+
+# Additional features
+
+### The `META` preprocessor symbol name
+You may want some code to only be compiled during the Metaprogramming phase. This can easily be done with the `META` preprocessor symbol name.
+
+#### Example
+```csharp
+#if META
+// Only apply an attribute when editing the declaring assembly.
+[assembly: SomeAttribute]
+#endif
+
+#if !META
+// Only declare a type in the end result.
+public class MyClass
+{
+}
+#endif
+```

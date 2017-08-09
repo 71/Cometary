@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Reflection;
-using Microsoft.CodeAnalysis;
 using Shouldly;
 using Xunit;
 
@@ -23,7 +21,7 @@ namespace Cometary.Tests
         [Fact]
         public void TestExterns()
         {
-            Should.Throw<NotImplementedException>(() => DoSomething());
+            Should.Throw<NotImplementedException>(new Action(DoSomething));
         }
 
         /// <summary>
@@ -35,15 +33,13 @@ namespace Cometary.Tests
             typeof(Tests).GetProperty("Answer").GetValue(null).ShouldBe(42);
         }
 
-        /// <summary>
-        ///   Ensures that the <see cref="InvokeAttribute"/> does lead to the execution of the marked method.
-        /// </summary>
-        [Invoke]
-        public static void TestInvocation(IMethodSymbol currentMethod)
-        {
-            // When we can normally edit the assembly, do it instead.
-            // For now, let's do some arbitrary stuff.
-            File.WriteAllText("D:\\DidRun.txt", "It ran.");
-        }
+        ///// <summary>
+        /////   Ensures that the <see cref="InvokeAttribute"/> does lead to the execution of the marked method.
+        ///// </summary>
+        //[Invoke]
+        //public static void TestInvocation(IMethodSymbol currentMethod)
+        //{
+        //    // Not implemented yet.
+        //}
     }
 }

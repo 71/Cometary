@@ -27,7 +27,6 @@ namespace Cometary
             // When we construct this, simply ask for some null types. When we load the assembly in memory,
             // load the actual types
             this.editorTypes = editorTypes;
-
         }
 
         /// <inheritdoc />

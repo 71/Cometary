@@ -33,6 +33,16 @@ Setting the `OutputAllTrees` attribute on your assembly does two things:
 - Write all new syntax trees to a temporary file, and point the debugger there.
 - Write all syntax trees that have been modified to a new temporary file, and point the debugger there.
 
+### Only using an editor during debug
+````csharp
+[assembly: DebugCometary]
+
+#if DEBUGGING
+// This code will only be compiled when debugging.
+[assembly: AttributeToDebug]
+#endif
+```
+
 # Notes
 In order to execute the produced file, the project must be seen as an executable by Visual Studio. For example, the following declarations can make the debugging experience much better.
 

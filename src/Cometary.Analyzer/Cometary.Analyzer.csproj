@@ -3,11 +3,15 @@
   <Import Project="..\Common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard1.5</TargetFrameworks>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <TargetFrameworks Condition=" '$(BuildingInsideVisualStudio)' == 'True' ">net461;netstandard1.5</TargetFrameworks>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <AppendTargetFrameworkToOutputPath>True</AppendTargetFrameworkToOutputPath>
 
     <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);APPDOMAINS</DefineConstants>
+    <DevelopmentDependency>True</DevelopmentDependency>
+
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +20,7 @@
 
   <ItemGroup Condition=" '$(BuildingInsideVisualStudio)' != 'True' ">
     <None Include="$(BuildDir)Tools\*.ps1" PackagePath="tools" Pack="True" />
-    <None Include="bin\$(Configuration)\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
+    <None Include="bin\$(Configuration)\netstandard1.5\Cometary.*.dll" PackagePath="analyzers\dotnet\cs" Pack="True" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">

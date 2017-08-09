@@ -10,9 +10,9 @@ namespace Cometary.Tests
     public sealed class TestEditor : CompilationEditor
     {
         /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            RegisterEdit(EditCompilation, CompilationState.Start);
+            CompilationPipeline += EditCompilation;
         }
 
         /// <summary>

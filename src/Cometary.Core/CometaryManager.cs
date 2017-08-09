@@ -72,6 +72,11 @@ namespace Cometary
         /// <summary>
         /// 
         /// </summary>
+        public Store SharedStorage { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         internal readonly Func<CSharpCompilation, object> getModuleBuilder;
 
         /// <summary>
@@ -84,6 +89,7 @@ namespace Cometary
         {
             Editors = new List<CompilationEditor>(editors);
             AddDiagnostic = addDiagnostic;
+            SharedStorage = new Store();
 
             getModuleBuilder = moduleBuilderGetter;
         }
@@ -215,7 +221,9 @@ namespace Cometary
                 return false;
 
             // Initialize all editors
-            for (int i = 0; i < editors.Count; i++)
+            int editorsCount = editors.Count;
+
+            for (int i = 0; i < editorsCount; i++)
             {
                 CompilationEditor editor = editors[i];
 
@@ -226,12 +234,31 @@ namespace Cometary
                         return false;
 
                     // Optionally register some children
-                    if (children == null)
+                    if (children == null || children.Length == 0)
                         continue;
 
-                    editors.InsertRange(i, children);
+                    editors.Capacity += children.Length;
+
+                    for (int j = 0; j < children.Length; j++)
+                    {
+                        CompilationEditor child = children[j];
+
+                        if (child == null)
+                        {
+                            addDiagnostic(Diagnostic.Create(
+                                id: "MissingChild", category: Common.DiagnosticsCategory,
+                                message: $"A child returned by the '{editor}' editor is null.",
+                                severity: DiagnosticSeverity.Warning, defaultSeverity: DiagnosticSeverity.Warning,
+                                isEnabledByDefault: true, warningLevel: 1, isSuppressed: false));
+
+                            continue;
+                        }
+
+                        editors.Insert(i + j + 1, child);
+                        editorsCount++;
+                    }
                     // Since we insert them right after this one, the for loop will take care of initializing them easily
-                    // No recursion, baby
+                    // => No recursion, baby
                 }
                 catch (Exception e)
                 {
@@ -305,7 +332,6 @@ namespace Cometary
                 if (compilation.GetTypeByMetadataName("ProcessedByCometary") == null)
                     modified = modified.AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree("internal static class ProcessedByCometary { }"));
 #endif
-
                 // Notify of end of compilation, and start of emission
                 for (int i = 0; i < editors.Count; i++)
                     editors[i].TriggerCompilationEnd(compilation);

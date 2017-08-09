@@ -64,7 +64,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override IOperation VisitSwitchStatement(ISwitchStatement operation, object argument)
         {
-            return operation.Update()
+            return null;
         }
 
         /// <inheritdoc />

@@ -10,7 +10,7 @@ namespace Cometary.Tests
     public sealed class UnusedEditor : CompilationEditor
     {
         /// <inheritdoc />
-        public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+        protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             ReportError("Well, that shouldn't happen.");
         }
