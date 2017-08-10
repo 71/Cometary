@@ -1,5 +1,11 @@
 ﻿using Cometary;
 using Cometary.Debugging;
+using Xunit;
 
 [assembly: CleanUp]
-[assembly: DebugCometary, OutputAllTrees]
+
+#if DEBUG
+[assembly: DebugCometary]
+#endif
+
+[assembly: BreakOn(typeof(FactAttribute)), OutputAllTrees]

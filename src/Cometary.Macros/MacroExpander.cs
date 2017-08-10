@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -16,39 +18,110 @@ namespace Cometary.Macros
         private readonly SemanticModel semanticModel;
         private readonly CancellationToken cancellationToken;
 
-        private StatementSyntax enclosingStmt;
+        private Dictionary<StatementSyntax, StatementSyntax> changes;
 
         internal MacroExpander(CSharpSyntaxTree syntaxTree, CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             this.cancellationToken = cancellationToken;
             this.semanticModel = compilation.GetSemanticModel(syntaxTree, true);
+
+            this.changes = new Dictionary<StatementSyntax, StatementSyntax>();
         }
 
         public override SyntaxNode Visit(SyntaxNode node)
         {
             if (node is StatementSyntax stmt)
             {
-                enclosingStmt = stmt;
+                // Allow a Visit*Expression method to return a statement.
+                var result = stmt.Accept(this);
 
-                // No need to get its value, we never change statements here
-                var result = base.Visit(stmt);
-
-                if (enclosingStmt == null || stmt == enclosingStmt)
-                    return result;
-
-                if (stmt is BlockSyntax && !(enclosingStmt is BlockSyntax))
+                if (changes.TryGetValue(stmt, out StatementSyntax newStmt))
                 {
-                    enclosingStmt = SyntaxFactory.Block(enclosingStmt);
+                    changes.Remove(stmt);
+                    return newStmt;
                 }
-
-                result = enclosingStmt;
-
-                enclosingStmt = null;
 
                 return result;
             }
 
             return base.Visit(node);
+        }
+
+        public override SyntaxNode VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+        {
+            IOperation operation = semanticModel.GetOperation(node, cancellationToken);
+
+            if (operation == null || !operation.IsInvalid)
+                return base.VisitMemberAccessExpression(node);
+
+            // Expression is invalid, might be a late-bound object
+            IOperation expression = semanticModel.GetOperation(node.Expression, cancellationToken);
+
+            if (expression.IsInvalid)
+                return base.VisitMemberAccessExpression(node);
+
+            // Find out if it is a late-bound object...
+            INamedTypeSymbol type = expression.Type as INamedTypeSymbol;
+
+            if (type == null)
+                return base.VisitMemberAccessExpression(node);
+
+            // ... by finding its Bind method
+            object[] arguments = null;
+
+            bool IsValidBindMethod(MethodInfo mi)
+            {
+                if (!mi.IsStatic || mi.IsAbstract || mi.Name != "Bind")
+                    return false;
+
+                if (!typeof(ExpressionSyntax).IsAssignableFrom(mi.ReturnType))
+                    return false;
+
+                ParameterInfo[] parameters = mi.GetParameters();
+                object[] args = new object[parameters.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    Type paramType = parameters[i].ParameterType;
+
+                    if (paramType.IsAssignableFrom(typeof(MemberAccessExpressionSyntax)))
+                        args[i] = node;
+                    else if (paramType == typeof(IOperation))
+                        args[i] = expression;
+                    else
+                        return false;
+                }
+
+                arguments = args;
+                return true;
+            }
+
+            Type correspondingType = type.GetCorrespondingType();
+
+            if (correspondingType == null)
+                return base.VisitMemberAccessExpression(node);
+
+            MethodInfo bindMethod = correspondingType
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(IsValidBindMethod);
+
+            if (bindMethod == null)
+                return base.VisitMemberAccessExpression(node);
+
+            // We do have a binder!
+            // Call the method
+            try
+            {
+                ExpressionSyntax result = bindMethod.Invoke(null, arguments) as ExpressionSyntax;
+
+                return result == null
+                    ? SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+                    : base.Visit(result);
+            }
+            catch (Exception e)
+            {
+                throw new DiagnosticException("Error thrown by binding method.", e, node.GetLocation());
+            }
         }
 
         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
@@ -100,21 +173,31 @@ namespace Cometary.Macros
 
             for (int i = 0; i < arguments.Length; i++)
             {
-                Type paramType = parameters[i].ParameterType;
+                ParameterInfo param = parameters[i];
+                Type paramType = param.ParameterType;
+                Optional<object> constant = invocation.ArgumentsInParameterOrder[i].Value.ConstantValue;
 
-                arguments[i] = paramType.GetTypeInfo().IsValueType
-                    ? Activator.CreateInstance(paramType)
-                    : null;
+                if (constant.HasValue)
+                    arguments[i] = constant.Value;
+                else if (param.HasDefaultValue)
+                    arguments[i] = param.DefaultValue;
+                else
+                    arguments[i] = paramType.GetTypeInfo().IsValueType
+                        ? Activator.CreateInstance(paramType)
+                        : null;
             }
 
             // Set up the context
             var statementSyntax = node.FirstAncestorOrSelf<StatementSyntax>();
             var statementSymbol = new Lazy<IOperation>(() => semanticModel.GetOperation(statementSyntax, cancellationToken));
 
+            var callerSymbol = new Lazy<IMethodSymbol>(() => semanticModel.GetEnclosingSymbol(statementSyntax.SpanStart, cancellationToken) as IMethodSymbol);
+            var callerInfo = new Lazy<MethodInfo>(() => callerSymbol.Value?.GetCorrespondingMethod() as MethodInfo);
+
             ExpressionSyntax expr;
             StatementSyntax stmt;
 
-            using (CallBinder.EnterContext(invocation, statementSymbol, node, statementSyntax))
+            using (CallBinder.EnterContext(invocation, statementSymbol, node, statementSyntax, method, target, callerInfo, callerSymbol))
             {
                 // Invoke the method
                 try
@@ -133,11 +216,11 @@ namespace Cometary.Macros
             if (stmt != statementSyntax)
             {
                 // Return the new statement
-                enclosingStmt = base.Visit(stmt.WithSpan(statementSyntax.Span)) as StatementSyntax ?? enclosingStmt;
+                changes.Add(statementSyntax, stmt.WithTriviaFrom(statementSyntax).Accept(this) as StatementSyntax);
                 return node;
             }
 
-            return base.Visit(expr == node ? expr : expr.WithSpan(node.Span));
+            return base.Visit(expr == node ? expr : expr.WithTriviaFrom(node));
         }
     }
 }

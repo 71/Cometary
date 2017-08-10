@@ -1,5 +1,15 @@
 ﻿using Cometary;
 using Cometary.Tests;
+using Xunit;
 
 [assembly: NoExterns]
-[assembly: EditSelf(typeof(TestEditor), typeof(InvokeEditor))]
+
+#if DEBUG && !META
+[assembly: DebugCometary]
+#endif
+
+[assembly: EditSelf(typeof(TestEditor))]
+
+#if !META
+[assembly: BreakOn(typeof(FactAttribute)), OutputAllTrees]
+#endif

@@ -17,7 +17,6 @@ namespace Cometary
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Assembly, AllowMultiple = false)]
-    [Obsolete("Not implemented yet, please do not use.")]
     public sealed class InvokeAttribute : CometaryAttribute
     {
         /// <inheritdoc />

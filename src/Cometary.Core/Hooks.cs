@@ -123,7 +123,7 @@ namespace Cometary
             // Edit the compilation (if a matching CometaryManager is found)
             CompilationRedirection.Stop();
 
-            using (CometaryManager manager = CometaryManager.Create(GetOriginal, addDiagnostic))
+            using (CompilationProcessor manager = CompilationProcessor.Create(GetOriginal, addDiagnostic))
             {
                 manager.RegisterAttributes(compilation.Assembly);
 

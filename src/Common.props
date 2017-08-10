@@ -5,8 +5,9 @@
     <!-- Common -->
     <Name>Cometary</Name>
     <RootNamespace>$(Name)</RootNamespace>
-    <VersionPrefix>0.1.0</VersionPrefix>
-    <VersionSufix>pre-1</VersionSufix>
+    <PatchNumber Condition=" '$(PatchNumber)' == '' ">0</PatchNumber>
+    <VersionPrefix>0.1.$(PatchNumber)</VersionPrefix>
+    <VersionSuffix>pre</VersionSuffix>
 
     <Authors>Gregoire Geis</Authors>
     <Copyright>Copyright 2017 (c) Gregoire Geis</Copyright>
@@ -26,12 +27,12 @@
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageTags>roslyn;meta;metaprogramming;cometary;analyzer</PackageTags>
-    <PackageVersion></PackageVersion>
     
     <!-- Output -->
     <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
     <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentationFile>
     <WarningsAsErrors Condition=" '$(Configuration)' == 'Release' ">True</WarningsAsErrors>
+    <Deterministic>True</Deterministic>
 
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <ApplicationVersion>$(Version)</ApplicationVersion>

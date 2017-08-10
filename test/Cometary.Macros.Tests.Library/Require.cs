@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -95,6 +97,27 @@ namespace Cometary.Tests
                 expr.GetLocation(),
                 expr,
                 "Expected expression to be false.", expr.ToString()
+            );
+        }
+
+        /// <summary>
+        ///   Ensures all arguments given to the current method aren't <see langword="null"/>.
+        /// </summary>
+        [Expand]
+        public static void NoArgumentNull()
+        {
+            StatementSyntax ToStatement(IParameterSymbol parameter)
+            {
+                return F.IfStatement(
+                    F.ParseExpression($"{nameof(ReferenceEquals)}(null, {parameter.Name})"),
+                    F.ParseStatement($"throw new {typeof(ArgumentNullException).FullName}(\"{parameter.Name}\");")
+                );
+            }
+
+            CallBinder.StatementSyntax = F.Block(
+                from parameter in CallBinder.CallerSymbol.Parameters
+                where !parameter.Type.IsValueType
+                select ToStatement(parameter)
             );
         }
     }

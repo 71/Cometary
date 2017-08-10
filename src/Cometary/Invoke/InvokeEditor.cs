@@ -9,28 +9,38 @@ using TypeInfo = System.Reflection.TypeInfo;
 
 namespace Cometary
 {
+    using Visiting;
+
     /// <summary>
     /// 
     /// </summary>
-    public sealed class InvokeEditor : CompilationEditor
+    internal sealed class InvokeEditor : CompilationEditor
     {
         /// <inheritdoc />
         protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
+            this.CompilationPipeline += this.VisitCompilation;
         }
 
-        private ISymbol EditSymbol(ISymbol symbol, CancellationToken cancellationToken)
+        private CSharpCompilation VisitCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
+        {
+            SymbolWalker.Create(VisitSymbol, cancellationToken).Visit(compilation.Assembly);
+
+            return compilation;
+        }
+
+        private void VisitSymbol(ISymbol symbol)
         {
             // Only check methods
             if (!(symbol is IMethodSymbol method))
-                return symbol;
+                return;
 
             // Find Invoke attribute
             var attr = method.GetAttributes().FirstOrDefault(x => x.AttributeClass.Name == nameof(InvokeAttribute));
 
             if (attr == null)
                 // No attribute found, return
-                return symbol;
+                return;
 
             // We have the attribute, find its matching method
             var info = method.GetCorrespondingMethod() as MethodInfo;
@@ -38,7 +48,7 @@ namespace Cometary
             if (info == null)
             {
                 ReportWarning("Cannot invoke given method", symbol.Locations[0]);
-                return symbol;
+                return;
             }
 
             // Check method
@@ -79,8 +89,6 @@ namespace Cometary
             {
                 ReportError(e.Message, symbol.Locations[0]);
             }
-
-            return symbol;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Cometary
             using (MemoryStream symbolsStream = new MemoryStream())
             {
                 // Define the 'META' constant
-                compilation = PreprocessorSymbolNamesDefining.RecomputeCompilation(compilation, new[] { "META" }, cancellationToken);
+                compilation = compilation.RecomputeCompilationWithOptions(opts => opts.WithPreprocessorSymbols("META"), cancellationToken);
 
                 // Emit stream for the first time
                 EmitResult result = compilation.Emit(

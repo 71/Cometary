@@ -12,9 +12,12 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Cometary
 {
     /// <summary>
-    ///   
+    ///   Class in charge of processing a <see cref="CSharpCompilation"/> by
+    ///   finding, and initializing its <see cref="CometaryAttribute"/>s, thus
+    ///   building a collection of <see cref="CompilationEditor"/>s that will be able
+    ///   to edit the assembly to which this processor is bound.
     /// </summary>
-    internal sealed class CometaryManager : IDisposable
+    internal sealed class CompilationProcessor : IDisposable
     {
         #region Static
         /// <summary>
@@ -85,7 +88,7 @@ namespace Cometary
         /// </summary>
         internal readonly ImmutableArray<(Exception Exception, AttributeData Data)>.Builder initializationExceptions = ImmutableArray.CreateBuilder<(Exception, AttributeData)>();
 
-        private CometaryManager(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, IEnumerable<CompilationEditor> editors)
+        private CompilationProcessor(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, IEnumerable<CompilationEditor> editors)
         {
             Editors = new List<CompilationEditor>(editors);
             AddDiagnostic = addDiagnostic;
@@ -95,14 +98,14 @@ namespace Cometary
         }
 
         /// <summary>
-        ///   Creates a new <see cref="CometaryManager"/>.
+        ///   Creates a new <see cref="CompilationProcessor"/>.
         /// </summary>
-        public static CometaryManager Create(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, params CompilationEditor[] editors)
+        public static CompilationProcessor Create(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, params CompilationEditor[] editors)
         {
             Debug.Assert(editors != null);
             Debug.Assert(editors.All(x => x != null));
 
-            return new CometaryManager(moduleBuilderGetter, addDiagnostic, editors);
+            return new CompilationProcessor(moduleBuilderGetter, addDiagnostic, editors);
         }
 
         #region Initialization
@@ -191,7 +194,7 @@ namespace Cometary
         }
 
         /// <summary>
-        ///   Initializes the <see cref="CometaryManager"/>, and all its registered members.
+        ///   Initializes the <see cref="CompilationProcessor"/>, and all its registered members.
         /// </summary>
         public bool TryInitialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {

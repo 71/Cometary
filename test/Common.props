@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="Shouldly" Version="2.8.3" />
     <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="xunit.core" Version="2.2.0" />
     <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="xunit.runner.visualstudio" Version="2.2.0" />
     <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Condition=" '$(DefinesTests)' != 'False' " Include="Shouldly" Version="2.8.3" />
   </ItemGroup>
 
   <ItemGroup>

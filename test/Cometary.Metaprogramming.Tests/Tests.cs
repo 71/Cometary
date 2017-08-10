@@ -32,14 +32,5 @@ namespace Cometary.Tests
         {
             typeof(Tests).GetProperty("Answer").GetValue(null).ShouldBe(42);
         }
-
-        ///// <summary>
-        /////   Ensures that the <see cref="InvokeAttribute"/> does lead to the execution of the marked method.
-        ///// </summary>
-        //[Invoke]
-        //public static void TestInvocation(IMethodSymbol currentMethod)
-        //{
-        //    // Not implemented yet.
-        //}
     }
 }

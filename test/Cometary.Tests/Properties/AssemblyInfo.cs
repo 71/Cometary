@@ -1,5 +1,4 @@
-﻿using Cometary;
-using Cometary.Debugging;
+﻿using Cometary.Debugging;
 using Xunit;
 
 #if DEBUG
