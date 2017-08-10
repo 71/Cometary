@@ -7,6 +7,7 @@ This library eases debugging in three situations:
  3. Debugging an assembly that has been modified by Cometary.
 
 # Installation
+[![NuGet](https://img.shields.io/nuget/vpre/Cometary.Debugging.svg)](https://nuget.org/packages/Cometary.Debugging)
 ```powershell
 Install-Package Cometary.Debugging
 ```

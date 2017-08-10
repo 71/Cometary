@@ -4,6 +4,7 @@
 This assembly provides the ability to define `CompilationEditor`s that will be used by Cometary to edit the assembly in which they are defined.
 
 # Installation
+[![NuGet](https://img.shields.io/nuget/vpre/Cometary.Metaprogramming.svg)](https://nuget.org/packages/Cometary.Metaprogramming)
 ```powershell
 Install-Package Cometary.Metaprogramming
 ```

@@ -21,7 +21,6 @@ if (parameter == null)
 // Much, much more.
 ```
 
-[![Latest release](https://img.shields.io/github/release/6A/Cometary.svg)](../../releases/latest)
 [![Issues](https://img.shields.io/github/issues-raw/6A/Cometary.svg)](../../issues)
 [![License](https://img.shields.io/github/license/6A/Cometary.svg)](./LICENSE.md)
 

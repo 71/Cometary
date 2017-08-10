@@ -8,6 +8,7 @@ This library provides macros the ability to allow methods to redefine themselves
 > Alternatively, the [`Cometary.Metaprogramming`](../Cometary.Metaprogramming) package must be installed.
 
 # Installation
+[![NuGet](https://img.shields.io/nuget/vpre/Cometary.Macros.svg)](https://nuget.org/packages/Cometary.Macros)
 ```powershell
 Install-Package Cometary.Macros
 ```

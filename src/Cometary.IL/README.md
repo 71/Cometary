@@ -6,6 +6,7 @@ by the compiler. It can modify any expression that is about to be emitted,
 and emit raw IL.
 
 # Installation
+[![NuGet](https://img.shields.io/nuget/vpre/Cometary.IL.svg)](https://nuget.org/packages/Cometary.IL)
 ```powershell
 Install-Package Cometary.IL
 ```

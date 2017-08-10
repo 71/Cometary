@@ -12,9 +12,8 @@
     <DevelopmentDependency>True</DevelopmentDependency>
 
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
-
-    <!-- Package -->
     <Description>Analyzer required by Cometary to edit assemblies.</Description>
+    <IncludeBuildOutput>False</IncludeBuildOutput>
     
   </PropertyGroup>
 
