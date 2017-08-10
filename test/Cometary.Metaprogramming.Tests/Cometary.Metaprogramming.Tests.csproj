@@ -6,6 +6,8 @@
     <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|AnyCPU'" />
+
   <ItemGroup>
     <ProjectReference Include="$(SourceDirectory)Cometary.Metaprogramming\Cometary.Metaprogramming.csproj" />
   </ItemGroup>

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace Cometary
 {
     /// <summary>
-    ///   Indicates that this assembly should edit itself on compilation.
+    ///   Indicates that this assembly should be loaded, and its
+    ///   editors initialized during compilation.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class EditSelfAttribute : CometaryAttribute
@@ -12,7 +13,7 @@ namespace Cometary
         internal readonly Type[] editorTypes;
 
         /// <summary>
-        ///   Initializes a new <see cref="EditSelfAttribute"/>.
+        ///   Creates a <see cref="EditSelfAttribute"/>.
         /// </summary>
         /// <param name="editorTypes">
         ///   A list of types, each representing a <see cref="CompilationEditor"/>

@@ -260,7 +260,7 @@ Dictionary<string, string> allOpCodes = new Dictionary<string, string>
 };
 
 string[] blacklist = {
-    "Brinst", "Brnull", "Brzero", "Endfault", "Ldelem_U8", "Ldind_U8", "Unaligned", "Stelem", "Ldelem", "Tail"
+    "Brinst", "Brnull", "Brzero", "Endfault", "Ldelem_U8", "Ldind_U8", "Unaligned", "Stelem", "Ldelem", "Tail", "Ldtoken"
 };
 
 string Classify(KeyValuePair<string, string> kvp)
@@ -285,25 +285,18 @@ string Classify(KeyValuePair<string, string> kvp)
         return "string str";
 
     else if (ins.Contains("<field"))
-        return "FieldInfo field";
+        return "object fieldAccess";
     else if (ins.Contains("<method"))
-        return "MethodInfo method";
+        return "object methodCall";
     else if (ins.Contains("<class") || ins.Contains("<type") || ins.Contains("<valuetype") || ins.Contains("<thisType"))
         return "Type type";
     else if (ins.Contains("<ctor"))
-        return "ConstructorInfo ctor";
+        return "object ctorCall";
     else if (ins.Contains("<etype"))
         return "Type itemType";
 
     else if (ins.Contains("<param"))
         return "int parameterSequence";
-
-    else if (ins.Contains("<callsitedescr"))
-        return "CallingConventions callingConvention, Type returnType, Type[] parameterTypes, Type[] optionalParameterTypes";
-    else if (ins.Contains("<ins"))
-        return "string labelName";
-    else if (ins.Contains("switch"))
-        return "params string[] labelNames";
 
     else if (ins.Contains("<"))
         return "SKIP";
@@ -321,7 +314,7 @@ string ConvertName(string name)
 
 foreach (var ins in allOpCodes.ToLookup(Classify).Where(x => x.Key != "SKIP"))
 {
-    string varname = ins.Key == "" ? "" : $", ({ins.Key.Substring(ins.Key.LastIndexOf(' '))})";
+    string varname = ins.Key == "" ? "" : $", {ins.Key.Substring(ins.Key.LastIndexOf(' ') + 1)}";
     string paramname = ins.Key == "" ? "" : ins.Key;
 
     Context.WriteLine($"#region {(ins.Key == "" ? "No parameters" : ins.Key)}");

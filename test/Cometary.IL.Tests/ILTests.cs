@@ -1,3 +1,4 @@
+using System;
 using Shouldly;
 using Xunit;
 
@@ -8,9 +9,11 @@ namespace Cometary.Tests
     /// </summary>
     public class ILTests
     {
-        public static string Null()
+        public static string ClassName()
         {
-            IL.Ldstr(nameof(ILTests));
+            IL.Ldtoken(typeof(ILTests));
+            IL.Call(Type.GetTypeFromHandle(default(RuntimeTypeHandle)));
+            IL.Callvirt(typeof(object).Name);
             IL.Ret();
 
             return null;
@@ -20,6 +23,6 @@ namespace Cometary.Tests
         /// 
         /// </summary>
         [Fact]
-        public void TestInlineIL() => Null().ShouldBe(nameof(ILTests));
+        public void TestInlineIL() => ClassName().ShouldBe(nameof(ILTests));
     }
 }

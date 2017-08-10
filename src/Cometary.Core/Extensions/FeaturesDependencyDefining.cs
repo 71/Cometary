@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
 namespace Cometary
 {
     /// <summary>
-    ///   Provides methods used to define features that are needed for execution..
+    ///   Provides methods used to define features that are needed for execution.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public static class FeaturesDependencyDefining

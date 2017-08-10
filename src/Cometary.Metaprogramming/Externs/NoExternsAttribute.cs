@@ -11,7 +11,7 @@ namespace Cometary
     /// <para>
     ///   This attribute can be used by assemblies that edit themselves while declaring
     ///   extern methods, in order to be able to run them flawlessly, despite the presence of
-    ///   methods with "no implementation".
+    ///   methods with no implementation.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]

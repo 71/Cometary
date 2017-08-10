@@ -42,43 +42,23 @@ namespace Cometary
             = new DiagnosticDescriptor("InitializationError", "Unexpected error", "Exception thrown during the initialization by the '{0}' attribute: '{1}'. Stack trace: {2}.", Common.DiagnosticsCategory, DiagnosticSeverity.Error, true);
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
         public List<CompilationEditor> Editors { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FlatteningList<Edit<CSharpCompilation>> CompilationPipeline { get; } = new FlatteningList<Edit<CSharpCompilation>>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public FlatteningList<Edit<ISourceAssemblySymbol>> AssemblyPipeline { get; } = new FlatteningList<Edit<ISourceAssemblySymbol>>();
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsInitialized { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsInitializationSuccessful { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Action<Diagnostic> AddDiagnostic { get; }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public Store SharedStorage { get; }
 
         /// <summary>
-        /// 
+        ///   Delegate given by the <see cref="Hooks.CheckOptionsAndCreateModuleBuilder"/> method,
+        ///   allowing the processor to compute the result of the original call before continuing.
         /// </summary>
         internal readonly Func<CSharpCompilation, object> getModuleBuilder;
 
@@ -110,7 +90,8 @@ namespace Cometary
 
         #region Initialization
         /// <summary>
-        /// 
+        ///   Registers all <see cref="CometaryAttribute"/>s set on the given <paramref name="assembly"/>,
+        ///   and every <see cref="CompilationEditor"/> returned by each of those attributes.
         /// </summary>
         public void RegisterAttributes(IAssemblySymbol assembly)
         {
@@ -280,7 +261,7 @@ namespace Cometary
         }
 
         /// <summary>
-        /// 
+        ///   Attempts to uninitialize the processor.
         /// </summary>
         public bool TryUninitialize()
         {
@@ -301,7 +282,8 @@ namespace Cometary
 
         #region Editing
         /// <summary>
-        ///   
+        ///   Edits the given <paramref name="compilation"/>, and returns a value describing whether or
+        ///   not an error was encountered during the edition.
         /// </summary>
         public bool TryEditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken, out CSharpCompilation modified, out object outputBuilder)
         {
@@ -407,7 +389,7 @@ namespace Cometary
         #endregion
 
         /// <summary>
-        /// 
+        ///   Reports a <see cref="Diagnostic"/>, using the <see cref="ProcessingError"/> descriptor.
         /// </summary>
         public void ReportDiagnostic(string step, string message, string stackTrace)
         {

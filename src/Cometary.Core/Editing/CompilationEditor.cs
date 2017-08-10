@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -7,8 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace Cometary
 {
     /// <summary>
-    ///   Defines a set of members used to analyze and modify a
-    ///   <see cref="CSharpCompilation"/>.
+    ///   Defines a set of members used to analyze and edit a <see cref="CSharpCompilation"/>.
     /// </summary>
     /// <seealso href="https://github.com/6A/Cometary" />
     public abstract partial class CompilationEditor : IDisposable
@@ -52,22 +50,32 @@ namespace Cometary
         public Store SharedStorage { get; private set; }
 
         /// <summary>
-        /// 
+        /// <para>
+        ///   Event invoked at the start of the compilation.
+        /// </para>
+        /// <para>
+        ///   At this point, all editors have been initialized, but the compilation hasn't been edited yet.
+        /// </para>
         /// </summary>
         public event Action<CompilationEditor, CSharpCompilation> CompilationStart;
 
         /// <summary>
-        /// 
+        /// <para>
+        ///   Event invoked at the end of the compilation.
+        /// </para>
+        /// <para>
+        ///   At this point, all editors have been able to edit the compilation.
+        /// </para>
         /// </summary>
         public event Action<CompilationEditor, CSharpCompilation> CompilationEnd;
 
         /// <summary>
-        /// 
+        ///   Event invoked at the start of the emission.
         /// </summary>
         public event Action<CompilationEditor> EmissionStart;
 
         /// <summary>
-        /// 
+        ///   Event invoke at the end of the emission.
         /// </summary>
         public event Action<CompilationEditor> EmissionEnd;
 

@@ -9,6 +9,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <RootNamespace>$(Name).Debugging</RootNamespace>
+
+    <Description>Cometary extension that provides utilities used to debug extensions, self-editing assemblies, and more.</Description>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(BuildingInsideVisualStudio)' != 'True' ">

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Semantics;
+using System.Reflection;
 
 namespace Cometary
 {
@@ -58,6 +60,9 @@ namespace Cometary
                 var arg = invocationArgs[start];
                 var val = arg.Value;
 
+                if (val is IConversionExpression conversion && !conversion.IsExplicit)
+                    val = conversion.Operand;
+
                 if (val.ConstantValue.HasValue)
                 {
                     // Constant value (not including typeof)
@@ -67,16 +72,6 @@ namespace Cometary
 
                     switch (opcode)
                     {
-                        //case ILOpCode.Br:
-                        //case ILOpCode.Brfalse:
-                        //case ILOpCode.Brfalse_s:
-                        //case ILOpCode.Brtrue:
-                        //case ILOpCode.Brtrue_s:
-                        //case ILOpCode.Br_s:
-                            // Would be nice to allow the user to specify a label by string
-                            //if (constantValue is string str)
-                            //    context.EmitConstant(context.)
-                            //break;
                         default:
                             context.EmitRawConstant(constantValue);
                             break;
@@ -103,20 +98,11 @@ namespace Cometary
                     return;
                 }
 
-                if (val is IPropertyReferenceExpression property)
+                if (val is IMethodBindingExpression method)
                 {
-                    // Property reference: emit property getter
+                    // Method binding: emit method token
                     context.EmitOpCode(opcode);
-                    context.EmitSymbolToken(property.Property.GetMethod, property.Syntax);
-
-                    return;
-                }
-
-                if (val is IAssignmentExpression assignement && assignement.Target is IPropertyReferenceExpression prop)
-                {
-                    // Property reference: emit property getter
-                    context.EmitOpCode(opcode);
-                    context.EmitSymbolToken(prop.Property.SetMethod, prop.Syntax);
+                    context.EmitSymbolToken(method.Method, method.Syntax);
 
                     return;
                 }

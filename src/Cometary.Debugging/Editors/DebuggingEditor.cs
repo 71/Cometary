@@ -14,7 +14,7 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace Cometary.Debugging
 {
     /// <summary>
-    ///   <see cref="CompilationEditor"/> that allows debugging the cometary process.
+    ///   <see cref="CompilationEditor"/> that allows debugging the Cometary process.
     /// </summary>
     internal sealed class DebuggingEditor : CompilationEditor
     {

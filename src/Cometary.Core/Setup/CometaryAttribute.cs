@@ -23,7 +23,8 @@ namespace Cometary
         public int Order { get; set; }
 
         /// <summary>
-        ///   Initializes this plugin, returning 
+        ///   Initializes this plugin, returning a collection of non-<see langword="null"/>
+        ///   <see cref="CompilationEditor"/>s that are to edit the assembly marked by this attribute.
         /// </summary>
         public abstract IEnumerable<CompilationEditor> Initialize();
     }

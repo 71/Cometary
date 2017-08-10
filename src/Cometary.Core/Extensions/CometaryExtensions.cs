@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
     /// <summary>
-    ///   Provides utilities for symbols.
+    ///   Provides common utilities that can be used in many circomstances
+    ///   to ease the edition process.
     /// </summary>
     public static partial class CometaryExtensions
     {

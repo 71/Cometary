@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Shouldly;
+using Xunit;
+
+[assembly: VirtuousAssembly]
 
 namespace Cometary.Tests
 {
@@ -9,5 +10,12 @@ namespace Cometary.Tests
     /// </summary>
     public class CgcTests
     {
+        public int EvilNumber => 666;
+
+        [Fact]
+        public void TestCustomEmissionPipeline()
+        {
+            EvilNumber.ShouldBe(0);
+        }
     }
 }

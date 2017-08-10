@@ -28,7 +28,7 @@ namespace Cometary
             /// <inheritdoc />
             public override void Dispose()
             {
-                IL.ActiveEditors--;
+                // IL.ActiveEditors--;
             }
         }
     }

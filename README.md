@@ -28,11 +28,6 @@ if (parameter == null)
 > **Note**  
 > This project is still in active development, and is *extremely* unstable. Please proceed with caution.
 
-> **Note**  
-> Currently, no NuGet package is published. I hope to release most of them by the end of August.
-> In any case, the [Analyzer][Analyzer], [Core][Core] and [Metaprogramming][Metaprogramming] packages should be released and fully working before the 10th of August.
-> In the meantime, you can check out the [v0.1](https://github.com/6A/Cometary/milestone/1) milestone for updates on the development of the project.
-
 # Get started
 Cometary requires two core components to work normally:
 - The [Analyzer][Analyzer], required to extend the Roslyn build process.
@@ -46,6 +41,9 @@ Once installed, all you have to do is build your project normally (via `csc`, `d
 
 You now have the required dependencies, but nothing much will change. You need to either [install an extension](#installing-existing-extensions), or [make your own](#making-your-own-extension).
 
+> **Note**:  
+> To build your own extension, the analyzer is not required, but Cometary will not be executed on your extension.
+
 ## Installing existing extensions
 Some existing extensions can be found in the "[src](./src)" directory, and installed through the NuGet package manager. Please consult their respective READMEs to learn how to install and use them.
 
@@ -56,8 +54,10 @@ By convention, extensions must be installed as a dependency, **and** configured 
 ```
 
 ### Existing extensions
-- [Cometary.Metaprogramming][Metaprogramming], which will run extensions directly defined in your assembly, and execute some methods marked with the `Invoke` attribute. It allows an assembly to edit its own syntax and resulting compilation before being emitted by Roslyn. To do so, [CTFE](https://www.wikiwand.com/en/Compile_time_function_execution), [Mixins](https://www.wikiwand.com/en/Mixin), and [Macros](https://www.wikiwand.com/en/Macro_(computer_science)) will be made available to the user.
-- [Cometary.IL](./src/Cometary.IL), which will allow you to print your own IL code inline.
+- [Cometary.Metaprogramming][Metaprogramming], which will run extensions directly defined in your assembly. It allows an assembly to edit its own syntax and resulting compilation before being emitted by Roslyn.
+- [Cometary.IL](./src/Cometary.IL), which will allow you to print your own IL code inline, and modify the way Roslyn emits your code.
+- [Cometary.Debugging][Debugging], which attempts to make the debugging experience flawless, by creating executables that reproduce the whole modification process in a debugger-friendly environment, and printing modified syntax trees to temporary files, for matching sequence points.
+- [Cometary.Macros](./src/Cometary.Macros), which allows the use of macros, special methods that edit their own syntax depending on the context of the caller.
 
 ## Making your own extension
 An extension is a normal .NET library that defines one or more `CompilationEditor`s (an example is available below). However, simply having a dependency on the extension is not enough to install it. You also need to create an attribute inheriting [`CometaryAttribute`][CometaryAttribute], and have the user set it on its assembly.
@@ -169,11 +169,18 @@ Build succeeded.
 - [Cometary.Metaprogramming][Metaprogramming] is available for .NET Standard 1.5 and up.
 - For building, Visual Studio 2017 with the [Scry](https://github.com/6A/Scry) extension is required.
 
+# Testing
+Tests are available in the [test](./test) directory, and contain some examples of what can be easily achieved using Cometary. They all all three different configurations, depending on what we're trying to achieve:
+- `Release`: Ensure tests do well in an optimized environment, and don't debug anything.
+- `Debug`: Use [Cometary.Debugging][Debugging] to debug the modification process related to the tested extension.
+- `Test`: Run the tests on a debugger-friendly environment, after modifying the assembly through Cometary.
+
+
 # How does it work?
 - When loaded, the [Analyzer][Analyzer] loads the [Cometary.Core][Core] library (optionally resolving dependencies thanks to the references of the compilation it analyzes).
 - When [Cometary.Core][Core] is loaded, some hooks are created (using [Ryder](https://github.com/6A/Ryder), via the [`Hooks` class](./src/Cometary.Core/Hooks.cs)). Those hooks redirect calls made to some internal Roslyn methods, to custom methods.
 - When a `CSharpCompilation` is about to be emitted (via [`CheckOptionsAndCreateModuleBuilder`](http://source.roslyn.io/#Microsoft.CodeAnalysis/Compilation/Compilation.cs,42341c66e909e676)), Cometary intercepts the call and does the following things:
-   1. Create a [`CometaryManager`][Manager] and bind it to the `CSharpCompilation`.
+   1. Create a [`CompilationProcessor`][Processor] and bind it to the `CSharpCompilation`.
    2. Find all attributes set on the assembly to emit that inherit [`CometaryAttribute`][CometaryAttribute], and initialize them. During initialization, those attributes have the ability to register [`CompilationEditor`s][Editor].
    3. All registered editors are initialized in their turn, allowing them to suppress `Diagnostic`s (by registering a `Predicate<Diagnostic>`), or edit the compilation, and its syntax and symbols.
    4. Let all the now-initialized editors actually edit the original `CSharpCompilation`.
@@ -183,7 +190,8 @@ Build succeeded.
 
 [CometaryAttribute]: ./src/Cometary.Core/Attributes/CometaryAttribute.cs
 [Editor]: ./src/Cometary.Core/CompilationEditor.cs
-[Manager]: ./src/Cometary.Core/CometaryManager.cs
+[Processor]: ./src/Cometary.Core/CompilationProcessor.cs
 [Core]: ./src/Cometary.Core
 [Analyzer]: ./src/Cometary.Analyzer
 [Metaprogramming]: ./src/Cometary.Metaprogramming
+[Debugging]: ./src/Cometary.Debugging

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Cometary
 {
@@ -730,169 +729,169 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Beq"/>:</para>
         ///   <para>"Branch to target if equal."</para>
         /// </summary>
-        public static void Beq(string target) => Emit((ILOpCode)OpCodes.Beq.Value, ( target));
+        public static void Beq(string target) => Emit((ILOpCode)OpCodes.Beq.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Beq_S"/>:</para>
         ///   <para>"Branch to target if equal, short form."</para>
         /// </summary>
-        public static void Beq_S(string target) => Emit((ILOpCode)OpCodes.Beq_S.Value, ( target));
+        public static void Beq_S(string target) => Emit((ILOpCode)OpCodes.Beq_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bge"/>:</para>
         ///   <para>"Branch to target if greater than or equal to."</para>
         /// </summary>
-        public static void Bge(string target) => Emit((ILOpCode)OpCodes.Bge.Value, ( target));
+        public static void Bge(string target) => Emit((ILOpCode)OpCodes.Bge.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bge_S"/>:</para>
         ///   <para>"Branch to target if greater than or equal to, short form."</para>
         /// </summary>
-        public static void Bge_S(string target) => Emit((ILOpCode)OpCodes.Bge_S.Value, ( target));
+        public static void Bge_S(string target) => Emit((ILOpCode)OpCodes.Bge_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bge_Un"/>:</para>
         ///   <para>"Branch to target if greater than or equal to (unsigned or unordered)."</para>
         /// </summary>
-        public static void Bge_Un(string target) => Emit((ILOpCode)OpCodes.Bge_Un.Value, ( target));
+        public static void Bge_Un(string target) => Emit((ILOpCode)OpCodes.Bge_Un.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bge_Un_S"/>:</para>
         ///   <para>"Branch to target if greater than or equal to (unsigned or unordered), short form"</para>
         /// </summary>
-        public static void Bge_Un_S(string target) => Emit((ILOpCode)OpCodes.Bge_Un_S.Value, ( target));
+        public static void Bge_Un_S(string target) => Emit((ILOpCode)OpCodes.Bge_Un_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bgt"/>:</para>
         ///   <para>"Branch to target if greater than."</para>
         /// </summary>
-        public static void Bgt(string target) => Emit((ILOpCode)OpCodes.Bgt.Value, ( target));
+        public static void Bgt(string target) => Emit((ILOpCode)OpCodes.Bgt.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bgt_S"/>:</para>
         ///   <para>"Branch to target if greater than, short form."</para>
         /// </summary>
-        public static void Bgt_S(string target) => Emit((ILOpCode)OpCodes.Bgt_S.Value, ( target));
+        public static void Bgt_S(string target) => Emit((ILOpCode)OpCodes.Bgt_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bgt_Un"/>:</para>
         ///   <para>"Branch to target if greater than (unsigned or unordered)."</para>
         /// </summary>
-        public static void Bgt_Un(string target) => Emit((ILOpCode)OpCodes.Bgt_Un.Value, ( target));
+        public static void Bgt_Un(string target) => Emit((ILOpCode)OpCodes.Bgt_Un.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bgt_Un_S"/>:</para>
         ///   <para>"Branch to target if greater than (unsigned or unordered), short form."</para>
         /// </summary>
-        public static void Bgt_Un_S(string target) => Emit((ILOpCode)OpCodes.Bgt_Un_S.Value, ( target));
+        public static void Bgt_Un_S(string target) => Emit((ILOpCode)OpCodes.Bgt_Un_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ble"/>:</para>
         ///   <para>"Branch to target if less than or equal to."</para>
         /// </summary>
-        public static void Ble(string target) => Emit((ILOpCode)OpCodes.Ble.Value, ( target));
+        public static void Ble(string target) => Emit((ILOpCode)OpCodes.Ble.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ble_S"/>:</para>
         ///   <para>"Branch to target if less than or equal to, short form."</para>
         /// </summary>
-        public static void Ble_S(string target) => Emit((ILOpCode)OpCodes.Ble_S.Value, ( target));
+        public static void Ble_S(string target) => Emit((ILOpCode)OpCodes.Ble_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ble_Un"/>:</para>
         ///   <para>"Branch to target if less than or equal to (unsigned or unordered)."</para>
         /// </summary>
-        public static void Ble_Un(string target) => Emit((ILOpCode)OpCodes.Ble_Un.Value, ( target));
+        public static void Ble_Un(string target) => Emit((ILOpCode)OpCodes.Ble_Un.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ble_Un_S"/>:</para>
         ///   <para>"Branch to target if less than or equal to (unsigned or unordered), short form"</para>
         /// </summary>
-        public static void Ble_Un_S(string target) => Emit((ILOpCode)OpCodes.Ble_Un_S.Value, ( target));
+        public static void Ble_Un_S(string target) => Emit((ILOpCode)OpCodes.Ble_Un_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Blt"/>:</para>
         ///   <para>"Branch to target if less than."</para>
         /// </summary>
-        public static void Blt(string target) => Emit((ILOpCode)OpCodes.Blt.Value, ( target));
+        public static void Blt(string target) => Emit((ILOpCode)OpCodes.Blt.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Blt_S"/>:</para>
         ///   <para>"Branch to target if less than, short form."</para>
         /// </summary>
-        public static void Blt_S(string target) => Emit((ILOpCode)OpCodes.Blt_S.Value, ( target));
+        public static void Blt_S(string target) => Emit((ILOpCode)OpCodes.Blt_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Blt_Un"/>:</para>
         ///   <para>"Branch to target if less than (unsigned or unordered)."</para>
         /// </summary>
-        public static void Blt_Un(string target) => Emit((ILOpCode)OpCodes.Blt_Un.Value, ( target));
+        public static void Blt_Un(string target) => Emit((ILOpCode)OpCodes.Blt_Un.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Blt_Un_S"/>:</para>
         ///   <para>"Branch to target if less than (unsigned or unordered), short form."</para>
         /// </summary>
-        public static void Blt_Un_S(string target) => Emit((ILOpCode)OpCodes.Blt_Un_S.Value, ( target));
+        public static void Blt_Un_S(string target) => Emit((ILOpCode)OpCodes.Blt_Un_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bne_Un"/>:</para>
         ///   <para>"Branch to target if unequal or unordered."</para>
         /// </summary>
-        public static void Bne_Un(string target) => Emit((ILOpCode)OpCodes.Bne_Un.Value, ( target));
+        public static void Bne_Un(string target) => Emit((ILOpCode)OpCodes.Bne_Un.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Bne_Un_S"/>:</para>
         ///   <para>"Branch to target if unequal or unordered, short form."</para>
         /// </summary>
-        public static void Bne_Un_S(string target) => Emit((ILOpCode)OpCodes.Bne_Un_S.Value, ( target));
+        public static void Bne_Un_S(string target) => Emit((ILOpCode)OpCodes.Bne_Un_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Br"/>:</para>
         ///   <para>"Branch to target."</para>
         /// </summary>
-        public static void Br(string target) => Emit((ILOpCode)OpCodes.Br.Value, ( target));
+        public static void Br(string target) => Emit((ILOpCode)OpCodes.Br.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Br_S"/>:</para>
         ///   <para>"Branch to target, short form."</para>
         /// </summary>
-        public static void Br_S(string target) => Emit((ILOpCode)OpCodes.Br_S.Value, ( target));
+        public static void Br_S(string target) => Emit((ILOpCode)OpCodes.Br_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Brfalse"/>:</para>
         ///   <para>"Branch to target if value is zero (false)."</para>
         /// </summary>
-        public static void Brfalse(string target) => Emit((ILOpCode)OpCodes.Brfalse.Value, ( target));
+        public static void Brfalse(string target) => Emit((ILOpCode)OpCodes.Brfalse.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Brfalse_S"/>:</para>
         ///   <para>"Branch to target if value is zero (false), short form."</para>
         /// </summary>
-        public static void Brfalse_S(string target) => Emit((ILOpCode)OpCodes.Brfalse_S.Value, ( target));
+        public static void Brfalse_S(string target) => Emit((ILOpCode)OpCodes.Brfalse_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Brtrue"/>:</para>
         ///   <para>"Branch to target if value is non-zero (true)."</para>
         /// </summary>
-        public static void Brtrue(string target) => Emit((ILOpCode)OpCodes.Brtrue.Value, ( target));
+        public static void Brtrue(string target) => Emit((ILOpCode)OpCodes.Brtrue.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Brtrue_S"/>:</para>
         ///   <para>"Branch to target if value is non-zero (true), short form."</para>
         /// </summary>
-        public static void Brtrue_S(string target) => Emit((ILOpCode)OpCodes.Brtrue_S.Value, ( target));
+        public static void Brtrue_S(string target) => Emit((ILOpCode)OpCodes.Brtrue_S.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Leave"/>:</para>
         ///   <para>"Exit a protected region of code."</para>
         /// </summary>
-        public static void Leave(string target) => Emit((ILOpCode)OpCodes.Leave.Value, ( target));
+        public static void Leave(string target) => Emit((ILOpCode)OpCodes.Leave.Value, target);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Leave_S"/>:</para>
         ///   <para>"Exit a protected region of code, short form."</para>
         /// </summary>
-        public static void Leave_S(string target) => Emit((ILOpCode)OpCodes.Leave_S.Value, ( target));
+        public static void Leave_S(string target) => Emit((ILOpCode)OpCodes.Leave_S.Value, target);
         
         #endregion // string target
         
@@ -901,172 +900,151 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Box"/>:</para>
         ///   <para>"Convert a boxable value to its boxed form"</para>
         /// </summary>
-        public static void Box(Type type) => Emit((ILOpCode)OpCodes.Box.Value, ( type));
+        public static void Box(Type type) => Emit((ILOpCode)OpCodes.Box.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Castclass"/>:</para>
         ///   <para>"Cast obj to class."</para>
         /// </summary>
-        public static void Castclass(Type type) => Emit((ILOpCode)OpCodes.Castclass.Value, ( type));
+        public static void Castclass(Type type) => Emit((ILOpCode)OpCodes.Castclass.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Constrained"/>:</para>
         ///   <para>"Call a virtual method on a type constrained to be type T"</para>
         /// </summary>
-        public static void Constrained(Type type) => Emit((ILOpCode)OpCodes.Constrained.Value, ( type));
+        public static void Constrained(Type type) => Emit((ILOpCode)OpCodes.Constrained.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Cpobj"/>:</para>
         ///   <para>"Copy a value type from src to dest."</para>
         /// </summary>
-        public static void Cpobj(Type type) => Emit((ILOpCode)OpCodes.Cpobj.Value, ( type));
+        public static void Cpobj(Type type) => Emit((ILOpCode)OpCodes.Cpobj.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Initobj"/>:</para>
         ///   <para>"Initialize the value at address dest."</para>
         /// </summary>
-        public static void Initobj(Type type) => Emit((ILOpCode)OpCodes.Initobj.Value, ( type));
+        public static void Initobj(Type type) => Emit((ILOpCode)OpCodes.Initobj.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Isinst"/>:</para>
         ///   <para>"Test if obj is an instance of class, returning null or an instance of that class or interface."</para>
         /// </summary>
-        public static void Isinst(Type type) => Emit((ILOpCode)OpCodes.Isinst.Value, ( type));
+        public static void Isinst(Type type) => Emit((ILOpCode)OpCodes.Isinst.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldobj"/>:</para>
         ///   <para>"Copy the value stored at address src to the stack."</para>
         /// </summary>
-        public static void Ldobj(Type type) => Emit((ILOpCode)OpCodes.Ldobj.Value, ( type));
-        
-        /// <summary>
-        ///   <para>Prints <see cref="OpCodes.Ldtoken"/>:</para>
-        ///   <para>"Convert metadata token to its runtime representation."</para>
-        /// </summary>
-        public static void Ldtoken(Type type) => Emit((ILOpCode)OpCodes.Ldtoken.Value, ( type));
+        public static void Ldobj(Type type) => Emit((ILOpCode)OpCodes.Ldobj.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Mkrefany"/>:</para>
         ///   <para>"Push a typed reference to ptr of type class onto the stack."</para>
         /// </summary>
-        public static void Mkrefany(Type type) => Emit((ILOpCode)OpCodes.Mkrefany.Value, ( type));
+        public static void Mkrefany(Type type) => Emit((ILOpCode)OpCodes.Mkrefany.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Refanyval"/>:</para>
         ///   <para>"Push the address stored in a typed reference."</para>
         /// </summary>
-        public static void Refanyval(Type type) => Emit((ILOpCode)OpCodes.Refanyval.Value, ( type));
+        public static void Refanyval(Type type) => Emit((ILOpCode)OpCodes.Refanyval.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Sizeof"/>:</para>
         ///   <para>"Push the size, in bytes, of a type as an unsigned int32."</para>
         /// </summary>
-        public static void Sizeof(Type type) => Emit((ILOpCode)OpCodes.Sizeof.Value, ( type));
+        public static void Sizeof(Type type) => Emit((ILOpCode)OpCodes.Sizeof.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Stobj"/>:</para>
         ///   <para>"Store a value of type typeTok at an address."</para>
         /// </summary>
-        public static void Stobj(Type type) => Emit((ILOpCode)OpCodes.Stobj.Value, ( type));
+        public static void Stobj(Type type) => Emit((ILOpCode)OpCodes.Stobj.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Unbox"/>:</para>
         ///   <para>"Extract a value-type from obj, its boxed representation."</para>
         /// </summary>
-        public static void Unbox(Type type) => Emit((ILOpCode)OpCodes.Unbox.Value, ( type));
+        public static void Unbox(Type type) => Emit((ILOpCode)OpCodes.Unbox.Value, type);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Unbox_Any"/>:</para>
         ///   <para>"Extract a value-type from obj, its boxed representation"</para>
         /// </summary>
-        public static void Unbox_Any(Type type) => Emit((ILOpCode)OpCodes.Unbox_Any.Value, ( type));
+        public static void Unbox_Any(Type type) => Emit((ILOpCode)OpCodes.Unbox_Any.Value, type);
         
         #endregion // Type type
         
-        #region MethodInfo method
+        #region object methodCall
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Call"/>:</para>
         ///   <para>"Call method described by method."</para>
         /// </summary>
-        public static void Call(MethodInfo method) => Emit((ILOpCode)OpCodes.Call.Value, ( method));
+        public static void Call(object methodCall) => Emit((ILOpCode)OpCodes.Call.Value, methodCall);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Callvirt"/>:</para>
         ///   <para>"Call a method associated with an object."</para>
         /// </summary>
-        public static void Callvirt(MethodInfo method) => Emit((ILOpCode)OpCodes.Callvirt.Value, ( method));
+        public static void Callvirt(object methodCall) => Emit((ILOpCode)OpCodes.Callvirt.Value, methodCall);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Jmp"/>:</para>
         ///   <para>"Exit current method and jump to the specified method."</para>
         /// </summary>
-        public static void Jmp(MethodInfo method) => Emit((ILOpCode)OpCodes.Jmp.Value, ( method));
+        public static void Jmp(object methodCall) => Emit((ILOpCode)OpCodes.Jmp.Value, methodCall);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldftn"/>:</para>
         ///   <para>"Push a pointer to a method referenced by method, on the stack."</para>
         /// </summary>
-        public static void Ldftn(MethodInfo method) => Emit((ILOpCode)OpCodes.Ldftn.Value, ( method));
-        
-        /// <summary>
-        ///   <para>Prints <see cref="OpCodes.Ldtoken"/>:</para>
-        ///   <para>"Convert metadata token to its runtime representation."</para>
-        /// </summary>
-        public static void Ldtoken(MethodInfo method) => Emit((ILOpCode)OpCodes.Ldtoken.Value, ( method));
+        public static void Ldftn(object methodCall) => Emit((ILOpCode)OpCodes.Ldftn.Value, methodCall);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldvirtftn"/>:</para>
         ///   <para>"Push address of virtual method on the stack."</para>
         /// </summary>
-        public static void Ldvirtftn(MethodInfo method) => Emit((ILOpCode)OpCodes.Ldvirtftn.Value, ( method));
+        public static void Ldvirtftn(object methodCall) => Emit((ILOpCode)OpCodes.Ldvirtftn.Value, methodCall);
         
-        #endregion // MethodInfo method
-        
-        #region CallingConventions callingConvention, Type returnType, Type[] parameterTypes, Type[] optionalParameterTypes
-        /// <summary>
-        ///   <para>Prints <see cref="OpCodes.Calli"/>:</para>
-        ///   <para>"Call method indicated on the stack with arguments described by callsitedescr."</para>
-        /// </summary>
-        public static void Calli(CallingConventions callingConvention, Type returnType, Type[] parameterTypes, Type[] optionalParameterTypes) => Emit((ILOpCode)OpCodes.Calli.Value, ( optionalParameterTypes));
-        
-        #endregion // CallingConventions callingConvention, Type returnType, Type[] parameterTypes, Type[] optionalParameterTypes
+        #endregion // object methodCall
         
         #region byte nbr
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldarg_S"/>:</para>
         ///   <para>"Load argument numbered num onto the stack, short form."</para>
         /// </summary>
-        public static void Ldarg_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldarg_S.Value, ( nbr));
+        public static void Ldarg_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldarg_S.Value, nbr);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldarga_S"/>:</para>
         ///   <para>"Fetch the address of argument argNum, short form."</para>
         /// </summary>
-        public static void Ldarga_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldarga_S.Value, ( nbr));
+        public static void Ldarga_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldarga_S.Value, nbr);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldloc_S"/>:</para>
         ///   <para>"Load local variable of index indx onto stack, short form."</para>
         /// </summary>
-        public static void Ldloc_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldloc_S.Value, ( nbr));
+        public static void Ldloc_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldloc_S.Value, nbr);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldloca_S"/>:</para>
         ///   <para>"Load address of local variable with index indx, short form."</para>
         /// </summary>
-        public static void Ldloca_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldloca_S.Value, ( nbr));
+        public static void Ldloca_S(byte nbr) => Emit((ILOpCode)OpCodes.Ldloca_S.Value, nbr);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Starg_S"/>:</para>
         ///   <para>"Store value to the argument numbered num, short form."</para>
         /// </summary>
-        public static void Starg_S(byte nbr) => Emit((ILOpCode)OpCodes.Starg_S.Value, ( nbr));
+        public static void Starg_S(byte nbr) => Emit((ILOpCode)OpCodes.Starg_S.Value, nbr);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Stloc_S"/>:</para>
         ///   <para>"Pop a value from stack into local variable indx, short form."</para>
         /// </summary>
-        public static void Stloc_S(byte nbr) => Emit((ILOpCode)OpCodes.Stloc_S.Value, ( nbr));
+        public static void Stloc_S(byte nbr) => Emit((ILOpCode)OpCodes.Stloc_S.Value, nbr);
         
         #endregion // byte nbr
         
@@ -1075,7 +1053,7 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Ldc_I4"/>:</para>
         ///   <para>"Push num of type int32 onto the stack as int32."</para>
         /// </summary>
-        public static void Ldc_I4(int nbr) => Emit((ILOpCode)OpCodes.Ldc_I4.Value, ( nbr));
+        public static void Ldc_I4(int nbr) => Emit((ILOpCode)OpCodes.Ldc_I4.Value, nbr);
         
         #endregion // int nbr
         
@@ -1084,7 +1062,7 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Ldc_I4_S"/>:</para>
         ///   <para>"Push num onto the stack as int32, short form."</para>
         /// </summary>
-        public static void Ldc_I4_S(sbyte nbr) => Emit((ILOpCode)OpCodes.Ldc_I4_S.Value, ( nbr));
+        public static void Ldc_I4_S(sbyte nbr) => Emit((ILOpCode)OpCodes.Ldc_I4_S.Value, nbr);
         
         #endregion // sbyte nbr
         
@@ -1093,7 +1071,7 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Ldc_I8"/>:</para>
         ///   <para>"Push num of type int64 onto the stack as int64."</para>
         /// </summary>
-        public static void Ldc_I8(long nbr) => Emit((ILOpCode)OpCodes.Ldc_I8.Value, ( nbr));
+        public static void Ldc_I8(long nbr) => Emit((ILOpCode)OpCodes.Ldc_I8.Value, nbr);
         
         #endregion // long nbr
         
@@ -1102,7 +1080,7 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Ldc_R4"/>:</para>
         ///   <para>"Push num of type float32 onto the stack as F."</para>
         /// </summary>
-        public static void Ldc_R4(float nbr) => Emit((ILOpCode)OpCodes.Ldc_R4.Value, ( nbr));
+        public static void Ldc_R4(float nbr) => Emit((ILOpCode)OpCodes.Ldc_R4.Value, nbr);
         
         #endregion // float nbr
         
@@ -1111,61 +1089,55 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Ldc_R8"/>:</para>
         ///   <para>"Push num of type float64 onto the stack as F."</para>
         /// </summary>
-        public static void Ldc_R8(double nbr) => Emit((ILOpCode)OpCodes.Ldc_R8.Value, ( nbr));
+        public static void Ldc_R8(double nbr) => Emit((ILOpCode)OpCodes.Ldc_R8.Value, nbr);
         
         #endregion // double nbr
         
-        #region FieldInfo field
+        #region object fieldAccess
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldfld"/>:</para>
         ///   <para>"Push the value of field of object (or value type) obj, onto the stack."</para>
         /// </summary>
-        public static void Ldfld(FieldInfo field) => Emit((ILOpCode)OpCodes.Ldfld.Value, ( field));
+        public static void Ldfld(object fieldAccess) => Emit((ILOpCode)OpCodes.Ldfld.Value, fieldAccess);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldflda"/>:</para>
         ///   <para>"Push the address of field of object obj on the stack."</para>
         /// </summary>
-        public static void Ldflda(FieldInfo field) => Emit((ILOpCode)OpCodes.Ldflda.Value, ( field));
+        public static void Ldflda(object fieldAccess) => Emit((ILOpCode)OpCodes.Ldflda.Value, fieldAccess);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldsfld"/>:</para>
         ///   <para>"Push the value of field on the stack."</para>
         /// </summary>
-        public static void Ldsfld(FieldInfo field) => Emit((ILOpCode)OpCodes.Ldsfld.Value, ( field));
+        public static void Ldsfld(object fieldAccess) => Emit((ILOpCode)OpCodes.Ldsfld.Value, fieldAccess);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldsflda"/>:</para>
         ///   <para>"Push the address of the static field, field, on the stack."</para>
         /// </summary>
-        public static void Ldsflda(FieldInfo field) => Emit((ILOpCode)OpCodes.Ldsflda.Value, ( field));
-        
-        /// <summary>
-        ///   <para>Prints <see cref="OpCodes.Ldtoken"/>:</para>
-        ///   <para>"Convert metadata token to its runtime representation."</para>
-        /// </summary>
-        public static void Ldtoken(FieldInfo field) => Emit((ILOpCode)OpCodes.Ldtoken.Value, ( field));
+        public static void Ldsflda(object fieldAccess) => Emit((ILOpCode)OpCodes.Ldsflda.Value, fieldAccess);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Stfld"/>:</para>
         ///   <para>"Replace the value of field of the object obj with value."</para>
         /// </summary>
-        public static void Stfld(FieldInfo field) => Emit((ILOpCode)OpCodes.Stfld.Value, ( field));
+        public static void Stfld(object fieldAccess) => Emit((ILOpCode)OpCodes.Stfld.Value, fieldAccess);
         
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Stsfld"/>:</para>
         ///   <para>"Replace the value of field with val."</para>
         /// </summary>
-        public static void Stsfld(FieldInfo field) => Emit((ILOpCode)OpCodes.Stsfld.Value, ( field));
+        public static void Stsfld(object fieldAccess) => Emit((ILOpCode)OpCodes.Stsfld.Value, fieldAccess);
         
-        #endregion // FieldInfo field
+        #endregion // object fieldAccess
         
         #region string str
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Ldstr"/>:</para>
         ///   <para>"Push a string object for the literal string."</para>
         /// </summary>
-        public static void Ldstr(string str) => Emit((ILOpCode)OpCodes.Ldstr.Value, ( str));
+        public static void Ldstr(string str) => Emit((ILOpCode)OpCodes.Ldstr.Value, str);
         
         #endregion // string str
         
@@ -1174,27 +1146,18 @@ namespace Cometary
         ///   <para>Prints <see cref="OpCodes.Newarr"/>:</para>
         ///   <para>"Create a new array with elements of type etype."</para>
         /// </summary>
-        public static void Newarr(Type itemType) => Emit((ILOpCode)OpCodes.Newarr.Value, ( itemType));
+        public static void Newarr(Type itemType) => Emit((ILOpCode)OpCodes.Newarr.Value, itemType);
         
         #endregion // Type itemType
         
-        #region ConstructorInfo ctor
+        #region object ctorCall
         /// <summary>
         ///   <para>Prints <see cref="OpCodes.Newobj"/>:</para>
         ///   <para>"Allocate an uninitialized object or value type and call ctor."</para>
         /// </summary>
-        public static void Newobj(ConstructorInfo ctor) => Emit((ILOpCode)OpCodes.Newobj.Value, ( ctor));
+        public static void Newobj(object ctorCall) => Emit((ILOpCode)OpCodes.Newobj.Value, ctorCall);
         
-        #endregion // ConstructorInfo ctor
-        
-        #region params string[] labelNames
-        /// <summary>
-        ///   <para>Prints <see cref="OpCodes.Switch"/>:</para>
-        ///   <para>"Jump to one of n values."</para>
-        /// </summary>
-        public static void Switch(params string[] labelNames) => Emit((ILOpCode)OpCodes.Switch.Value, ( labelNames));
-        
-        #endregion // params string[] labelNames
+        #endregion // object ctorCall
         
     }
 }

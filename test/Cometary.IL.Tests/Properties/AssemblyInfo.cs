@@ -4,8 +4,8 @@ using Xunit;
 
 [assembly: SupportIL]
 
-#if DEBUG
+#if DEBUG && false
 [assembly: DebugCometary]
 #endif
 
-[assembly: BreakOn(typeof(FactAttribute)), OutputAllTrees]
+[assembly: /*BreakOn(typeof(FactAttribute)),*/ OutputAllTrees]

@@ -117,9 +117,6 @@ namespace Cometary
             return key;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         internal void Dispose(Action<Exception> logException)
         {
             var values = Values.UnderlyingArray;

@@ -4,6 +4,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
+
+    <Description>Cometary extension that cleans all references to Cometary from an assembly.</Description>
   </PropertyGroup>
 
   <ItemGroup>

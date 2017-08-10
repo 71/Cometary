@@ -36,13 +36,20 @@ ReturnFalse(); // => false.
 Specifying non-constants will lead to an exception.
 
 ```csharp
-public void Illegal()
-{
-	Type type = typeof(int);
+Type type = typeof(int);
 
-	IL.Emit(ILOpCode.Ldtoken, type); // Throws.
-	IL.Emit(ILOpCode.Ldtoken, typeof(int)); // Does not throw.
-}
+IL.Emit(ILOpCode.Ldtoken, type); // Throws.
+IL.Emit(ILOpCode.Ldtoken, typeof(int)); // Does not throw.
+```
+
+When a method call, or member access is done, the token of the member itself is written.
+
+```csharp
+IL.Ldtoken(DateTime.Now);
+// = ldtoken System.DateTime.get_Now()
+
+IL.Ldtoken(Type.GetTypeFromHandle(default(RuntimeTypeHandle)));
+// = ldtoken System.Type.GetTypeFromHandle(RuntimeTypeHandle)
 ```
 
 ## Emission hooks

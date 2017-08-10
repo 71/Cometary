@@ -11,7 +11,7 @@
     .\Build.ps1 -Publish -Stable
 #>
 
-param([switch] $Reset, [switch] $Publish, [switch] $Stable, [switch] $Verbose, [string] $Configuration = "Release", [string[]] $Blacklist = ("Cometary", "Cometary.Expressions", "Cometary.IL"))
+param([switch] $Reset, [switch] $Publish, [switch] $Stable, [switch] $Verbose, [string] $Configuration = "Release", [string[]] $Blacklist = ("Cometary", "Cometary.Expressions", "Cometary.IL", "Cometary.CleanUp"))
 
 # Read versions
 $Data = Get-Content -Raw ./data.json | ConvertFrom-Json
@@ -116,5 +116,5 @@ if ($Publish) {
     }
 }
 
-# Write versions back
+# Write versions / hashes to disk
 Persist-Data

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Cometary
 {
     /// <summary>
-    ///   <see cref="DiagnosticAnalyzer"/> that initializes a <see cref="CometaryManager"/>
+    ///   <see cref="DiagnosticAnalyzer"/> that initializes a <see cref="CompilationProcessor"/>
     ///   in this context.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -75,8 +75,8 @@ namespace Cometary
             void EndAction(CompilationAnalysisContext ctx)
             {
                 ctx.ReportDiagnostic(encounteredException != null
-                    ? Diagnostic.Create(CometaryAnalyzer.HookError, Location.None, encounteredException.ToString())
-                    : Diagnostic.Create(CometaryAnalyzer.HookSuccess, Location.None));
+                    ? Diagnostic.Create(HookError, Location.None, encounteredException.ToString())
+                    : Diagnostic.Create(HookSuccess, Location.None));
             }
 
             // Make sure we Cometary.Core can be loaded

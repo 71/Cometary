@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis;
 namespace Cometary
 {
     /// <summary>
-    ///   Manages assembly resolution.
+    ///   Manages assembly resolution during the <see cref="CometaryAnalyzer"/> initialization.
     /// </summary>
     internal static class AssemblyLoading
     {

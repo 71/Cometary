@@ -5,6 +5,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <OutputType>Library</OutputType>
+    <Description>Cometary extension that allows the dependant assembly to edit itself during compilation.</Description>
   </PropertyGroup>
 
   <ItemGroup>

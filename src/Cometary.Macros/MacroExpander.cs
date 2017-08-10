@@ -18,7 +18,7 @@ namespace Cometary.Macros
         private readonly SemanticModel semanticModel;
         private readonly CancellationToken cancellationToken;
 
-        private Dictionary<StatementSyntax, StatementSyntax> changes;
+        private readonly Dictionary<StatementSyntax, StatementSyntax> changes;
 
         internal MacroExpander(CSharpSyntaxTree syntaxTree, CSharpCompilation compilation, CancellationToken cancellationToken)
         {

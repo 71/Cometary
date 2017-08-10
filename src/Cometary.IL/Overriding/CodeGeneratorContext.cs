@@ -51,20 +51,23 @@ namespace Cometary
             // Hooking 'CodeGenerator.EmitExpressionCore'
             MethodInfo original = ReflectionHelpers.CodeAnalysisCSharpAssembly
                 .GetType("Microsoft.CodeAnalysis.CSharp.CodeGen.CodeGenerator")
-                .GetMethod(nameof(EmitExpressionCore), BindingFlags.Instance | BindingFlags.NonPublic);
+                .GetMethod(nameof(EmitExpression), BindingFlags.Instance | BindingFlags.NonPublic);
 
             MethodInfo replacement = typeof(CodeGeneratorContext)
-                .GetMethod(nameof(EmitExpressionCore), BindingFlags.Static | BindingFlags.NonPublic);
+                .GetMethod(nameof(EmitExpression), BindingFlags.Static | BindingFlags.NonPublic);
 
-            EmitRedirection = Redirection.Redirect(original, replacement, skipChecks: true);
             Emitters = new Pipeline<EmitDelegate>();
+            EmitRedirection = Redirection.Redirect(original, replacement, skipChecks: true);
         }
 
         /// <summary>
         ///   Target method of the <see cref="EmitRedirection"/> <see cref="Redirection"/>.
         /// </summary>
-        private static void EmitExpressionCore(object codeGenerator, IOperation expression, bool used)
+        private static void EmitExpression(object codeGenerator, IOperation expression, bool used)
         {
+            if (codeGenerator == null || expression == null)
+                return;
+
             void Next(CodeGeneratorContext ctx, IOperation op, bool u)
             {
                 EmitRedirection.InvokeOriginal(ctx.CodeGenerator, op, u);
@@ -74,12 +77,11 @@ namespace Cometary
             {
                 Emitters.MakeDelegate(Next)(new CodeGeneratorContext(codeGenerator, used), expression, used);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // We're on our own here, nowhere to log data, nothing to do
                 EmitRedirection.InvokeOriginal(codeGenerator, expression, used);
-                Console.WriteLine(e);
-            }
+           }
         }
         #endregion
 

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,7 +8,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Cometary.Debugging
 {
     /// <summary>
-    /// 
+    ///   <see cref="CompilationEditor"/> that automatically adds <see cref="Debugger.Break"/>
+    ///   statements at the start of specific methods.
     /// </summary>
     internal sealed class BreakingEditor : CompilationEditor
     {
@@ -29,7 +28,6 @@ namespace Cometary.Debugging
             }
         }
 
-        /// <inheritdoc />
         protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             this.EditSyntax(EditSyntaxNode);

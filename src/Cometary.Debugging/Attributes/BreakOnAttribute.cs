@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace Cometary.Debugging
 {
     /// <summary>
     ///   Indicates that all methods marked with an attribute of the given <see cref="Type"/>
-    ///   should call <see cref="Debugger.Break"/> as soon as they are invoked.
+    ///   should lead the debugger to break as soon as they are invoked.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class BreakOnAttribute : ConfigurationDependantAttribute
     {
         /// <summary>
-        /// 
+        ///   Gets the type of every attribute for which the debugger should break.
         /// </summary>
         public Type[] AttributeTypes { get; }
 

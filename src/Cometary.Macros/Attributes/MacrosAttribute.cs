@@ -9,7 +9,7 @@ namespace Cometary
     using Macros;
 
     /// <summary>
-    ///   Indicates that the marked assembly will have its macros lowered.
+    ///   Indicates that the marked assembly will have its macro methods lowered.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class MacrosAttribute : CometaryAttribute

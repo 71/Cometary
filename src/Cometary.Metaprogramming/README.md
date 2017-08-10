@@ -1,8 +1,7 @@
 ﻿Cometary.Metaprogramming
 ========================
 
-This assembly provides the ability of any assembly to define `CompilationEditor`'s that will edit
-the assembly in which they are defined.
+This assembly provides the ability to define `CompilationEditor`s that will be used by Cometary to edit the assembly in which they are defined.
 
 # Installation
 ```powershell
