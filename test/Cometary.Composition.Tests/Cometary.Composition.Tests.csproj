@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cometary.Macros.Tests.Library\Cometary.Macros.Tests.Library.csproj" />
+    <ProjectReference Include="..\Cometary.Composition.Tests.Library\Cometary.Composition.Tests.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>

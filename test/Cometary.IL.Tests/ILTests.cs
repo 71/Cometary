@@ -23,6 +23,6 @@ namespace Cometary.Tests
         /// 
         /// </summary>
         [Fact]
-        public void TestInlineIL() => ClassName().ShouldBe(nameof(ILTests));
+        public void ShouldPrintCustomIL() => ClassName().ShouldBe(nameof(ILTests));
     }
 }

@@ -18,7 +18,7 @@ namespace Cometary.Tests
         public int Two => 2;
 
         [Fact]
-        public void TestRequireClass()
+        public void ShouldExpandMacros()
         {
             void TestMethod(int number, string str, object obj)
             {
@@ -42,7 +42,7 @@ namespace Cometary.Tests
         }
 
         [Fact]
-        public void TestMixins()
+        public void ShouldExpandMixins()
         {
             int i = 0;
 
@@ -52,7 +52,7 @@ namespace Cometary.Tests
         }
 
         [Fact]
-        public void TestLateBoundObjects()
+        public void ShouldExpandLateBoundObjects()
         {
             Literal.One.ShouldBe(1);
             Literal.Twelve.ShouldBe(12);

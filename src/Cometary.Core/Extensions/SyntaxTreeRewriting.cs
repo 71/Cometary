@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -14,6 +13,16 @@ namespace Cometary
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public static class SyntaxTreeRewriting
     {
+        /// <summary>
+        ///   Represents an edit made to a <see cref="SyntaxNode"/>.
+        /// </summary>
+        public delegate SyntaxNode SyntaxEdit(SyntaxNode node, CSharpCompilation compilation, CancellationToken cancellationToken);
+
+        /// <summary>
+        ///   Represents an edit made to a <see cref="SyntaxTree"/>.
+        /// </summary>
+        public delegate CSharpSyntaxTree SyntaxTreeEdit(CSharpSyntaxTree syntaxTree, CSharpCompilation compilation, CancellationToken cancellationToken);
+
         /// <summary>
         ///   Key used by the <see cref="EditSyntax"/> method for storage.
         /// </summary>
@@ -30,17 +39,35 @@ namespace Cometary
         /// </summary>
         private sealed class SyntaxTreeRewriter : CSharpSyntaxRewriter
         {
-            private readonly Func<SyntaxNode, SyntaxNode> callback;
+            private readonly CSharpCompilation compilation;
+            private readonly IList<SyntaxEdit> edits;
+            private readonly CancellationToken cancellationToken;
 
-            internal SyntaxTreeRewriter(Func<SyntaxNode, SyntaxNode> callback)
+            internal SyntaxTreeRewriter(CSharpCompilation compilation, IList<SyntaxEdit> edits, CancellationToken cancellationToken)
             {
-                this.callback = callback;
+                this.edits = edits;
+                this.compilation = compilation;
+                this.cancellationToken = cancellationToken;
             }
 
             /// <summary>
-            ///   Invokes the previously given <see cref="callback"/>, and returns its result.
+            ///   Passes the given <see cref="SyntaxNode"/> to all the given edits.
             /// </summary>
-            public override SyntaxNode Visit(SyntaxNode node) => base.Visit(callback(node));
+            public override SyntaxNode Visit(SyntaxNode node)
+            {
+                var syntaxEdits = edits;
+                var token = cancellationToken;
+
+                foreach (var syntaxEdit in syntaxEdits)
+                {
+                    node = syntaxEdit(node, compilation, token);
+
+                    if (node == null)
+                        return null;
+                }
+
+                return node;
+            }
         }
 
         /// <summary>
@@ -49,29 +76,19 @@ namespace Cometary
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="edit"></param>
-        public static void EditSyntax(this CompilationEditor editor, Edit<SyntaxNode> edit)
+        public static void EditSyntax(this CompilationEditor editor, SyntaxEdit edit)
         {
-            IList<Edit<SyntaxNode>> GetDefaultValue()
+            IList<SyntaxEdit> GetDefaultValue()
             {
                 editor.CompilationPipeline += EditCompilation;
 
-                return new LightList<Edit<SyntaxNode>>();
+                return new LightList<SyntaxEdit>();
             }
 
             CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
             {
-                SyntaxTreeRewriter syntaxRewriter = new SyntaxTreeRewriter(node =>
-                {
-                    foreach (var syntaxEdit in editor.Storage.Get<IList<Edit<SyntaxNode>>>(SyntaxKey))
-                    {
-                        node = syntaxEdit(node, cancellationToken);
-
-                        if (node == null)
-                            return null;
-                    }
-
-                    return node;
-                });
+                IList<SyntaxEdit> edits = editor.Storage.Get<IList<SyntaxEdit>>(SyntaxKey);
+                SyntaxTreeRewriter syntaxRewriter = new SyntaxTreeRewriter(compilation, edits, cancellationToken);
 
                 for (int i = 0; i < compilation.SyntaxTrees.Length; i++)
                 {
@@ -99,18 +116,18 @@ namespace Cometary
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="edit"></param>
-        public static void EditSyntaxTree(this CompilationEditor editor, Edit<CSharpSyntaxTree> edit)
+        public static void EditSyntaxTree(this CompilationEditor editor, SyntaxTreeEdit edit)
         {
-            IList<Edit<CSharpSyntaxTree>> GetDefaultValue()
+            IList<SyntaxTreeEdit> GetDefaultValue()
             {
                 editor.CompilationPipeline += EditCompilation;
 
-                return new LightList<Edit<CSharpSyntaxTree>>();
+                return new LightList<SyntaxTreeEdit>();
             }
 
             CSharpCompilation EditCompilation(CSharpCompilation compilation, CancellationToken cancellationToken)
             {
-                var edits = editor.Storage.Get<IList<Edit<CSharpSyntaxTree>>>(SyntaxTreeKey);
+                var edits = editor.Storage.Get<IList<SyntaxTreeEdit>>(SyntaxTreeKey);
 
                 for (int i = 0; i < compilation.SyntaxTrees.Length; i++)
                 {
@@ -122,7 +139,7 @@ namespace Cometary
 
                     foreach (var treeEdit in edits)
                     {
-                        newTree = treeEdit(newTree, cancellationToken);
+                        newTree = treeEdit(newTree, compilation, cancellationToken);
 
                         if (newTree != null)
                             continue;

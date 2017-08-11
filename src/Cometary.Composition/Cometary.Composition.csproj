@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+
+    <Description>Cometary extension that allows a class to implement members declared in another class.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
+  </ItemGroup>
+
+</Project>

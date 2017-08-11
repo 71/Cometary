@@ -3,6 +3,9 @@
   <PropertyGroup>
     <SourceDirectory>$(MSBuildThisFileDirectory)..\src\</SourceDirectory>
     <RootNamespace>Cometary.Tests</RootNamespace>
+    
+    <CscToolPath>E:\dotnet\sdk\1.0.3\Roslyn\</CscToolPath>
+    <CscToolExe>$(CscToolPath)RunCsc.cmd</CscToolExe>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Analyzer Condition=" '$(BuildingInsideVisualStudio)' == 'True' "
-              Include="$(SourceDirectory)Cometary.Analyzer\bin\$(Configuration)\net461\Cometary.Analyzer.dll" />
-    <Analyzer Condition=" '$(BuildingInsideVisualStudio)' != 'True' "
-              Include="$(SourceDirectory)Cometary.Analyzer\bin\$(Configuration)\netstandard1.5\Cometary.Analyzer.dll" />
+    <Analyzer Include="$(SourceDirectory)Cometary.Analyzer\bin\$(Configuration)\netstandard1.5\Cometary.Analyzer.dll" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(DefinesTests)' != 'False' ">

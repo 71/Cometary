@@ -13,7 +13,7 @@ namespace Cometary.Tests
         public int EvilNumber => 666;
 
         [Fact]
-        public void TestCustomEmissionPipeline()
+        public void ShouldReplaceAllInstancesOfThe666ConstantValue()
         {
             EvilNumber.ShouldBe(0);
         }

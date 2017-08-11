@@ -10,7 +10,7 @@ namespace Cometary.Tests
     ///   Class that provides tests related to the Cometary.Metaprogramming library.
     /// </summary>
     [SuppressMessage("ReSharper", "PartialTypeWithSinglePart")]
-    public partial class Tests
+    public partial class MetaprogrammingTests
     {
         [SuppressMessage("Compiler", "CS0626")] // Method, operator, or accessor is marked external and has no attributes on it
         public extern void DoSomething();
@@ -19,7 +19,7 @@ namespace Cometary.Tests
         ///   Ensures that extern methods are rewritten.
         /// </summary>
         [Fact]
-        public void TestExterns()
+        public void ShouldAddBodiesToExternMethods()
         {
             Should.Throw<NotImplementedException>(new Action(DoSomething));
         }
@@ -28,9 +28,9 @@ namespace Cometary.Tests
         ///   Ensures that the custom editor is also executed.
         /// </summary>
         [Fact]
-        public void TestExecution()
+        public void ShouldRunSelfModifyingEditor()
         {
-            typeof(Tests).GetProperty("Answer").GetValue(null).ShouldBe(42);
+            typeof(MetaprogrammingTests).GetProperty("Answer").GetValue(null).ShouldBe(42);
         }
     }
 }

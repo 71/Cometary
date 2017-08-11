@@ -1,8 +1,16 @@
 {
     "versions":  {
-
+                     "Cometary.Analyzer":  1,
+                     "Cometary.Core":  1,
+                     "Cometary.Debugging":  1,
+                     "Cometary.Macros":  1,
+                     "Cometary.Metaprogramming":  1
                  },
     "hashes":  {
-
+                   "Cometary.Analyzer":  "8C8EEBCAD7A707FC1A14C109052B10F9DBEDBA780A51B95F003CDEE9E324C3DF",
+                   "Cometary.Core":  "8C8AAD147E7821897AED6A0266A8D86AB2A5186CD5228F6DF539D98CEE8B8600",
+                   "Cometary.Debugging":  "375BA34F7D041E13CE937C229F89DDFB8E280A99BA62C9F0BDBFB74C81003789",
+                   "Cometary.Macros":  "4B9A0027E0291367BD86A54F647D9860D055A536A52D221DFA6634679351CFF2",
+                   "Cometary.Metaprogramming":  "0082B006B2A4C211DF62DB16CEA34D6E86087EECC87A1D4833D5C503DADBBD59"
                }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 #if !APPDOMAINS
@@ -117,7 +116,35 @@ namespace Cometary
         // Wrap the 'LoadFromAssemblyPath' logic in another call because of this:
         // https://github.com/dotnet/coreclr/blob/master/Documentation/botr/type-loader.md#2-type-loader-architecture
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static Assembly LoadCore(AssemblyLoadContext ctx, string path) => ctx.LoadFromAssemblyPath(path);
+        private static Assembly LoadCore(AssemblyLoadContext ctx, string path)
+        {
+            using (FileStream fs = File.OpenRead(path))
+            {
+                // Load from a stream instead of loading from path, in order
+                // to avoid locking the file.
+                string pdbFile = Path.ChangeExtension(path, ".pdb");
+
+                if (!File.Exists(pdbFile))
+                    return ctx.LoadFromStream(fs);
+
+                FileStream pdbFs = null;
+
+                try
+                {
+                    pdbFs = File.OpenRead(pdbFile);
+
+                    return ctx.LoadFromStream(fs, pdbFs);
+                }
+                catch
+                {
+                    return ctx.LoadFromStream(fs);
+                }
+                finally
+                {
+                    pdbFs?.Dispose();
+                }
+            }
+        }
 #endif
     }
 }

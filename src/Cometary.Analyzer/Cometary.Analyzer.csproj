@@ -4,8 +4,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
-    <TargetFrameworks Condition=" '$(BuildingInsideVisualStudio)' == 'True' ">net461;netstandard1.5</TargetFrameworks>
+
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>True</GenerateBindingRedirectsOutputType>
     <AppendTargetFrameworkToOutputPath>True</AppendTargetFrameworkToOutputPath>
 
     <DefineConstants Condition=" '$(TargetFramework)' == 'net461' ">$(DefineConstants);APPDOMAINS</DefineConstants>

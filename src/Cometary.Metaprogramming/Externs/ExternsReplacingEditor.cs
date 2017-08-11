@@ -48,7 +48,7 @@ namespace Cometary
         ///   and it has a <see cref="SyntaxKind.ExternKeyword"/> modifier, it will be modified
         ///   to throw an <see cref="NotImplementedException"/>.
         /// </summary>
-        private static SyntaxNode VisitSyntaxNode(SyntaxNode node, CancellationToken cancellationToken)
+        private static SyntaxNode VisitSyntaxNode(SyntaxNode node, CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             if (!(node is MethodDeclarationSyntax method))
                 return node;

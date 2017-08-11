@@ -79,7 +79,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Macros.Tests.Libra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{4B849ACA-B5D4-476E-96DD-CDC4107320BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.IL.Tests.Library", "test\Cometary.IL.Tests.Library\Cometary.IL.Tests.Library.csproj", "{3FC7A27D-1719-4CEE-B9B7-64215E91B494}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.IL.Tests.Library", "test\Cometary.IL.Tests.Library\Cometary.IL.Tests.Library.csproj", "{3FC7A27D-1719-4CEE-B9B7-64215E91B494}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Composition", "src\Cometary.Composition\Cometary.Composition.csproj", "{DFEE0821-F80A-4004-B640-BBB3D59C7858}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cometary.Composition.Tests", "test\Cometary.Composition.Tests\Cometary.Composition.Tests.csproj", "{CEC025FB-58D8-4470-B514-FB57FBB9D752}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cometary.Composition.Tests.Library", "test\Cometary.Composition.Tests.Library\Cometary.Composition.Tests.Library.csproj", "{1CE52E5D-5815-4338-9204-97BE95BCAED8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -202,6 +208,24 @@ Global
 		{3FC7A27D-1719-4CEE-B9B7-64215E91B494}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3FC7A27D-1719-4CEE-B9B7-64215E91B494}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FC7A27D-1719-4CEE-B9B7-64215E91B494}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -230,5 +254,8 @@ Global
 		{69F1EC3F-EC40-4AD1-9951-0B0C89693C33} = {4B849ACA-B5D4-476E-96DD-CDC4107320BA}
 		{4B849ACA-B5D4-476E-96DD-CDC4107320BA} = {6B33BEC9-AE29-4CAC-8B9C-C866DCB8E39B}
 		{3FC7A27D-1719-4CEE-B9B7-64215E91B494} = {4B849ACA-B5D4-476E-96DD-CDC4107320BA}
+		{DFEE0821-F80A-4004-B640-BBB3D59C7858} = {D0B06D22-8F8C-492D-8ADB-172F20ED4111}
+		{CEC025FB-58D8-4470-B514-FB57FBB9D752} = {3872666C-5108-4138-B9F1-9461B9EC3E20}
+		{1CE52E5D-5815-4338-9204-97BE95BCAED8} = {4B849ACA-B5D4-476E-96DD-CDC4107320BA}
 	EndGlobalSection
 EndGlobal

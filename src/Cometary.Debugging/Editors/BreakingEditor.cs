@@ -36,7 +36,7 @@ namespace Cometary.Debugging
         private static readonly StatementSyntax BreakStatement
             = SyntaxFactory.ParseStatement($"{typeof(Debugger).FullName}.Break();");
 
-        private SyntaxNode EditSyntaxNode(SyntaxNode node, CancellationToken cancellationToken)
+        private SyntaxNode EditSyntaxNode(SyntaxNode node, CSharpCompilation compilation, CancellationToken cancellationToken)
         {
             bool HasBreakingAttribute(SyntaxList<AttributeListSyntax> attrLists)
             {
