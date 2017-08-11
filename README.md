@@ -87,11 +87,9 @@ internal sealed class DeepThoughtEditor : CompilationEditor
     }
   
     /// <inheritdoc />
-    public override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
+    protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
     {
-        // RegisterEdit takes a delegate of type (CSharpCompilation, CancellationToken) -> CSharpCompilation.
-        // It also exists for SyntaxNode, CSharpSyntaxTree, ISymbol, and IOperation.
-        RegisterEdit(EditCompilation);
+        CompilationPipeline += EditCompilation;
     }
 
     /// <summary>
