@@ -57,6 +57,7 @@ By convention, extensions must be installed as a dependency, **and** configured 
 - [Cometary.IL](./src/Cometary.IL), which will allow you to print your own IL code inline, and modify the way Roslyn emits your code.
 - [Cometary.Debugging][Debugging], which attempts to make the debugging experience flawless, by creating executables that reproduce the whole modification process in a debugger-friendly environment, and printing modified syntax trees to temporary files, for matching sequence points.
 - [Cometary.Macros](./src/Cometary.Macros), which allows the use of macros, special methods that edit their own syntax depending on the context of the caller.
+- [Cometary.Composition](./src/Cometary.Composition), which brings true composition to the C# language.
 
 ## Making your own extension
 An extension is a normal .NET library that defines one or more `CompilationEditor`s (an example is available below). However, simply having a dependency on the extension is not enough to install it. You also need to create an attribute inheriting [`CometaryAttribute`][CometaryAttribute], and have the user set it on its assembly.
