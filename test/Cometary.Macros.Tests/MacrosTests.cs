@@ -46,7 +46,7 @@ namespace Cometary.Tests
         {
             int i = 0;
 
-            "i++".Mixin();
+            "i++;".Mixin();
 
             i.ShouldBe(1);
         }

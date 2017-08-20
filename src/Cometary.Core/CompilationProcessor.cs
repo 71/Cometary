@@ -54,6 +54,8 @@ namespace Cometary
 
         public Action<Diagnostic> AddDiagnostic { get; }
 
+        public Func<IEnumerable<Diagnostic>> GetDiagnostics { get; }
+
         public Store SharedStorage { get; }
 
         /// <summary>
@@ -68,11 +70,17 @@ namespace Cometary
         /// </summary>
         internal readonly ImmutableArray<(Exception Exception, AttributeData Data)>.Builder initializationExceptions = ImmutableArray.CreateBuilder<(Exception, AttributeData)>();
 
-        private CompilationProcessor(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, IEnumerable<CompilationEditor> editors)
+        private CompilationProcessor(
+            Func<CSharpCompilation, object> moduleBuilderGetter,
+            Action<Diagnostic> addDiagnostic,
+            Func<IEnumerable<Diagnostic>> getDiagnostics,
+            IEnumerable<CompilationEditor> editors)
         {
             Editors = new List<CompilationEditor>(editors);
-            AddDiagnostic = addDiagnostic;
             SharedStorage = new Store();
+
+            AddDiagnostic  = addDiagnostic;
+            GetDiagnostics = getDiagnostics;
 
             getModuleBuilder = moduleBuilderGetter;
         }
@@ -80,12 +88,16 @@ namespace Cometary
         /// <summary>
         ///   Creates a new <see cref="CompilationProcessor"/>.
         /// </summary>
-        public static CompilationProcessor Create(Func<CSharpCompilation, object> moduleBuilderGetter, Action<Diagnostic> addDiagnostic, params CompilationEditor[] editors)
+        public static CompilationProcessor Create(
+            Func<CSharpCompilation, object> moduleBuilderGetter,
+            Action<Diagnostic> addDiagnostic,
+            Func<IEnumerable<Diagnostic>> getDiagnostics,
+            params CompilationEditor[] editors)
         {
             Debug.Assert(editors != null);
             Debug.Assert(editors.All(x => x != null));
 
-            return new CompilationProcessor(moduleBuilderGetter, addDiagnostic, editors);
+            return new CompilationProcessor(moduleBuilderGetter, addDiagnostic, getDiagnostics, editors);
         }
 
         #region Initialization
@@ -217,6 +229,12 @@ namespace Cometary
                     if (!editor.TryRegister(this, addDiagnostic, clone, cancellationToken, out var children, out var exception))
                     {
                         addDiagnostic(Diagnostic.Create(EditorError, Location.None, editor.ToString(), exception.ToString()));
+                        return false;
+                    }
+
+                    // Make sure no error was diagnosed by the editor
+                    if (GetDiagnostics().Any(x => x.Severity == DiagnosticSeverity.Error))
+                    {
                         return false;
                     }
 

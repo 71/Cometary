@@ -175,11 +175,8 @@ namespace Cometary.Macros
             {
                 ParameterInfo param = parameters[i];
                 Type paramType = param.ParameterType;
-                Optional<object> constant = invocation.ArgumentsInParameterOrder[i].Value.ConstantValue;
 
-                if (constant.HasValue)
-                    arguments[i] = constant.Value;
-                else if (param.HasDefaultValue)
+                if (param.HasDefaultValue)
                     arguments[i] = param.DefaultValue;
                 else
                     arguments[i] = paramType.GetTypeInfo().IsValueType
@@ -206,7 +203,7 @@ namespace Cometary.Macros
                 }
                 catch (Exception e)
                 {
-                    throw new DiagnosticException("Exception thrown when invoking a macro.", e, invocation.Syntax.GetLocation());
+                    throw new DiagnosticException($"Exception thrown when expanding the '{method}' macro.", e, invocation.Syntax.GetLocation());
                 }
 
                 (expr, stmt) = CallBinder.Result;

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary.Tests
@@ -25,7 +24,7 @@ namespace Cometary.Tests
 
             var tree = SyntaxFactory.ParseSyntaxTree(@"
                 namespace Cometary.Tests {
-                    partial class Tests {
+                    partial class " + nameof(MetaprogrammingTests) + @" {
                         public static int Answer => 42;
                     }
                 }

@@ -35,7 +35,7 @@ namespace Cometary
                     ))
                 )
             )
-        );
+        ).NormalizeWhitespace();
 
         /// <inheritdoc />
         protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ namespace Cometary
 
         /// <summary>
         ///   Visits a <see cref="SyntaxNode"/>. If it is a <see cref="MethodDeclarationSyntax"/>,
-        ///   and it has a <see cref="SyntaxKind.ExternKeyword"/> modifier, it will be modified
+        ///   and it has a <see cref="K.ExternKeyword"/> modifier, it will be modified
         ///   to throw an <see cref="NotImplementedException"/>.
         /// </summary>
         private static SyntaxNode VisitSyntaxNode(SyntaxNode node, CSharpCompilation compilation, CancellationToken cancellationToken)

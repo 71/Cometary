@@ -4,7 +4,7 @@
     <SourceDirectory>$(MSBuildThisFileDirectory)..\src\</SourceDirectory>
     <RootNamespace>Cometary.Tests</RootNamespace>
     
-    <CscToolPath>E:\dotnet\sdk\1.0.3\Roslyn\</CscToolPath>
+    <CscToolPath>E:\dotnet\sdk\2.0.0\Roslyn\</CscToolPath>
     <CscToolExe>$(CscToolPath)RunCsc.cmd</CscToolExe>
   </PropertyGroup>
 

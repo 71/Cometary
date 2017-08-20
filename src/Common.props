@@ -43,9 +43,9 @@
     <RoslynVersion>2.0.0</RoslynVersion>
     <DisableImplicitFrameworkReferences>True</DisableImplicitFrameworkReferences>
 
-    <PackageTargetFallback>
+    <!--<PackageTargetFallback>
       $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
-    </PackageTargetFallback>
+    </PackageTargetFallback>-->
 
     <!-- Other properties -->
     <AnalyzerPath>$(MSBuildThisFileDirectory)$(Name).Analyzer\bin\$(Configuration)\$(Name).Analyzer.dll</AnalyzerPath>

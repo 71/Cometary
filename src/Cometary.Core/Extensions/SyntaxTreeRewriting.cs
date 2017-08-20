@@ -66,7 +66,7 @@ namespace Cometary
                         return null;
                 }
 
-                return node;
+                return base.Visit(node);
             }
         }
 

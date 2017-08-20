@@ -17,6 +17,8 @@ namespace Cometary
     /// </summary>
     internal sealed class SelfEditor : CompilationEditor
     {
+        private static bool editing;
+
         /// <summary>
         ///   Describes an error encountered when emitting the produced compilation.
         /// </summary>
@@ -40,11 +42,20 @@ namespace Cometary
         /// <inheritdoc />
         protected override void Initialize(CSharpCompilation compilation, CancellationToken cancellationToken)
         {
+            if (editing)
+                return;
+
             using (MemoryStream assemblyStream = new MemoryStream())
             using (MemoryStream symbolsStream = new MemoryStream())
             {
                 // Define the 'META' constant
-                compilation = compilation.RecomputeCompilationWithOptions(opts => opts.WithPreprocessorSymbols("META"), cancellationToken);
+                compilation = compilation
+                    .WithAssemblyName(compilation.AssemblyName + "+Metaprogramming")
+                    .RecomputeCompilationWithOptions(opts => opts.WithPreprocessorSymbols("META"), cancellationToken);
+
+                // Reactivate the emit hook to run Cometary on the upcoming editor
+                editing = true;
+                Hooks.EnsureActive();
 
                 // Emit stream for the first time
                 EmitResult result = compilation.Emit(
@@ -54,6 +65,8 @@ namespace Cometary
                         tolerateErrors: true, includePrivateMembers: true,
                         debugInformationFormat: DebugInformationFormat.PortablePdb),
                     cancellationToken: cancellationToken);
+
+                editing = false;
 
                 // Ensure everything is good
                 if (!result.Success)

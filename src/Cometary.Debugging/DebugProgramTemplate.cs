@@ -42,7 +42,7 @@ internal static class DebugProgram
                 Debugger.Break();
 
             CompilationWithAnalyzers compilation = CSharpCompilation.Create(
-                AssemblyName,
+                AssemblyName + "+Debugging",
                 Files.Split(';').Select(x => CSharpSyntaxTree.ParseText(File.ReadAllText(x), parseOptions)),
                 References.Split(';').Select(x => MetadataReference.CreateFromFile(x))
             ).WithAnalyzers(ImmutableArray.Create(analyzer));

@@ -105,7 +105,10 @@ namespace Cometary
             CSharpCompilation clone = compilation.Clone();
 
             // First argument is a DiagnosticBag
-            Action<Diagnostic> addDiagnostic = Helpers.MakeAddDiagnostic(context.Arguments[0]);
+            object diagnosticBag = context.Arguments[0];
+
+            Action<Diagnostic> addDiagnostic = Helpers.MakeAddDiagnostic(diagnosticBag);
+            Func<IEnumerable<Diagnostic>> getDiagnostics = Helpers.MakeGetDiagnostics(diagnosticBag);
 
             object GetOriginal(CSharpCompilation newCompilation)
             {
@@ -123,7 +126,7 @@ namespace Cometary
             // Edit the compilation (if a matching CometaryManager is found)
             CompilationRedirection.Stop();
 
-            using (CompilationProcessor manager = CompilationProcessor.Create(GetOriginal, addDiagnostic))
+            using (CompilationProcessor manager = CompilationProcessor.Create(GetOriginal, addDiagnostic, getDiagnostics))
             {
                 manager.RegisterAttributes(compilation.Assembly);
 

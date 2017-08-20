@@ -83,6 +83,17 @@ namespace Cometary
         }
 
         /// <summary>
+        ///   Creates a <see langword="delegate"/> that returns all diagnostics
+        ///   in a given <paramref name="diagnosticBag"/>.
+        /// </summary>
+        internal static Func<IEnumerable<Diagnostic>> MakeGetDiagnostics(object diagnosticBag)
+        {
+            return (Func<IEnumerable<Diagnostic>>)diagnosticBag.GetType()
+                .GetRuntimeMethod("AsEnumerable", Type.EmptyTypes)
+                .CreateDelegate(typeof(Func<IEnumerable<Diagnostic>>), diagnosticBag);
+        }
+
+        /// <summary>
         ///   Returns whether or not the described method is an override of the base type.
         /// </summary>
         internal static bool IsMethodOverriden(this Type type, Type baseType, string methodName, params Type[] parameters)
