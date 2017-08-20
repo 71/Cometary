@@ -57,7 +57,7 @@ namespace Cometary
         ///   At this point, all editors have been initialized, but the compilation hasn't been edited yet.
         /// </para>
         /// </summary>
-        public event Action<CompilationEditor, CSharpCompilation> CompilationStart;
+        public event Action<CompilationEditor, CSharpCompilation> CompilationStarted;
 
         /// <summary>
         /// <para>
@@ -67,22 +67,22 @@ namespace Cometary
         ///   At this point, all editors have been able to edit the compilation.
         /// </para>
         /// </summary>
-        public event Action<CompilationEditor, CSharpCompilation> CompilationEnd;
+        public event Action<CompilationEditor, CSharpCompilation> CompilationEnded;
 
         /// <summary>
         ///   Event invoked at the start of the emission.
         /// </summary>
-        public event Action<CompilationEditor> EmissionStart;
+        public event Action<CompilationEditor> EmissionStarted;
 
         /// <summary>
         ///   Event invoke at the end of the emission.
         /// </summary>
-        public event Action<CompilationEditor> EmissionEnd;
+        public event Action<CompilationEditor> EmissionEnded;
 
-        internal void TriggerCompilationStart(CSharpCompilation compilation) => CompilationStart?.Invoke(this, compilation);
-        internal void TriggerCompilationEnd(CSharpCompilation compilation) => CompilationEnd?.Invoke(this, compilation);
-        internal void TriggerEmissionStart() => EmissionStart?.Invoke(this);
-        internal void TriggerEmissionEnd() => EmissionEnd?.Invoke(this);
+        internal void TriggerCompilationStart(CSharpCompilation compilation) => CompilationStarted?.Invoke(this, compilation);
+        internal void TriggerCompilationEnd(CSharpCompilation compilation) => CompilationEnded?.Invoke(this, compilation);
+        internal void TriggerEmissionStart() => EmissionStarted?.Invoke(this);
+        internal void TriggerEmissionEnd() => EmissionEnded?.Invoke(this);
 
         /// <summary>
         ///   Initializes this <see cref="CompilationEditor"/>.

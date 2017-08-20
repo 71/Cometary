@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -137,23 +136,34 @@ namespace Cometary.Composition
                         AttributeData componentAttrData = componentType.GetAttributes()
                             .FirstOrDefault(x => x.AttributeClass.MetadataName == nameof(ComponentAttribute));
 
+                        ClassDeclarationSyntax componentSyntax;
+
                         if (componentAttrData == null)
                             throw new DiagnosticException($"Invalid component: the {componentType} component must have a component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
+
                         if (componentAttrData.ConstructorArguments.Length == 0)
-                            throw new DiagnosticException($"Invalid component: the {componentType} component must have a generated component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
+                        {
+                            // Component with no argument, meaning it's (hopefully) in the current library
+                            SyntaxReference componentSyntaxReference = componentType.DeclaringSyntaxReferences.FirstOrDefault();
+
+                            componentSyntax = componentSyntaxReference?.GetSyntax(token) as ClassDeclarationSyntax
+                                ?? throw new DiagnosticException($"Invalid component: the {componentType} component must have a generated component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
+
+                            goto Merge;
+                        }
 
                         string contentStr = componentAttrData.ConstructorArguments[0].Value as string;
 
                         if (contentStr == null)
                             throw new DiagnosticException($"Invalid component: the {componentType} component must have a non-null string argument.", attribute.ApplicationSyntaxReference.ToLocation());
 
-                        ClassDeclarationSyntax componentSyntax;
                         //MemoryStream ms = null;
 
                         try
                         {
                             // Once again, we unfortunately cannot use serialization, and must pass the syntax tree directly
-                            componentSyntax = SyntaxFactory.ParseCompilationUnit(contentStr).Members[0] as ClassDeclarationSyntax;
+                            componentSyntax = SyntaxFactory.ParseCompilationUnit(contentStr).Members[0] as ClassDeclarationSyntax
+                                ?? throw new DiagnosticException($"Invalid component: the {componentType} component is not a valid class.", attribute.ApplicationSyntaxReference.ToLocation());
                             //ms = new MemoryStream(Convert.FromBase64String(contentStr));
 
                             //componentSyntax = CSharpSyntaxNode.DeserializeFrom(ms, token) as ClassDeclarationSyntax
@@ -167,10 +177,8 @@ namespace Cometary.Composition
                         {
                             throw new DiagnosticException($"Invalid component: the {componentType} component cannot be deserialized.", e, attribute.ApplicationSyntaxReference.ToLocation());
                         }
-                        finally
-                        {
-                            //ms?.Dispose();
-                        }
+
+                        Merge:
 
                         // We now have the syntax of the original component: merge members.
                         members = members.AddRange(componentSyntax.Members);

@@ -68,10 +68,19 @@ namespace Cometary
                     return;
                 }
 
+                Assembly TryResolve(AssemblyLoadContext sender, AssemblyName assemblyName)
+                {
+                    if (assemblyName.Name == compilation.AssemblyName)
+                        return null;
+                    return null;
+                }
+
                 try
                 {
                     assemblyStream.Position = 0;
                     symbolsStream.Position = 0;
+
+                    AssemblyLoadContext.Default.Resolving += TryResolve;
 
                     // Set up custom load context for execution
                     // Note: This causes exceptions when loading already loaded assemblies (ie: System.Threading.Tasks),
@@ -81,6 +90,7 @@ namespace Cometary
                     //CompilationLoadContext compilationLoadContext = new CompilationLoadContext(compilation);
                     //
                     Assembly producedAssembly = AssemblyLoadContext.Default.LoadFromStream(assemblyStream, symbolsStream);
+
                     //
                     //compilationLoadContext.ProducedAssembly = producedAssembly;
 
@@ -97,6 +107,10 @@ namespace Cometary
                 catch (TargetInvocationException e)
                 {
                     Report(Diagnostic.Create(LoadError, Location.None, e.InnerException.Message));
+                }
+                finally
+                {
+                    AssemblyLoadContext.Default.Resolving -= TryResolve;
                 }
             }
         }

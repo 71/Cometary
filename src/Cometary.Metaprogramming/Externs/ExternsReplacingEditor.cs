@@ -50,16 +50,43 @@ namespace Cometary
         /// </summary>
         private static SyntaxNode VisitSyntaxNode(SyntaxNode node, CSharpCompilation compilation, CancellationToken cancellationToken)
         {
-            if (!(node is MethodDeclarationSyntax method))
+            if (!(node is MemberDeclarationSyntax))
                 return node;
 
-            int externModifierIndex = method.Modifiers.IndexOf(K.ExternKeyword);
+            if (node is MethodDeclarationSyntax method)
+            {
+                int externModifierIndex = method.Modifiers.IndexOf(K.ExternKeyword);
 
-            if (externModifierIndex == -1)
-                return node;
+                if (externModifierIndex == -1)
+                    return node;
 
-            return method.WithModifiers(method.Modifiers.RemoveAt(externModifierIndex))
-                         .WithExpressionBody(ThrowingBody);
+                return method.WithModifiers(method.Modifiers.RemoveAt(externModifierIndex))
+                             .WithExpressionBody(ThrowingBody);
+            }
+
+            if (node is ConstructorDeclarationSyntax ctor)
+            {
+                int externModifierIndex = ctor.Modifiers.IndexOf(K.ExternKeyword);
+
+                if (externModifierIndex == -1)
+                    return node;
+
+                return ctor.WithModifiers(ctor.Modifiers.RemoveAt(externModifierIndex))
+                           .WithExpressionBody(ThrowingBody);
+            }
+
+            if (node is PropertyDeclarationSyntax prop)
+            {
+                int externModifierIndex = prop.Modifiers.IndexOf(K.ExternKeyword);
+
+                if (externModifierIndex == -1)
+                    return node;
+
+                return prop.WithModifiers(prop.Modifiers.RemoveAt(externModifierIndex))
+                           .WithExpressionBody(ThrowingBody);
+            }
+
+            return node;
         }
     }
 }

@@ -55,7 +55,7 @@ namespace Cometary
         internal bool TryRegister(
             CompilationProcessor manager, Action<Diagnostic> reportDiagnostic,
             CSharpCompilation compilation, CancellationToken token,
-            out CompilationEditor[] children)
+            out CompilationEditor[] children, out Exception exception)
         {
             // Initialize the editor.
             ReportDiagnostic = reportDiagnostic;
@@ -77,12 +77,14 @@ namespace Cometary
                 AddUnlessEmpty(manager.AssemblyPipeline, AssemblyEdits);
 
                 children = Children;
+                exception = null;
 
                 return true;
             }
-            catch
+            catch (Exception e)
             {
                 children = null;
+                exception = e;
 
                 return false;
             }

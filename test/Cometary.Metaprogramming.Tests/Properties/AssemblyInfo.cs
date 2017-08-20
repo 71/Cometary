@@ -1,4 +1,5 @@
 ﻿using Cometary;
+using Cometary.Debugging;
 using Cometary.Tests;
 using Xunit;
 

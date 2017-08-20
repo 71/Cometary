@@ -214,8 +214,11 @@ namespace Cometary
                 try
                 {
                     // Register
-                    if (!editor.TryRegister(this, addDiagnostic, clone, cancellationToken, out var children))
+                    if (!editor.TryRegister(this, addDiagnostic, clone, cancellationToken, out var children, out var exception))
+                    {
+                        addDiagnostic(Diagnostic.Create(EditorError, Location.None, editor.ToString(), exception.ToString()));
                         return false;
+                    }
 
                     // Optionally register some children
                     if (children == null || children.Length == 0)
@@ -249,7 +252,7 @@ namespace Cometary
                     while (e is TargetInvocationException tie)
                         e = tie.InnerException;
 
-                    addDiagnostic(Diagnostic.Create(EditorError, Location.None, editor?.GetType().ToString() ?? "Unknown editor", e.Message.Filter()));
+                    addDiagnostic(Diagnostic.Create(EditorError, Location.None, editor.ToString(), e.Message.Filter()));
 
                     return false;
                 }
