@@ -22,9 +22,35 @@ namespace Cometary.Composition
                 this.cancellationToken = cancellationToken;
             }
 
+            private static bool InheritsCompositionAttribute(INamedTypeSymbol type)
+            {
+                for (;;)
+                {
+                    if (type.MetadataName == nameof(CompositionAttribute))
+                        return true;
+
+                    type = type.BaseType;
+
+                    if (type == null)
+                        return false;
+                }
+            }
+
             /// <inheritdoc />
             public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
             {
+                CancellationToken token = cancellationToken;
+                INamedTypeSymbol symbol = semanticModel.GetDeclaredSymbol(node, token);
+
+                if (symbol == null)
+                    return node;
+
+                int totalAttributes = 0;
+                ImmutableArray<AttributeData> attrs = symbol.GetAttributes();
+
+                if (attrs.IsDefaultOrEmpty)
+                    return node;
+
                 SyntaxList<AttributeListSyntax> attributeLists = node.AttributeLists;
 
                 for (int i = 0; i < attributeLists.Count; i++)
@@ -32,178 +58,136 @@ namespace Cometary.Composition
                     AttributeListSyntax attributeList = attributeLists[i];
                     SeparatedSyntaxList<AttributeSyntax> attributes = attributeList.Attributes;
 
-                    for (int j = 0; j < attributes.Count; j++)
+                    for (int j = 0; j < attributes.Count; j++, totalAttributes++)
                     {
                         AttributeSyntax attr = attributes[j];
-                        string attrName = attr.Name is SimpleNameSyntax simpleName
-                            ? simpleName.Identifier.Text
-                            : ((QualifiedNameSyntax)attr.Name).Right.Identifier.Text;
+                        string attrName = attr.Name.ToString();
 
-                        switch (attrName)
+                        if (attrName == "Component" || attrName == nameof(ComponentAttribute))
                         {
-                            case nameof(ComposeAttribute):
-                            case "Compose":
-                                // There is a 'Compose' attribute: Modify the whole class.
-                                {
-                                    CancellationToken token = cancellationToken;
+                            // There is a 'Component' attribute: Specify its content.
+                            string contentStr = node.ToString();
 
-                                    return Compose(node, semanticModel.GetDeclaredSymbol(node, token), token);
-                                }
+                            // TODO: Use b64 and serialization
+                            // It works, except Roslyn <= 2.0.0 has a bug with serialization
+                            //using (MemoryStream ms = new MemoryStream())
+                            //{
+                            //    node.SerializeTo(ms, cancellationToken);
 
+                            //    contentStr = ms.TryGetBuffer(out ArraySegment<byte> buffer)
+                            //        ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
+                            //        : Convert.ToBase64String(ms.ToArray());
+                            //}
 
-                            case nameof(ComponentAttribute):
-                            case "Component":
-                                // There is a 'Component' attribute: Specify its content.
-                                string contentStr = node.ToString();
+                            AttributeArgumentSyntax contentArg = SyntaxFactory.AttributeArgument(
+                                SyntaxFactory.LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    SyntaxFactory.Literal(contentStr)
+                                )
+                            );
 
-                                // TODO: Use b64 and serialization
-                                // It works, except Roslyn <= 2.0.0 has a bug with serialization
-                                //using (MemoryStream ms = new MemoryStream())
-                                //{
-                                //    node.SerializeTo(ms, cancellationToken);
-
-                                //    contentStr = ms.TryGetBuffer(out ArraySegment<byte> buffer)
-                                //        ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
-                                //        : Convert.ToBase64String(ms.ToArray());
-                                //}
-
-                                AttributeArgumentSyntax contentArg = SyntaxFactory.AttributeArgument(
-                                    SyntaxFactory.LiteralExpression(
-                                        SyntaxKind.StringLiteralExpression,
-                                        SyntaxFactory.Literal(contentStr)
+                            node = node.WithAttributeLists(
+                                attributeLists.Replace(
+                                    attributeList,
+                                    attributeList.WithAttributes(
+                                        attributes.Replace(attr, attr.WithArgumentList(
+                                            SyntaxFactory.AttributeArgumentList().AddArguments(contentArg)
+                                        ))
                                     )
-                                );
+                                )
+                            );
+                        }
 
-                                return node.WithAttributeLists(
-                                    attributeLists.Replace(
-                                        attributeList,
-                                        attributeList.WithAttributes(
-                                            attributes.Replace(attr, attr.WithArgumentList(
-                                                SyntaxFactory.AttributeArgumentList().AddArguments(contentArg)
-                                            ))
-                                        )
-                                    )
-                                );
+                        // Maybe a component?
+                        AttributeData attrData = attrs[totalAttributes];
 
-                            default:
-                                continue;
+                        if (attrData.AttributeClass.MetadataName == nameof(CopyFromAttribute))
+                        {
+                            // CopyFrom component: copy members
+                            node = CopyMembers(node, attrData, token);
+                        }
+                        else if (InheritsCompositionAttribute(attrData.AttributeClass))
+                        {
+                            // Component: apply it
+                            CompositionAttribute builtAttr = attrData.Construct<CompositionAttribute>();
+
+                            try
+                            {
+                                node = builtAttr.Component.Apply(node, symbol, token);
+
+                                if (node == null)
+                                    throw new NullReferenceException("A component cannot return null.");
+                            }
+                            catch (Exception e)
+                            {
+                                throw new DiagnosticException($"Error applying the {builtAttr.Component} component.", e, attr.GetLocation());
+                            }
+                            
                         }
                     }
                 }
 
                 return node;
+            }
 
-                ClassDeclarationSyntax Compose(ClassDeclarationSyntax decl, INamedTypeSymbol symbol, CancellationToken token)
+            private static ClassDeclarationSyntax CopyMembers(ClassDeclarationSyntax node, AttributeData attribute, CancellationToken cancellationToken)
+            {
+                // Copy all fields, properties, etc
+                SyntaxList<MemberDeclarationSyntax> members = node.Members;
+
+                // Verify argument, and get the content.
+                ITypeSymbol componentType = attribute.ConstructorArguments[0].Value as ITypeSymbol;
+
+                if (componentType == null)
+                    throw new DiagnosticException("Invalid component: the component cannot be null.", attribute.ApplicationSyntaxReference.ToLocation());
+
+                AttributeData componentAttrData = componentType.GetAttributes()
+                    .FirstOrDefault(x => x.AttributeClass.MetadataName == nameof(ComponentAttribute));
+
+                ClassDeclarationSyntax componentSyntax;
+
+                if (componentAttrData == null)
+                    throw new DiagnosticException($"Invalid component: the {componentType} component must have a component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
+
+                if (componentAttrData.ConstructorArguments.Length == 0)
                 {
-                    // Find 'Compose' attribute, and its arguments
-                    AttributeData attribute = symbol.GetAttributes()
-                        .FirstOrDefault(x => x.AttributeClass.MetadataName == nameof(ComposeAttribute));
-                    ImmutableArray<TypedConstant> args = attribute.ConstructorArguments[0].Values;
+                    // Component with no argument, meaning it's (hopefully) in the current library
+                    SyntaxReference componentSyntaxReference = componentType.DeclaringSyntaxReferences.FirstOrDefault();
 
-                    // Create pipeline for dynamic components
-                    List<Component> dynamicComponents = new List<Component>();
+                    componentSyntax = componentSyntaxReference?.GetSyntax(cancellationToken) as ClassDeclarationSyntax
+                        ?? throw new DiagnosticException($"Invalid component: the {componentType} component must have a generated component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
 
-                    // Copy all fields, properties, etc
-                    SyntaxList<MemberDeclarationSyntax> members = decl.Members;
-
-                    for (int i = 0; i < args.Length; i++)
-                    {
-                        // Verify argument, and get the content.
-                        ITypeSymbol componentType = args[i].Value as ITypeSymbol;
-
-                        if (componentType == null)
-                            throw new DiagnosticException("Invalid component: no component cannot be null.", attribute.ApplicationSyntaxReference.ToLocation());
-
-                        if (componentType.BaseType.MetadataName == nameof(Component))
-                        {
-                            // Dynamic component
-                            Component component;
-
-                            try
-                            {
-                                component = (Component)Activator.CreateInstance(componentType.GetCorrespondingType());
-                            }
-                            catch (Exception e)
-                            {
-                                throw new DiagnosticException($"Invalid component: the {componentType} component cannot be instantiated.", e, attribute.ApplicationSyntaxReference.ToLocation());
-                            }
-
-                            dynamicComponents.Add(component);
-
-                            continue;
-                        }
-
-                        AttributeData componentAttrData = componentType.GetAttributes()
-                            .FirstOrDefault(x => x.AttributeClass.MetadataName == nameof(ComponentAttribute));
-
-                        ClassDeclarationSyntax componentSyntax;
-
-                        if (componentAttrData == null)
-                            throw new DiagnosticException($"Invalid component: the {componentType} component must have a component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
-
-                        if (componentAttrData.ConstructorArguments.Length == 0)
-                        {
-                            // Component with no argument, meaning it's (hopefully) in the current library
-                            SyntaxReference componentSyntaxReference = componentType.DeclaringSyntaxReferences.FirstOrDefault();
-
-                            componentSyntax = componentSyntaxReference?.GetSyntax(token) as ClassDeclarationSyntax
-                                ?? throw new DiagnosticException($"Invalid component: the {componentType} component must have a generated component attribute.", attribute.ApplicationSyntaxReference.ToLocation());
-
-                            goto Merge;
-                        }
-
-                        string contentStr = componentAttrData.ConstructorArguments[0].Value as string;
-
-                        if (contentStr == null)
-                            throw new DiagnosticException($"Invalid component: the {componentType} component must have a non-null string argument.", attribute.ApplicationSyntaxReference.ToLocation());
-
-                        //MemoryStream ms = null;
-
-                        try
-                        {
-                            // Once again, we unfortunately cannot use serialization, and must pass the syntax tree directly
-                            componentSyntax = SyntaxFactory.ParseCompilationUnit(contentStr).Members[0] as ClassDeclarationSyntax
-                                ?? throw new DiagnosticException($"Invalid component: the {componentType} component is not a valid class.", attribute.ApplicationSyntaxReference.ToLocation());
-                            //ms = new MemoryStream(Convert.FromBase64String(contentStr));
-
-                            //componentSyntax = CSharpSyntaxNode.DeserializeFrom(ms, token) as ClassDeclarationSyntax
-                            //               ?? throw new DiagnosticException($"Invalid component: the {componentType} component is not a ClassDeclarationSyntax.", attribute.ApplicationSyntaxReference.ToLocation());
-                        }
-                        catch (DiagnosticException)
-                        {
-                            throw;
-                        }
-                        catch (Exception e)
-                        {
-                            throw new DiagnosticException($"Invalid component: the {componentType} component cannot be deserialized.", e, attribute.ApplicationSyntaxReference.ToLocation());
-                        }
-
-                        Merge:
-
-                        // We now have the syntax of the original component: merge members.
-                        members = members.AddRange(componentSyntax.Members);
-                    }
-
-                    decl = decl.WithMembers(members);
-
-                    // Apply dynamic components
-                    for (int i = 0; i < dynamicComponents.Count; i++)
-                    {
-                        try
-                        {
-                            decl = dynamicComponents[i].Apply(decl, symbol, token);
-
-                            if (decl == null)
-                                throw new NullReferenceException("A component cannot return null.");
-                        }
-                        catch (Exception e)
-                        {
-                            throw new DiagnosticException($"Error applying the {dynamicComponents[i]} component.", e, attribute.ApplicationSyntaxReference.ToLocation());
-                        }
-                    }
-
-                    return decl;
+                    goto Merge;
                 }
+
+                string contentStr = componentAttrData.ConstructorArguments[0].Value as string;
+
+                if (contentStr == null)
+                    throw new DiagnosticException($"Invalid component: the {componentType} component must have a non-null string argument.", attribute.ApplicationSyntaxReference.ToLocation());
+
+                //MemoryStream ms = null;
+
+                try
+                {
+                    // Once again, we unfortunately cannot use serialization, and must pass the syntax tree directly
+                    componentSyntax = SyntaxFactory.ParseCompilationUnit(contentStr).Members[0] as ClassDeclarationSyntax
+                        ?? throw new DiagnosticException($"Invalid component: the {componentType} component is not a valid class.", attribute.ApplicationSyntaxReference.ToLocation());
+                    //ms = new MemoryStream(Convert.FromBase64String(contentStr));
+
+                    //componentSyntax = CSharpSyntaxNode.DeserializeFrom(ms, token) as ClassDeclarationSyntax
+                    //               ?? throw new DiagnosticException($"Invalid component: the {componentType} component is not a ClassDeclarationSyntax.", attribute.ApplicationSyntaxReference.ToLocation());
+                }
+                catch (DiagnosticException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    throw new DiagnosticException($"Invalid component: the {componentType} component cannot be deserialized.", e, attribute.ApplicationSyntaxReference.ToLocation());
+                }
+
+                Merge:
+                return node.AddMembers(componentSyntax.Members.ToArray());
             }
         }
     }

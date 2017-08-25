@@ -1,18 +1,18 @@
 {
     "versions":  {
-                     "Cometary.Analyzer":  2,
-                     "Cometary.Core":  2,
-                     "Cometary.Debugging":  2,
-                     "Cometary.Macros":  2,
-                     "Cometary.Metaprogramming":  2,
-                     "Cometary.Composition":  1
+                     "Cometary.Analyzer":  3,
+                     "Cometary.Core":  3,
+                     "Cometary.Debugging":  3,
+                     "Cometary.Macros":  3,
+                     "Cometary.Metaprogramming":  3,
+                     "Cometary.Composition":  2
                  },
     "hashes":  {
-                   "Cometary.Analyzer":  "F00088021C538129B2B187CE54149C7AFC416717836E7145FE7A13C396F5CF43",
-                   "Cometary.Core":  "C9C0E0D3003BB0FAED1D93D52D33F53623DA9CE6CA7FC991A707A269F231B734",
-                   "Cometary.Debugging":  "D62D4453710A823ADC00B46383CECA1A472FB319F2DE94DE03EC5DB50026078C",
-                   "Cometary.Macros":  "9577E360A995A356398C61B44FA84D4120BA7FDC6C63F489112750F2CC263DDF",
-                   "Cometary.Metaprogramming":  "9DA888EBA2B7EF4C58D81B0EFF3C964AAC58CA040D18D5475FD9E17347E7E0D1",
-                   "Cometary.Composition":  "EBEF0010DDF87EDAACF9B9D76FB7DC0192DDDEABB3C9992BC7FCAB014AE669D2"
+                   "Cometary.Analyzer":  "736B74F5B7ABED0A2348CCD8025A70A8F82F78054C80145457E04F3172585AA2",
+                   "Cometary.Core":  "7402C844E9D1BF5E934AD9EFACA5DF8726552709EEC7ECECE99E153A17BAC28A",
+                   "Cometary.Debugging":  "83635A0C96E5E19B2D01AC142FC7D9C4447362500A94CEBAB8D15F3FE2871142",
+                   "Cometary.Macros":  "D61312E7AD9FF9909FD8E95D1B149E0F5DF5CE19342201127BF0DE568E785182",
+                   "Cometary.Metaprogramming":  "23AB694A5286D80C007D1A163D86CBDDE2E76365ADFCCE5C4A3EC7EBE6126F06",
+                   "Cometary.Composition":  "840185DD85EC66E248A53ADD2E9BFF2C5C2E8F4F3BD18C5CF1440E7B2A3AC290"
                }
 }

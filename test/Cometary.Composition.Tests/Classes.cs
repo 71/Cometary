@@ -2,7 +2,7 @@
 {
     using Composition;
 
-    [Compose(typeof(Immutable))]
+    [Apply(typeof(Immutable))]
     public class ImmutablePerson
     {
         public string Name { get; }
@@ -17,8 +17,14 @@
         }
     }
 
-    [Compose(typeof(Named))]
+    [CopyFrom(typeof(Named))]
     public class Pet
     {
+    }
+
+    [Global]
+    public class PetFactory
+    {
+        public Pet Create() => new Pet();
     }
 }

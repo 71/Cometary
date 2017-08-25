@@ -26,5 +26,11 @@ namespace Cometary.Tests
             pet.Name = "Jerry";
             pet.Name.ShouldBe("Jerry");
         }
+
+        [Fact]
+        public void ShouldApplyAttributeComponents()
+        {
+            Pet pet = PetFactory.Instance.Create();
+        }
     }
 }
