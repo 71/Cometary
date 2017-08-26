@@ -11,7 +11,7 @@
     .\Build.ps1 -Publish -Stable
 #>
 
-param([switch] $Reset, [switch] $Publish, [switch] $Stable, [switch] $Verbose, [string] $Configuration = "Release", [string[]] $Blacklist = ("Cometary", "Cometary.Expressions", "Cometary.IL", "Cometary.CleanUp"))
+param([switch] $Reset, [switch] $Publish, [switch] $Stable, [switch] $Verbose, [string] $Configuration = "Release", [string[]] $Blacklist = ("Cometary", "Cometary.Expressions", "Cometary.IL", "Cometary.CleanUp"), [string[]] $Libraries)
 
 # Read versions
 $Data = Get-Content -Raw ./data.json | ConvertFrom-Json
@@ -49,6 +49,10 @@ foreach ($Package in Get-ChildItem ./*.nupkg) {
 foreach ($ProjectFile in Get-ChildItem ../src/**/*.csproj) {
     $ProjectName = $ProjectFile.BaseName
     
+    if ($Libraries -ne $null -and $Libraries -notcontains $ProjectName) {
+        # Not one of the specific libraries we want
+        continue
+    }
 	if ($Blacklist -contains $ProjectName) {
         # Not ready for a release build yet
         continue

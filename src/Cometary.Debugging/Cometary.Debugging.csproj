@@ -18,9 +18,16 @@
     <EmbeddedResource Include="DebugProgramTemplate.cs" />
   </ItemGroup>
 
+  <ItemGroup Label="Analyzer">
+    <Compile Include="..\$(Name).Analyzer\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\$(Name).Core\$(Name).Core.csproj" />
-    <ProjectReference Include="..\$(Name).Analyzer\$(Name).Analyzer.csproj" />
   </ItemGroup>
 
 </Project>
