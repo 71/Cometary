@@ -23,6 +23,7 @@ if (parameter == null)
 
 [![Issues](https://img.shields.io/github/issues-raw/6A/Cometary.svg)](../../issues)
 [![License](https://img.shields.io/github/license/6A/Cometary.svg)](./LICENSE.md)
+[![Lines of Code](https://tokei.rs/b1/github/6A/Cometary?category=code)](https://github.com/Aaronepower/tokei).
 
 > **Note**  
 > This project is still in active development, and is *extremely* unstable. Please proceed with caution.
