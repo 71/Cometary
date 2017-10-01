@@ -1,0 +1,28 @@
+﻿<#@ output extension=".g.cs" #>
+<#
+	string[] Types = { "bool", "byte", "sbyte", "char", "uint", "int", "ulong", "long", "short", "ushort", "string", "float", "double", "decimal", "DateTime", "TimeSpan" };
+#>
+using System;
+
+namespace Cometary
+{
+    partial class Quote
+    {
+	<#
+		foreach (string type in Types)
+		{
+	#>
+
+		/// <summary>
+		/// Returns <see langword="default"/>(<see cref="<#= type #>"/>).
+		/// <para>
+		/// Utility method allowing the use of the "<code>return quote + value</code>" syntactic sugar.
+		/// </para>
+        /// </summary>
+        public static implicit operator <#= type #>(Quote quote) => default(<#= type #>);
+	<#
+		}
+	#>
+
+    }
+}

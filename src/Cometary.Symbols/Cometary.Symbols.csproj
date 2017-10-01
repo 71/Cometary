@@ -1,0 +1,32 @@
+﻿<Project>
+
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\$(Name).Rewriting\$(Name).Rewriting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="SymbolsFactory.csx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="SymbolsFactory.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SymbolsFactory.csx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

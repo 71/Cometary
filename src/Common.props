@@ -1,0 +1,61 @@
+<Project>
+
+  <!-- Common properties -->
+  <PropertyGroup>
+
+    <Name>Cometary</Name>
+    <Version>0.1.0</Version>
+
+    <Authors>Gregoire GEIS</Authors>
+    <Copyright>Copyright Gregoire GEIS (C) 2017</Copyright>
+
+    <RepositoryUrl>https://github.com/6A/$(Name)</RepositoryUrl>
+
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageTags>roslyn;meta;metaprogramming;cometary</PackageTags>
+    <PackageVersion>$(Version)</PackageVersion>
+
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <ApplicationVersion>$(Version)</ApplicationVersion>
+    <RoslynVersion>2.2.0</RoslynVersion>
+
+    <GenerateDocumentation Condition=" '$(Configuration)' == 'Release' ">True</GenerateDocumentation>
+    <DocumentationFile Condition=" '$(Configuration)' == 'Release' ">bin\Release\$(TargetFramework)\$(ProjectName).xml</DocumentationFile>
+
+    <PackageTargetFallback>
+      $(PackageTargetFallback);portable-net45+win8+wp8+wpa81
+    </PackageTargetFallback>
+
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
+
+  </PropertyGroup>
+
+  <!-- Host properties -->
+  <PropertyGroup Condition=" '$(IsHost)' == 'True' ">
+    <TargetFramework>net46</TargetFramework>
+    <GenerateDocumentation>False</GenerateDocumentation>
+    <RootNamespace>$(Name).Hosting</RootNamespace>
+  </PropertyGroup>
+
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Condition=" '$(ProjectName)' != '$(Name).Common' "
+                      Include="$(MSBuildThisFileDirectory)$(Name).Common\$(Name).Common.csproj" />
+
+    <ProjectReference Condition=" '$(IsHost)' == 'True' and '$(ProjectName)' != '$(Name).Hosting' "
+                      Include="$(MSBuildThisFileDirectory)$(Name).Hosting\$(Name).Hosting.csproj" />
+  </ItemGroup>
+
+</Project>

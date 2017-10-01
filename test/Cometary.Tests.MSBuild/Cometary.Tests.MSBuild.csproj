@@ -1,0 +1,18 @@
+﻿<Project>
+
+    <Import Project="..\Common.props" />
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+    <PropertyGroup>
+        <HostName>$(Name).Hosting.MSBuild</HostName>
+    </PropertyGroup>
+
+    <UsingTask AssemblyFile="$(SourceDirectory)$(HostName)\bin\$(Configuration)\net47\$(HostName).dll" TaskName="Cometary.CometaryTask" />
+
+    <Target Name="Processing" Inputs="@(IntermediateAssembly->'%(FullPath)')" Outputs="@(IntermediateAssembly->'%(FullPath)')" AfterTargets="Compile">
+        <Cometary.CometaryTask IsDebugging="False" />
+    </Target>
+
+</Project>

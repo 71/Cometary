@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="Cometary.Grégoire GEIS.43352721-5418-4831-84a3-b56e76b2d8ca" Version="0.1" Language="en-US" Publisher="Grégoire GEIS" />
+    <DisplayName>Cometary</DisplayName>
+    <Description xml:space="preserve">Cometary integration for Visual Studio.</Description>
+    <MoreInfo>https://github.com/6A/Cometary</MoreInfo>
+    <License>https://github.com/6A/Cometary/LICENSE.md</License>
+    <GettingStartedGuide>https://github.com/6A/Cometary/docs/README.md</GettingStartedGuide>
+    <Tags>cometary;roslyn;metaprogramming;csharp</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[15.0, 16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0, 16.0)" />
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[15.0, 16.0)" />
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+    <Dependency Id="Microsoft.VisualStudio.MPF.15.0" DisplayName="Visual Studio MPF 15.0" d:Source="Installed" Version="[15.0]" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.Compiler" Version="[15.0,16.0)" DisplayName="C# and Visual Basic Roslyn compilers" />
+    <Prerequisite Id="Microsoft.VisualStudio.Component.Roslyn.LanguageServices" Version="[2.6.0,3.0)" DisplayName="Roslyn Language Services" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+  </Assets>
+</PackageManifest>

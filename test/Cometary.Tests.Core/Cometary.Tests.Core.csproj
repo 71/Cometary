@@ -1,0 +1,17 @@
+﻿<Project>
+    
+    <Import Project="..\Common.props" />
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+    <PropertyGroup>
+        <HostName>$(Name).Remote.Core</HostName>
+        <HostPath>$(SourceDirectory)$(HostName)\bin\$(Configuration)\net47\dotnet-$(Name.ToLower()).exe</HostPath>
+    </PropertyGroup>
+    
+    <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
+        <Exec Command="$(HostPath) --debug &quot;$(ProjectPath)&quot;" ConsoleToMSBuild="True" />
+    </Target>
+
+</Project>

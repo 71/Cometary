@@ -1,0 +1,25 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <IsCommon>True</IsCommon>
+  </PropertyGroup>
+
+  <Import Project="..\Common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <RemoteName>$(Name).Hosting.Core</RemoteName>
+    <RemotePath>$(SourceDirectory)$(RemoteName)\bin\$(Configuration)\$(HostFramework)\dotnet-$(Name.ToLower()).exe</RemotePath>
+  </PropertyGroup>
+
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)">
+    <Exec Command="$(RemotePath) &quot;$(ProjectPath)&quot; -d" ConsoleToMSBuild="True" />
+  </Target>
+
+</Project>

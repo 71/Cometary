@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsExtension>True</IsExtension>
+    </PropertyGroup>
+    
+    <Import Project="..\Common.props" />
+
+    <ItemGroup>
+      <PackageReference Include="Mono.Cecil" Version="0.10.0-beta6" />
+    </ItemGroup>
+
+</Project>

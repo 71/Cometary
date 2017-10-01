@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsSample>True</IsSample>
+  </PropertyGroup>
+
+  <Import Project="..\Common.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="$(SamplesDirectory)$(Name).Contracts\$(Name).Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
