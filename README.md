@@ -1,8 +1,7 @@
 Cometary
 ========
 
-Development has shifted to the [analyzer](../../tree/analyzer) branch, but Cometary isn't quite ready for use yet.  
-Please bear with me while it gets polished.
+Development has shifted to the [master](../../tree/master) branch. This branch only exists to store the old code, which may contain useful code snippets.
 
 -------
 
