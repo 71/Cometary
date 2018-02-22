@@ -10,6 +10,8 @@ using Microsoft.CodeAnalysis.Semantics;
 
 namespace Cometary.Macros
 {
+    using Extensions;
+
     /// <summary>
     ///   <see cref="CSharpSyntaxRewriter"/> that can expand macros.
     /// </summary>

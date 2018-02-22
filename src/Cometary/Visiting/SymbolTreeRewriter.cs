@@ -42,11 +42,12 @@ namespace Cometary.Visiting
 
         public override ISymbol VisitNamedType(INamedTypeSymbol symbol)
         {
-            return SourceSymbolFactory.CreateSourceNamedTypeSymbol(symbol.ContainingType,, diagnostics);
+            return SourceSymbolFactory.CreateSourceNamedTypeSymbol(symbol.ContainingType, null, diagnostics);
         }
 
         public override ISymbol VisitEvent(IEventSymbol symbol)
         {
+            return null;
         }
     }
 }

@@ -114,8 +114,6 @@ namespace Cometary
         ///   Registers a new <paramref name="edit"/> that is to be applied to any <see cref="CSharpSyntaxTree"/>
         ///   found on the <see cref="CSharpCompilation"/>.
         /// </summary>
-        /// <param name="editor"></param>
-        /// <param name="edit"></param>
         public static void EditSyntaxTree(this CompilationEditor editor, SyntaxTreeEdit edit)
         {
             IList<SyntaxTreeEdit> GetDefaultValue()

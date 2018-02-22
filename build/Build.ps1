@@ -116,7 +116,7 @@ foreach ($ProjectFile in Get-ChildItem ../src/**/*.csproj) {
 if ($Publish) {
     # Optionally publish the package on NuGet
     foreach ($Package in Get-ChildItem ./*.nupkg) {
-        nuget.exe push $Package
+        nuget.exe push $Package -Source nuget.org
     }
 }
 

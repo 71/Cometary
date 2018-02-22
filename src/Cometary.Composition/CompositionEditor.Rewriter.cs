@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -9,6 +8,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cometary.Composition
 {
+    using Extensions;
+
     internal sealed partial class CompositionEditor
     {
         private sealed class Rewriter : CSharpSyntaxRewriter

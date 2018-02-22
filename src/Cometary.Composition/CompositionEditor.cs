@@ -3,6 +3,8 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary.Composition
 {
+    using Extensions;
+
     /// <summary>
     ///   <see cref="CompilationEditor"/> that enables composition.
     /// </summary>

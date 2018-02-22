@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace Cometary
+namespace Cometary.Extensions
 {
     /// <summary>
     ///   Provides common utilities that can be used in many circomstances

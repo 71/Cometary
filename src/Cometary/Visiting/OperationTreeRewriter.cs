@@ -23,8 +23,7 @@ namespace Cometary.Visiting
 
         internal OperationTreeRewriter(CSharpCompilation compilation, IMethodSymbol method)
         {
-
-            syntheticFactory = new SyntheticSymbolFactory(method, )
+            throw new NotImplementedException();
         }
 
         private ImmutableArray<T> VisitList<T>(ImmutableArray<T> array, object argument = null) where T : IOperation
@@ -70,7 +69,7 @@ namespace Cometary.Visiting
         /// <inheritdoc />
         public override IOperation VisitVariableDeclaration(IVariableDeclaration operation, object argument)
         {
-            return SourceSymbolFactory.created
+            return null;
         }
 
         /// <inheritdoc />

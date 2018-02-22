@@ -11,6 +11,8 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Cometary
 {
+    using Extensions;
+
     /// <summary>
     ///   Class in charge of processing a <see cref="CSharpCompilation"/> by
     ///   finding, and initializing its <see cref="CometaryAttribute"/>s, thus

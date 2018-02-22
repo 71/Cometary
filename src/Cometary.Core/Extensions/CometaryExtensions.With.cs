@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Cometary
+namespace Cometary.Extensions
 {
     public static partial class CometaryExtensions
     {

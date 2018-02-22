@@ -6,14 +6,15 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <RootNamespace>Cometary</RootNamespace>
     <Description>Core package for Cometary, required by the analyzer to edit the dependant assembly. It defines the CompilationEditor type, used to edit assemblies during compilation.</Description>
+    <VersionSuffix />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AnyConstraint.Analyzer" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="AnyConstraint.Analyzer" Version="1.1.0" PrivateAssets="All" />
 
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="$(SystemVersion)" />
-    <PackageReference Include="Ryder" Version="0.5.2" />
+    <PackageReference Include="Ryder" Version="0.6.0" />
   </ItemGroup>
 
 </Project>

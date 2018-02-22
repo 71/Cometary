@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,6 +12,8 @@ using F = Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Cometary.Debugging
 {
+    using Extensions;
+
     /// <summary>
     ///   <see cref="CompilationEditor"/> that allows debugging the Cometary process.
     /// </summary>
